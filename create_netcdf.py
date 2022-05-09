@@ -42,24 +42,9 @@ def add_attributes(ncfile, instrument_dict, product, created_time, location):
             
             
 def add_dimensions(ncfile, instrument_dict, product, dimension_lengths):
-    for key,value in instrument_dict['common']['dimensions'].items():
-        if key in dimension_lengths.keys():
-            length = dimension_lengths[key]
-        elif value['Length'] == '1':
-            length = 1
-        else:
-            msg = f'Cannot find length for dimension {key}'
-            raise ValueError(msg)
-        ncfile.createDimension(key, length)
-    for key,value in instrument_dict[product]['dimensions'].items():
-        if key in dimension_lengths.keys():
-            length = dimension_lengths[key]
-        elif value['Length'] == '1':
-            length = 1
-        else:
-            msg = f'Cannot find length for dimension {key}'
-            raise ValueError(msg)
-        ncfile.createDimension(key, length)
+    for key, length in dimension_lengths.items():
+        if key in instrument_dict['common']['dimensions'].keys() or key in instrument_dict[product]['dimensions'].keys():
+            ncfile.createDimension(key, length)
         
         
 def add_variables(ncfile, instrument_dict, product):
