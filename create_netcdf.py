@@ -1,7 +1,6 @@
 import tsv2dict
 from netCDF4 import Dataset
 import datetime as dt
-import pytz
 import copy
 
 import values
@@ -105,7 +104,7 @@ def make_netcdf(instrument, product, time, instrument_dict, dimension_lengths = 
     filename = f"{instrument}_{location}_{time}_{product}{options}_v{product_version}.nc"
     
     ncfile = Dataset(f'{file_location}/{filename}', 'w', format='NETCDF4_CLASSIC')
-    created_time = dt.datetime.now(tz=pytz.timezone('UTC')).strftime('%Y-%m-%dT%H:%M:%S')
+    created_time = dt.datetime.now(dt.timezone.utc).strftime('%Y-%m-%dT%H:%M:%S')
     
     add_attributes(ncfile, instrument_dict, product, created_time, location)
     add_dimensions(ncfile, instrument_dict, product, dimension_lengths)
