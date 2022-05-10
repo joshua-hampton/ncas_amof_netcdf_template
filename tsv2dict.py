@@ -4,11 +4,6 @@ import requests
 
 import values
 
-COMMON_VARIABLES_LAND_URL = f'https://raw.githubusercontent.com/ncasuk/AMF_CVs/{values.TAG}/product-definitions/tsv/_common/variables-land.tsv'
-COMMON_DIMENSIONS_LAND_URL = f'https://raw.githubusercontent.com/ncasuk/AMF_CVs/{values.TAG}/product-definitions/tsv/_common/dimensions-land.tsv'
-COMMON_ATTRIBUTES_URL = f'https://raw.githubusercontent.com/ncasuk/AMF_CVs/{values.TAG}/product-definitions/tsv/_common/global-attributes.tsv'
-INSTRUMENTS_URL = f'https://raw.githubusercontent.com/ncasuk/AMF_CVs/{values.TAG}/product-definitions/tsv/_vocabularies/ncas-instrument-name-and-descriptors.tsv'
-
 
 def tsv2dict_vars(tsv_file):
     df_vars = pd.read_csv(tsv_file, sep='\t')
@@ -93,9 +88,25 @@ def create_attributes_tsv_url(product):
     return f'https://raw.githubusercontent.com/ncasuk/AMF_CVs/{values.TAG}/product-definitions/tsv/{product}/global-attributes-specific.tsv'
 
 
-def instrument_dict(desired_instrument):
+def instrument_dict(desired_instrument, loc='land'):
+    if loc == 'land':
+        common_dimensions_url = values.COMMON_DIMENSIONS_LAND_URL
+        common_variables_url = values.COMMON_VARIABLES_LAND_URL
+    elif loc == 'sea':
+        common_dimensions_url = values.COMMON_DIMENSIONS_SEA_URL
+        common_variables_url = values.COMMON_VARIABLES_SEA_URL
+    elif loc == 'air':
+        common_dimensions_url = values.COMMON_DIMENSIONS_AIR_URL
+        common_variables_url = values.COMMON_VARIABLES_AIR_URL
+    elif loc == 'trajectory':
+        common_dimensions_url = values.COMMON_DIMENSIONS_TRAJECTORY_URL
+        common_variables_url = values.COMMON_VARIABLES_TRAJECTORY_URL
+    else:
+        msg = f'Unknown loc "{loc}" - should be one of "land", "sea", "air", "trajectory"'
+        raise ValueError(msg)
+    
     instrument_dict = {}
-    instrument_dict['info'] = tsv2dict_instruments(INSTRUMENTS_URL)[desired_instrument]
+    instrument_dict['info'] = tsv2dict_instruments(values.INSTRUMENTS_URL)[desired_instrument]
 
     # Add common stuff
     instrument_dict['common'] = {}
@@ -103,9 +114,9 @@ def instrument_dict(desired_instrument):
     instrument_dict['common']['dimensions'] = {}
     instrument_dict['common']['variables'] = {}
 
-    instrument_dict['common']['attributes'] = tsv2dict_attrs(COMMON_ATTRIBUTES_URL)
-    instrument_dict['common']['dimensions'] = tsv2dict_dims(COMMON_DIMENSIONS_LAND_URL)
-    instrument_dict['common']['variables'] = tsv2dict_vars(COMMON_VARIABLES_LAND_URL)
+    instrument_dict['common']['attributes'] = tsv2dict_attrs(values.COMMON_ATTRIBUTES_URL)
+    instrument_dict['common']['dimensions'] = tsv2dict_dims(common_dimensions_url)
+    instrument_dict['common']['variables'] = tsv2dict_vars(common_variables_url)
 
     # Add stuff for each product of instrument it specifics exist
     for product in instrument_dict['info']['Data Product(s)']:
