@@ -158,13 +158,14 @@ def main(instrument, date = None, dimension_lengths = {}, loc = 'land', products
     
     instrument_dict = tsv2dict.instrument_dict(instrument, loc = loc)
     
+    # get and check our list of products
     tsvdictkeys = instrument_dict.keys()
     poss_products = list(tsvdictkeys)
     poss_products.remove('info')
     poss_products.remove('common')
-    if products == None:
+    if products == None:  # user doesn't specify products, make all
         products = poss_products
-    else:
+    else:  # check user specified products are applicable for instrument
         remove_products = []
         for product in products:
             if product not in poss_products:
@@ -172,12 +173,12 @@ def main(instrument, date = None, dimension_lengths = {}, loc = 'land', products
                 remove_products.append(product)
         for remove_product in remove_products:
             products.remove(remove_product)
-    # so by now we should have our list of products...
+    # so by now we should have our list of products, quit if we have no products
     if not isinstance(products, list) or len(products) == 0:
         msg = f'No valid products specified, valid products are {poss_products}'
         raise ValueError(msg)
-                
     
+    # make sure we have dimension lengths for all expected dimensions
     all_dimensions = []
     dimlengths = {}
     for key, val in instrument_dict.items():
@@ -194,7 +195,8 @@ def main(instrument, date = None, dimension_lengths = {}, loc = 'land', products
         if dim not in dimlengths.keys():
             length = input(f"Enter length for dimension {dim}: ")
             dimlengths[dim] = int(length)
-
+    
+    # make the files
     for product in products:
         make_netcdf(instrument, product, date, instrument_dict, loc = loc, dimension_lengths = dimlengths)
     
