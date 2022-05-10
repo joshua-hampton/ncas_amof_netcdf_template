@@ -161,10 +161,28 @@ def main(instrument, date = None, dimension_lengths = {}, loc = 'land'):
     
     
 if __name__ == "__main__":
-    import sys
-    instrument = sys.argv[1]
-    date = None
+    #import sys
+    #instrument = sys.argv[1]
+    #date = None
     #date = '20220404'
-    dimlens = {}
+    #dimlens = {}
     #dimlens = {'time':96,'altitude':46,'layer_index':45}
-    main(instrument,date=date,dimension_lengths = dimlens)
+    #main(instrument,date=date,dimension_lengths = dimlens)
+    import argparse
+    parser = argparse.ArgumentParser(description = 'Create AMOF-compliant netCDF file with no data.')
+    parser.add_argument('instrument', type=str, help = 'Name of NCAS instrument.')
+    parser.add_argument('-d','--date', type=str, help = 'Date for data in file, YYYYmmdd format. If not given, default to today.', default=None, dest='date')
+    parser.add_argument('-l','--dim-lengths', nargs='*', help = 'Length for each dimension, e.g. -l time 96 altitude 45. If not given, or required dimension missing, python will ask for user input.', dest='dim_lengths')
+    parser.add_argument('-m','--deployment-mode', type=str, choices=['land','sea','air','trajectory'], help = 'Deployment mode of instrument, one of "land", "sea", "air, "trajectory". Default is "land".', default='land', dest='deployment')
+    args = parser.parse_args()
+    
+    dim_lengths = {}
+    if args.dim_lengths != None:
+        if len(args.dim_lengths) % 2 != 0:
+            msg = f'-l/--dim-lengths option should be `dimension length` pairs'
+            raise ValueError(msg)
+        for i in range(0,len(args.dim_lengths),2):
+            dim_lengths[args.dim_lengths[i]] = int(args.dim_lengths[i+1])
+    print(dim_lengths)
+            
+    main(args.instrument, date=args.date, dimension_lengths=dim_lengths, loc=args.deployment)
