@@ -15,7 +15,7 @@ or from within python
 
 ```python
 import create_netcdf
-main(instrument, date = None, dimension_lengths = {}, loc = 'land')
+create_netcdf.main(instrument, date = None, dimension_lengths = {}, loc = 'land')
 ```
 where:
 - `instrument` - name of NCAS instrument, e.g. "ncas-ceilometer-3"
