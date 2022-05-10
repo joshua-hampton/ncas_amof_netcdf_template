@@ -55,25 +55,33 @@ def add_variables(ncfile, instrument_dict, product):
             # want to pop certain things here, but not for ever, so make tmp_value
             tmp_value = copy.copy(value)
             
-            var_dims = tmp_value['dimension']
-            # there was an error somewhere meaning 2 dimensions had a '.' instead of ',' between them
-            var_dims = var_dims.replace('.',',')
-            var_dims = tuple(x.strip() for x in var_dims.split(','))
-            
-            datatype = tmp_value.pop('type')
-            
-            if '_FillValue' in tmp_value:
-                fill_value = float(tmp_value.pop('_FillValue'))
+            # error, there are some variables with dimensions 
+            # missing, error in spreadsheet
+            # if we encounter one, we're going to print out an error 
+            # and forget about that variable
+            if 'dimension' not in tmp_value.keys():
+                print(f'ERROR: Missing dimensions for variable {key} in product {obj}')
+                print(f'Variable not added file')
             else:
-                fill_value = ''
+                var_dims = tmp_value['dimension']
+                # there was an error somewhere meaning 2 dimensions had a '.' instead of ',' between them
+                var_dims = var_dims.replace('.',',')
+                var_dims = tuple(x.strip() for x in var_dims.split(','))
+            
+                datatype = tmp_value.pop('type')
                 
-            if fill_value != '':
-                var = ncfile.createVariable(key, datatype, var_dims, fill_value = fill_value)
-            else:
-                var = ncfile.createVariable(key, datatype, var_dims)
+                if '_FillValue' in tmp_value:
+                    fill_value = float(tmp_value.pop('_FillValue'))
+                else:
+                    fill_value = ''
                 
-            for mdatkey, mdatvalue in tmp_value.items():
-                var.setncattr(mdatkey, mdatvalue)
+                if fill_value != '':
+                    var = ncfile.createVariable(key, datatype, var_dims, fill_value = fill_value)
+                else:
+                    var = ncfile.createVariable(key, datatype, var_dims)
+                
+                for mdatkey, mdatvalue in tmp_value.items():
+                    var.setncattr(mdatkey, mdatvalue)
     
 
             
@@ -116,8 +124,23 @@ def make_netcdf(instrument, product, time, instrument_dict, loc = 'land', dimens
     ncfile.close()
     
 
+def list_products(instrument):
+    """
+    Lists available products for an instrument
+    
+    Args:
+        instrument (str): ncas instrument name
+    """
+    instrument_dict = tsv2dict.instrument_dict(instrument)
+    tsvdictkeys = instrument_dict.keys()
+    products = list(tsvdictkeys)
+    products.remove('info')
+    products.remove('common')
+    print(products)
 
-def main(instrument, date = None, dimension_lengths = {}, loc = 'land'):
+    
+    
+def main(instrument, date = None, dimension_lengths = {}, loc = 'land', products = None):
     """
     Create 'just-add-data' AMOF-compliant netCDF file 
     
@@ -128,6 +151,7 @@ def main(instrument, date = None, dimension_lengths = {}, loc = 'land'):
                                   for needed dimension, user will be asked to type 
                                   in dimension length
         loc (str): one of 'land', 'sea', 'air', 'trajectory'
+        products (str): list of products to make netCDF file for this instrument. If None, then all applicable products are made.
     """
     if date == None:
         date = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%d")
@@ -135,14 +159,21 @@ def main(instrument, date = None, dimension_lengths = {}, loc = 'land'):
     instrument_dict = tsv2dict.instrument_dict(instrument, loc = loc)
     
     tsvdictkeys = instrument_dict.keys()
-    products = list(tsvdictkeys)
-    products.remove('info')
-    products.remove('common')
+    poss_products = list(tsvdictkeys)
+    poss_products.remove('info')
+    poss_products.remove('common')
+    if products == None:
+        products = poss_products
+    else:
+        for product in products:
+            if product not in poss_products:
+                print(f'{product} is not available for this instrument, will be skipped.')
+                products.remove(product)
     
     all_dimensions = []
     dimlengths = {}
     for key, val in instrument_dict.items():
-        if 'dimensions' in val.keys():
+        if 'dimensions' in val.keys() and (key in products or key == 'common'):
             for dim in list(val['dimensions'].keys()):
                 if dim not in all_dimensions:
                     all_dimensions.append(dim)
@@ -167,14 +198,20 @@ if __name__ == "__main__":
     parser.add_argument('-d','--date', type=str, help = 'Date for data in file, YYYYmmdd format. If not given, default to today.', default=None, dest='date')
     parser.add_argument('-l','--dim-lengths', nargs='*', help = 'Length for each dimension, e.g. -l time 96 altitude 45. If not given, or required dimension missing, python will ask for user input.', dest='dim_lengths')
     parser.add_argument('-m','--deployment-mode', type=str, choices=['land','sea','air','trajectory'], help = 'Deployment mode of instrument, one of "land", "sea", "air, "trajectory". Default is "land".', default='land', dest='deployment')
+    parser.add_argument('--list-products', action='store_true', dest='list_products', help = 'If given, available products for instrument are printed, then script exits.')
+    parser.add_argument('-p','--products', nargs='*', default=None, help = 'Products for instrument to make netCDF file. If not given, netCDF files for all applicable products are made.', dest="products")
     args = parser.parse_args()
     
-    dim_lengths = {}
-    if args.dim_lengths != None:
-        if len(args.dim_lengths) % 2 != 0:
-            msg = f'-l/--dim-lengths option should be `dimension length` pairs'
-            raise ValueError(msg)
-        for i in range(0,len(args.dim_lengths),2):
-            dim_lengths[args.dim_lengths[i]] = int(args.dim_lengths[i+1])
+    
+    if args.list_products:
+        list_products(args.instrument)
+    else:
+        dim_lengths = {}
+        if args.dim_lengths != None:
+            if len(args.dim_lengths) % 2 != 0:
+                msg = f'-l/--dim-lengths option should be `dimension length` pairs'
+                raise ValueError(msg)
+            for i in range(0,len(args.dim_lengths),2):
+                dim_lengths[args.dim_lengths[i]] = int(args.dim_lengths[i+1])
             
-    main(args.instrument, date=args.date, dimension_lengths=dim_lengths, loc=args.deployment)
+        main(args.instrument, date=args.date, dimension_lengths=dim_lengths, loc=args.deployment, products=args.products)
