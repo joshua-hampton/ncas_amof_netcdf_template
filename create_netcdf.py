@@ -7,7 +7,7 @@ import values
 
 
 
-def add_attributes(ncfile, instrument_dict, product, created_time, location):
+def add_attributes(ncfile, instrument_dict, product, created_time, location, loc):
     for key,value in instrument_dict['common']['attributes'].items():
         if value['Fixed Value'] != '':
             ncfile.setncattr(key, value['Fixed Value'])
@@ -29,6 +29,8 @@ def add_attributes(ncfile, instrument_dict, product, created_time, location):
             ncfile.setncattr(key, f'{created_time} - File created')
         elif key == 'last_revised_date':
             ncfile.setncattr(key, created_time)
+        elif key == 'deployment_mode':
+            ncfile.setncattr(key, loc)
         else:
             ncfile.setncattr(key, f"CHANGE: {value['Description']}. {value['Compliance checking rules']}")
     
@@ -76,9 +78,10 @@ def add_variables(ncfile, instrument_dict, product):
 
             
 
-def make_netcdf(instrument, product, time, instrument_dict, dimension_lengths = {}, **kwargs):
+def make_netcdf(instrument, product, time, instrument_dict, loc = 'land', dimension_lengths = {}, **kwargs):
     """
     dimension_lengths = {dimension_name1: length, dimension_name2: length...}
+    loc - one of land, sea, air, trajectory
     kwargs: options (default '')
             product_version (default 1.0)
             file_location (default '.')
@@ -106,7 +109,7 @@ def make_netcdf(instrument, product, time, instrument_dict, dimension_lengths = 
     ncfile = Dataset(f'{file_location}/{filename}', 'w', format='NETCDF4_CLASSIC')
     created_time = dt.datetime.now(dt.timezone.utc).strftime('%Y-%m-%dT%H:%M:%S')
     
-    add_attributes(ncfile, instrument_dict, product, created_time, location)
+    add_attributes(ncfile, instrument_dict, product, created_time, location, loc)
     add_dimensions(ncfile, instrument_dict, product, dimension_lengths)
     add_variables(ncfile, instrument_dict, product)
     
@@ -114,7 +117,7 @@ def make_netcdf(instrument, product, time, instrument_dict, dimension_lengths = 
     
 
 
-def main(instrument, date = None, dimension_lengths = {}):
+def main(instrument, date = None, dimension_lengths = {}, loc = 'land'):
     """
     Create 'just-add-data' AMOF-compliant netCDF file 
     
@@ -124,11 +127,12 @@ def main(instrument, date = None, dimension_lengths = {}):
         dimension_lengths (dict): dictionary of dimension:length. If length not given 
                                   for needed dimension, user will be asked to type 
                                   in dimension length
+        loc (str): one of 'land', 'sea', 'air', 'trajectory'
     """
     if date == None:
         date = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%d")
     
-    instrument_dict = tsv2dict.instrument_dict(instrument)
+    instrument_dict = tsv2dict.instrument_dict(instrument, loc = loc)
     
     tsvdictkeys = instrument_dict.keys()
     products = list(tsvdictkeys)
@@ -153,7 +157,7 @@ def main(instrument, date = None, dimension_lengths = {}):
             dimlengths[dim] = int(length)
 
     for product in products:
-        make_netcdf(instrument, product, date, instrument_dict, dimension_lengths = dimlengths)
+        make_netcdf(instrument, product, date, instrument_dict, loc = loc, dimension_lengths = dimlengths)
     
     
 if __name__ == "__main__":
