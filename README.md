@@ -3,22 +3,41 @@ ncas-amof-netcdf-template
 
 Makes 'just-add-data' AMOF-compliant netCDF4 file.
 
-> **NOTE**: Still work in progress
+> **NOTE**: Works, but still work in progress, bugs may well be present.
 
 
 Usage
 -----
 
-`python create_netcdf.py <ncas-instrument>`
-
-or from within python
+<h3>Python</h3>
 
 ```python
 import create_netcdf
-create_netcdf.main(instrument, date = None, dimension_lengths = {}, loc = 'land')
+create_netcdf.main(instrument, date = None, dimension_lengths = {}, loc = 'land', products = None)
 ```
 where:
 - `instrument` - name of NCAS instrument, e.g. "ncas-ceilometer-3"
 - `date` - date for data, YYYYmmdd format, default to today's date
 - `dimension_lengths` - dictionary of lengths of dimensions, e.g. {'time':96, 'altitude':45}. If length for required dimensions are not given, then python will ask for user input, default empty.
 - `loc` - one of 'land', 'air', 'sea', or 'trajectory', default is 'land'
+- `products` - applicable products of desired NCAS instrument to make netCDF for. Setting products as `None` (default) makes netCDF file for all available products.
+
+All products associated with an instrument can be printed by
+```python
+import create_netcdf
+create_netcdf.list_products(instrument)
+```
+where `instrument` is replaced with the name of the NCAS instrument.
+
+<h3>Command Line</h3>
+
+```bash
+python create_netcdf.py ncas-instrument
+```
+will make a netCDF file for every applicable product for `ncas-instrument`, where `ncas-instrument` is replaced with the name of an NCAS instrument. Products can be listed with the by executing 
+```bash 
+python create_netcdf.py ncas-instrument --list-products
+```
+and individual products can be specified using the `-p` flag. For all available options, `python create_netcdf.py --help`
+
+
