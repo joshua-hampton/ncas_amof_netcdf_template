@@ -130,13 +130,16 @@ def list_products(instrument):
     
     Args:
         instrument (str): ncas instrument name
+        
+    Returns:
+        list of products available for the given instrument
     """
     instrument_dict = tsv2dict.instrument_dict(instrument)
     tsvdictkeys = instrument_dict.keys()
     products = list(tsvdictkeys)
     products.remove('info')
     products.remove('common')
-    print(products)
+    return products
 
     
     
@@ -215,7 +218,7 @@ if __name__ == "__main__":
     
     
     if args.list_products:
-        list_products(args.instrument)
+        print(list_products(args.instrument))
     else:
         dim_lengths = {}
         if args.dim_lengths != None:
