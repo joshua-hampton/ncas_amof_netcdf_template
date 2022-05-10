@@ -161,13 +161,6 @@ def main(instrument, date = None, dimension_lengths = {}, loc = 'land'):
     
     
 if __name__ == "__main__":
-    #import sys
-    #instrument = sys.argv[1]
-    #date = None
-    #date = '20220404'
-    #dimlens = {}
-    #dimlens = {'time':96,'altitude':46,'layer_index':45}
-    #main(instrument,date=date,dimension_lengths = dimlens)
     import argparse
     parser = argparse.ArgumentParser(description = 'Create AMOF-compliant netCDF file with no data.')
     parser.add_argument('instrument', type=str, help = 'Name of NCAS instrument.')
