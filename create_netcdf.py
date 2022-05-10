@@ -183,6 +183,5 @@ if __name__ == "__main__":
             raise ValueError(msg)
         for i in range(0,len(args.dim_lengths),2):
             dim_lengths[args.dim_lengths[i]] = int(args.dim_lengths[i+1])
-    print(dim_lengths)
             
     main(args.instrument, date=args.date, dimension_lengths=dim_lengths, loc=args.deployment)
