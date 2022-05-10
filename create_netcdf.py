@@ -165,10 +165,18 @@ def main(instrument, date = None, dimension_lengths = {}, loc = 'land', products
     if products == None:
         products = poss_products
     else:
+        remove_products = []
         for product in products:
             if product not in poss_products:
                 print(f'{product} is not available for this instrument, will be skipped.')
-                products.remove(product)
+                remove_products.append(product)
+        for remove_product in remove_products:
+            products.remove(remove_product)
+    # so by now we should have our list of products...
+    if not isinstance(products, list) or len(products) == 0:
+        msg = f'No valid products specified, valid products are {poss_products}'
+        raise ValueError(msg)
+                
     
     all_dimensions = []
     dimlengths = {}
@@ -189,6 +197,7 @@ def main(instrument, date = None, dimension_lengths = {}, loc = 'land', products
 
     for product in products:
         make_netcdf(instrument, product, date, instrument_dict, loc = loc, dimension_lengths = dimlengths)
+    
     
     
 if __name__ == "__main__":
