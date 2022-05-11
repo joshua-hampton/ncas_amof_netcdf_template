@@ -17,10 +17,10 @@ create_netcdf.main(instrument, date = None, dimension_lengths = {}, loc = 'land'
 ```
 where:
 - `instrument` - name of NCAS instrument, e.g. "ncas-ceilometer-3"
-- `date` - date for data, YYYYmmdd format, default to today's date
-- `dimension_lengths` - dictionary of lengths of dimensions, e.g. {'time':96, 'altitude':45}. If length for required dimensions are not given, then python will ask for user input, default empty.
-- `loc` - one of 'land', 'air', 'sea', or 'trajectory', default is 'land'
-- `products` - applicable products of desired NCAS instrument to make netCDF for. Setting products as `None` (default) makes netCDF file for all available products.
+- `date` - date for data, YYYYmmdd format, default to today's date. Optional.
+- `dimension_lengths` - dictionary of lengths of dimensions, e.g. {'time':96, 'altitude':45}. If length for required dimensions are not given, then python will ask for user input, default empty. Optional.
+- `loc` - one of 'land', 'air', 'sea', or 'trajectory', default is 'land'. Optional.
+- `products` - applicable products of desired NCAS instrument to make netCDF for. Setting products as `None` (default) makes netCDF file for all available products. Optional.
 
 All products associated with an instrument can be printed by
 ```python
