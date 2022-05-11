@@ -170,8 +170,8 @@ def main(instrument, date = None, dimension_lengths = {}, loc = 'land', products
         products = poss_products
     else:  # check user specified products are applicable for instrument
         remove_products = []
-        if isinstance(product, str):
-            product = [product]
+        if isinstance(products, str):
+            products = [products]
         for product in products:
             if product not in poss_products:
                 print(f'{product} is not available for this instrument, will be skipped.')
