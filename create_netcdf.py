@@ -1,9 +1,9 @@
-import tsv2dict
+from . import tsv2dict
 from netCDF4 import Dataset
 import datetime as dt
 import copy
 
-import values
+from . import values
 
 
 

@@ -2,7 +2,7 @@ import pandas as pd
 import re
 import requests
 
-import values
+from . import values
 
 
 def tsv2dict_vars(tsv_file):
