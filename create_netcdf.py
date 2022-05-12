@@ -1,8 +1,27 @@
-from . import tsv2dict
+
+#######################################################
+# This section is needed for relative imports to work
+import sys
+from pathlib import Path
+
+if __name__ == '__main__' and __package__ is None:
+    file = Path(__file__).resolve()
+    parent, top = file.parent, file.parents[1]
+
+    sys.path.append(str(top))
+    try:
+        sys.path.remove(str(parent))
+    except ValueError: # Already removed
+        pass
+
+    import ncas_amof_netcdf_template
+    __package__ = 'ncas_amof_netcdf_template'
+#######################################################
+
 from netCDF4 import Dataset
 import datetime as dt
 import copy
-
+from . import tsv2dict
 from . import values
 
 
