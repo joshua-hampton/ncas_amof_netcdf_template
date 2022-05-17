@@ -21,8 +21,13 @@ if __name__ == '__main__' and __package__ is None:
 from netCDF4 import Dataset
 import datetime as dt
 import copy
-from . import tsv2dict
-from . import values
+
+if __package__ is None or __package__ == '':
+    import tsv2dict
+    import values
+else:
+    from . import tsv2dict
+    from . import values
 
 
 
