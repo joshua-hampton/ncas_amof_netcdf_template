@@ -167,7 +167,7 @@ def list_products(instrument):
 
     
     
-def main(instrument, date = None, dimension_lengths = {}, loc = 'land', products = None):
+def main(instrument, date = None, dimension_lengths = {}, loc = 'land', products = None, **kwargs):
     """
     Create 'just-add-data' AMOF-compliant netCDF file 
     
@@ -227,7 +227,7 @@ def main(instrument, date = None, dimension_lengths = {}, loc = 'land', products
     
     # make the files
     for product in products:
-        make_netcdf(instrument, product, date, instrument_dict, loc = loc, dimension_lengths = dimlengths)
+        make_netcdf(instrument, product, date, instrument_dict, loc = loc, dimension_lengths = dimlengths, **kwargs)
     
     
     
@@ -240,6 +240,7 @@ if __name__ == "__main__":
     parser.add_argument('-m','--deployment-mode', type=str, choices=['land','sea','air','trajectory'], help = 'Deployment mode of instrument, one of "land", "sea", "air, "trajectory". Default is "land".', default='land', dest='deployment')
     parser.add_argument('--list-products', action='store_true', dest='list_products', help = 'If given, available products for instrument are printed, then script exits.')
     parser.add_argument('-p','--products', nargs='*', default=None, help = 'Products for instrument to make netCDF file. If not given, netCDF files for all applicable products are made.', dest="products")
+    parser.add_argument('-k','--kwargs', nargs='*', help = 'Keyword arguments supplied to create_netcdf.make_netcdf through create_netcdf.main. Should be given as `argument value`, implemented kwargs are file_location, options, product_version. If argument option is given, each option for the netcdf file name should be separated by an underscore, e.g. `option opt1_opt2_opt3', dest='kwargs')
     args = parser.parse_args()
     
     
@@ -253,5 +254,20 @@ if __name__ == "__main__":
                 raise ValueError(msg)
             for i in range(0,len(args.dim_lengths),2):
                 dim_lengths[args.dim_lengths[i]] = int(args.dim_lengths[i+1])
+                
+        kwargs = {}
+        if args.kwargs != None:
+            current_val = None
+            for val in args.kwargs:
+                if val in ['file_location','options','product_version']:
+                    kwargs[val] = ''
+                    current_val = val
+                elif current_val != None:
+                    kwargs[current_val] = f'{kwargs[current_val]}{val}'
+                else:
+                    msg = 'Not sure what to do with given input, exiting...'
+                    print(args.kwargs)
+                    raise ValueError(msg)                
+                    
             
-        main(args.instrument, date=args.date, dimension_lengths=dim_lengths, loc=args.deployment, products=args.products)
+        main(args.instrument, date=args.date, dimension_lengths=dim_lengths, loc=args.deployment, products=args.products, **kwargs)
