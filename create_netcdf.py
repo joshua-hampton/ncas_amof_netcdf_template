@@ -240,7 +240,7 @@ if __name__ == "__main__":
     parser.add_argument('-m','--deployment-mode', type=str, choices=['land','sea','air','trajectory'], help = 'Deployment mode of instrument, one of "land", "sea", "air, "trajectory". Default is "land".', default='land', dest='deployment')
     parser.add_argument('--list-products', action='store_true', dest='list_products', help = 'If given, available products for instrument are printed, then script exits.')
     parser.add_argument('-p','--products', nargs='*', default=None, help = 'Products for instrument to make netCDF file. If not given, netCDF files for all applicable products are made.', dest="products")
-    parser.add_argument('-k','--kwargs', nargs='*', help = 'Keyword arguments supplied to create_netcdf.make_netcdf through create_netcdf.main. Should be given as `argument value`, implemented kwargs are file_location, options, product_version. If argument option is given, each option for the netcdf file name should be separated by an underscore, e.g. `option opt1_opt2_opt3', dest='kwargs')
+    parser.add_argument('-k','--kwargs', nargs='*', help = 'Keyword arguments supplied to create_netcdf.make_netcdf through create_netcdf.main. Should be given as `argument value`, implemented kwargs are file_location, options, product_version. If argument option is given, each option for the netcdf file name should be separated by an underscore, e.g. `option opt1_opt2_opt3`', dest='kwargs')
     args = parser.parse_args()
     
     
