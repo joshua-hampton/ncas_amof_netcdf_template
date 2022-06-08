@@ -68,7 +68,7 @@ def main(infile, outfile = None, overwrite = True, verbose=0):
       
     Args:
         infile (str): File path and name of current netCDF file.
-        outfile (str): Name of temporary netCDF file to create (or not so temporary, see overwrite). If None, then an file called tmp_{infile} will be created. Default None.
+        outfile (str): Name of temporary netCDF file to create (or not so temporary, see overwrite). If None, then an file with `tmp` appended to start of infile filename will be created. Default None.
         overwrite (any): Optional. If truthy, outfile overwrites infile. If falsy, both outfile and infile remain. Default True.
         verbose (any): Optional. If truthy, prints variables that are being removed from infile. Default 0.
         
@@ -78,7 +78,9 @@ def main(infile, outfile = None, overwrite = True, verbose=0):
     product = infile.split('/')[-1].split('_')[3]
     
     if outfile == None:
-        outfile = f'tmp_{infile}'
+        infile_name = infile.split('/')[-1]
+        infile_dir = '/'.join(infile.split('/')[:-1])
+        outfile = f'{infile_dir}/tmp_{infile_name}'
     
     toexclude = []
     product_vars, _ = get_product_variables_metadata(product)
