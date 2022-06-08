@@ -77,6 +77,9 @@ def main(infile, outfile = None, overwrite = True, verbose=0):
     in_ncfile = Dataset(infile, "r")
     product = infile.split('/')[-1].split('_')[3]
     
+    if outfile == None:
+        outfile = f'tmp_{infile}'
+    
     toexclude = []
     product_vars, _ = get_product_variables_metadata(product)
 
