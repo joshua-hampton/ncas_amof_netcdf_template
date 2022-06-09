@@ -93,7 +93,7 @@ def main(infile, outfile = None, overwrite = True, verbose=0):
                 toexclude.append(var)
     
     if verbose:
-        print(f'variables being removed: {toexclude}')
+        print(f'empty variables being removed: {toexclude}')
     
     dst = Dataset(outfile, "w", format='NETCDF4_CLASSIC')
     # copy global attributes all at once via dictionary
@@ -104,8 +104,6 @@ def main(infile, outfile = None, overwrite = True, verbose=0):
     # copy all file data except for the excluded
     for name, variable in in_ncfile.variables.items():
         if name not in toexclude:
-            if verbose:
-                print(name)
             in_ncfile_name_attrs = in_ncfile[name].__dict__
             if '_FillValue' in in_ncfile_name_attrs:
                 fill_value = in_ncfile_name_attrs.pop('_FillValue')
