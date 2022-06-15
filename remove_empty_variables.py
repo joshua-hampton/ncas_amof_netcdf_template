@@ -13,25 +13,27 @@ import numpy as np
 
 
 
-def get_product_variables_metadata(product):
+def get_product_variables_metadata(product, skip_check = False):
     """
     Get variables and their metadata associated with a product.
     `product` should be in https://github.com/ncasuk/AMF_CVs/blob/main/AMF_CVs/AMF_product.json
     
     Args:
         product (str): Product describing the data from the instrument for the netCDF file.
+        skip_check (bool): Skips checking if product in the product json file. Default False.
         
     Returns:
         list: All product-specific variables.
         dict: Dictionary of variables and their attributes.
         
     """
-    product_list = get_json_from_github("https://raw.githubusercontent.com/ncasuk/AMF_CVs/main/AMF_CVs/AMF_product.json")["product"]
+    if not skip_check:
+        product_list = get_json_from_github("https://raw.githubusercontent.com/ncasuk/AMF_CVs/main/AMF_CVs/AMF_product.json")["product"]
     
-    # Check for valid product
-    if product not in product_list:
-        msg = f"product {product} is not in https://github.com/ncasuk/AMF_CVs/blob/main/AMF_CVs/AMF_product.json"
-        raise ValueError(msg)
+        # Check for valid product
+        if product not in product_list:
+            msg = f"product {product} is not in https://github.com/ncasuk/AMF_CVs/blob/main/AMF_CVs/AMF_product.json"
+            raise ValueError(msg)
      
     # Get the stuff
     var_dict = get_json_from_github(f"https://raw.githubusercontent.com/ncasuk/AMF_CVs/main/AMF_CVs/AMF_product_{product}_variable.json")[f"product_{product}_variable"]
@@ -59,7 +61,7 @@ def get_json_from_github(url):
 
 
 
-def main(infile, outfile = None, overwrite = True, verbose=0):
+def main(infile, outfile = None, overwrite = True, verbose=0, **kwargs):
     """
     If a product-specific variable is empty, we want to remove it.
     However, removing a variable from a netcdf file is not possible, 
@@ -71,6 +73,7 @@ def main(infile, outfile = None, overwrite = True, verbose=0):
         outfile (str): Name of temporary netCDF file to create (or not so temporary, see overwrite). If None, then an file with `tmp` appended to start of infile filename will be created. Default None.
         overwrite (any): Optional. If truthy, outfile overwrites infile. If falsy, both outfile and infile remain. Default True.
         verbose (any): Optional. If truthy, prints variables that are being removed from infile. Default 0.
+        kwargs: Additional keyword arguments (e.g. skip_check for get_product_variables_metadata function).
         
     """
     
@@ -83,7 +86,7 @@ def main(infile, outfile = None, overwrite = True, verbose=0):
         outfile = f'{infile_dir}/tmp_{infile_name}'
     
     toexclude = []
-    product_vars, _ = get_product_variables_metadata(product)
+    product_vars, _ = get_product_variables_metadata(product, **kwargs)
 
     for var in in_ncfile.variables.keys():
         if var in product_vars:
