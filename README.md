@@ -3,7 +3,8 @@ ncas-amof-netcdf-template
 
 Makes 'just-add-data' AMOF-compliant netCDF4 file.
 
-> **NOTE**: Works, but still work in progress, bugs may well be present.
+> **NOTE 1**: Check out the [wiki], it's much bettter than what's written here.
+> **NOTE 2**: Works, but still work in progress, bugs may well be present.
 
 
 Usage
@@ -40,4 +41,4 @@ python create_netcdf.py ncas-instrument --list-products
 ```
 and individual products can be specified using the `-p` flag. For all available options, `python create_netcdf.py --help`
 
-
+[wiki]: https://github.com/joshua-hampton/ncas_amof_netcdf_template/wiki
