@@ -4,6 +4,7 @@ ncas-amof-netcdf-template
 Makes 'just-add-data' AMOF-compliant netCDF4 file.
 
 > **NOTE 1**: Check out the [wiki], it's much bettter than what's written here.
+
 > **NOTE 2**: Works, but still work in progress, bugs may well be present.
 
 
