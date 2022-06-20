@@ -16,3 +16,4 @@ COMMON_VARIABLES_TRAJECTORY_URL = f'https://raw.githubusercontent.com/ncasuk/AMF
 COMMON_DIMENSIONS_TRAJECTORY_URL = f'https://raw.githubusercontent.com/ncasuk/AMF_CVs/{TAG}/product-definitions/tsv/_common/dimensions-trajectory.tsv'
 
 INSTRUMENTS_URL = f'https://raw.githubusercontent.com/ncasuk/AMF_CVs/{TAG}/product-definitions/tsv/_vocabularies/ncas-instrument-name-and-descriptors.tsv'
+COMMUNITY_INSTRUMENTS_URL = f'https://raw.githubusercontent.com/ncasuk/AMF_CVs/{TAG}/product-definitions/tsv/_vocabularies/community-instrument-name-and-descriptors.tsv'

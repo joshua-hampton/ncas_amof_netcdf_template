@@ -109,7 +109,11 @@ def instrument_dict(desired_instrument, loc='land'):
         raise ValueError(msg)
     
     instrument_dict = {}
-    instrument_dict['info'] = tsv2dict_instruments(values.INSTRUMENTS_URL)[desired_instrument]
+    main_instruments = tsv2dict_instruments(values.INSTRUMENTS_URL)
+    if desired_instrument in main_instruments.keys():
+        instrument_dict['info'] = main_instruments[desired_instrument]
+    else:
+        instrument_dict['info'] = tsv2dict_instruments(values.COMMUNITY_INSTRUMENTS_URL)[desired_instrument]
 
     # Add common stuff
     instrument_dict['common'] = {}
