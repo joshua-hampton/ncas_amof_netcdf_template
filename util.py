@@ -26,8 +26,8 @@ def get_metadata(metafile):
         raw_metadata = {} #empty dict
         metaread = csv.reader(meta)
         for row in metaread:
-            if len(row) == 2:
-                raw_metadata[row[0]] = row[1].strip()
+            if len(row) >= 2:
+                raw_metadata[row[0]] = ','.join(row[1:]).strip()
     return raw_metadata
 
 
