@@ -21,6 +21,7 @@ if __name__ == '__main__' and __package__ is None:
 from netCDF4 import Dataset
 import datetime as dt
 import copy
+import numpy as np
 
 if __package__ is None or __package__ == '':
     import tsv2dict
@@ -105,7 +106,18 @@ def add_variables(ncfile, instrument_dict, product):
                     var = ncfile.createVariable(key, datatype, var_dims)
                 
                 for mdatkey, mdatvalue in tmp_value.items():
-                    var.setncattr(mdatkey, mdatvalue)
+                    # flag meanings in the tsv files are separated by '|', should be space separated
+                    if '|' in mdatvalue and 'flag_meaning' in mdatkey:
+                        mdatvalue = ' '.join([ i.strip() for i in mdatvalue.split('|') ])
+                    # flag values are bytes, can't add byte array into NETCDF4_CLASSIC so have to muddle a bit
+                    if 'flag_value' in mdatkey and 'qc' in key and var.dtype == np.int8:
+                        # turn string like "0b,1b..." into list of ints like [0,1...]
+                        newmdatvalue = [ int(i.strip('b')) for i in mdatvalue.split(',') ]
+                        # turn list into array with int8 type 
+                        mdatvalue = np.array(newmdatvalue, dtype = np.int8)
+                    # don't add empty attributes
+                    if not isinstance(mdatvalue, str) or mdatvalue != '':
+                        var.setncattr(mdatkey, mdatvalue)
     
 
             
