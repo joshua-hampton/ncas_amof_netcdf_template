@@ -105,6 +105,9 @@ def add_variables(ncfile, instrument_dict, product):
                     var = ncfile.createVariable(key, datatype, var_dims)
                 
                 for mdatkey, mdatvalue in tmp_value.items():
+                    # flag meanings in the tsv files are separated by '|', should be space separated
+                    if '|' in mdatvalue and 'flag_meaning' in mdatkey:
+                        mdatvalue = ' '.join([ i.strip() for i in mdatvalue.split('|') ])
                     var.setncattr(mdatkey, mdatvalue)
     
 
