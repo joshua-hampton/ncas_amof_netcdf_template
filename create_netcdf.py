@@ -115,6 +115,7 @@ def add_variables(ncfile, instrument_dict, product):
                         newmdatvalue = [ int(i.strip('b')) for i in mdatvalue.split(',') ]
                         # turn list into array with int8 type 
                         mdatvalue = np.array(newmdatvalue, dtype = np.int8)
+                    # don't add empty attributes
                     if not isinstance(mdatvalue, str) or mdatvalue != '':
                         var.setncattr(mdatkey, mdatvalue)
     
