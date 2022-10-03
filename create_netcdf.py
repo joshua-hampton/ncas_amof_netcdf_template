@@ -121,7 +121,7 @@ def add_variables(ncfile, instrument_dict, product):
                     elif 'EXAMPLE' in mdatvalue:
                         print(f"WARN: example value for attribute {mdatkey} for variable {key}")
                     # don't add EXAMPLE standard name
-                    if not (mdatkey == 'standard_name' and 'EXAMPLE' in mdatvalue):
+                    if not (mdatkey == 'standard_name' and ('EXAMPLE' in mdatvalue or mdatvalue == '')):
                         # don't add empty attributes
                         if mdatvalue == '':
                             print(f"WARN: No value for attribute {mdatkey} for variable {key}, attribute not added")
