@@ -117,13 +117,15 @@ def add_variables(ncfile, instrument_dict, product):
                         mdatvalue = np.array(newmdatvalue, dtype = np.int8)
                     # print warning for example values, and don't add example values for standard_name
                     if mdatkey == 'standard_name' and ('EXAMPLE' in mdatvalue or mdatvalue == ''):
-                        print(f"WARN: No standard name for variable {key}")
+                        print(f"WARN: No standard name for variable {key}, standard_name attribute not added")
                     elif 'EXAMPLE' in mdatvalue:
                         print(f"WARN: example value for attribute {mdatkey} for variable {key}")
                     # don't add EXAMPLE standard name
                     if not (mdatkey == 'standard_name' and 'EXAMPLE' in mdatvalue):
                         # don't add empty attributes
-                        if not isinstance(mdatvalue, str) or mdatvalue != '':
+                        if mdatvalue == '':
+                            print(f"WARN: No value for attribute {mdatkey} for variable {key}, attribute not added")
+                        else:
                             var.setncattr(mdatkey, mdatvalue)
     
 
