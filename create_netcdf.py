@@ -88,7 +88,7 @@ def add_variables(ncfile, instrument_dict, product):
                 print(f'ERROR: Missing dimensions for variable {key} in product {obj}')
                 print(f'Variable not added file')
             else:
-                var_dims = tmp_value['dimension']
+                var_dims = tmp_value.pop('dimension')
                 # there was an error somewhere meaning 2 dimensions had a '.' instead of ',' between them
                 var_dims = var_dims.replace('.',',')
                 var_dims = tuple(x.strip() for x in var_dims.split(','))
