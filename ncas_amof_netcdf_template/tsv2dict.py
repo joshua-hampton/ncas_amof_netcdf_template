@@ -2,10 +2,7 @@ import pandas as pd
 import re
 import requests
 
-if __package__ == None or __package__ == '':
-    import values
-else:
-    from . import values
+from . import values
 
 
 def tsv2dict_vars(tsv_file):
