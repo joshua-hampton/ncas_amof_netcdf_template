@@ -1,16 +1,14 @@
 from setuptools import setup, find_packages
 import pathlib
-from ncas_amof_netcdf_template import __version__
+#from ncas_amof_netcdf_template import __version__
 
 here = pathlib.Path(__file__).parent.resolve()
 
 long_description = (here / "README.md").read_text(encoding="utf-8")
 
-requirements = [line.strip() for line in open("requirements.txt")]
-
 setup(
     name="ncas_amof_netcdf_template",
-    version=__version__,
+    version="0.1a",
     description="Package to create NCAS AMOF netCDF files.",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -34,7 +32,11 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules"
     ],
     keywords="NCAS, AMOF, netcdf, template, standard",
-    packages=find_packages(),
+    package_dir={"":"src"},
+    packages=find_packages(where="src"),
     python_requires=">=3.7, <4",
-    install_requires=requirements
+    install_requires=["netcdf4",
+                      "numpy<=1.21",
+                      "requests"
+                     ]
 )
