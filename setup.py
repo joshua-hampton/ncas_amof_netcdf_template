@@ -8,7 +8,7 @@ long_description = (here / "README.md").read_text(encoding="utf-8")
 
 setup(
     name="ncas_amof_netcdf_template",
-    version="0.1a",
+    version="0.1a1",
     description="Package to create NCAS AMOF netCDF files.",
     long_description=long_description,
     long_description_content_type="text/markdown",
