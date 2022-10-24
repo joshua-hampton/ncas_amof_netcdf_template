@@ -8,7 +8,7 @@ long_description = (here / "README.md").read_text(encoding="utf-8")
 
 setup(
     name="ncas_amof_netcdf_template",
-    version="0.1a1",
+    version="2.0a",
     description="Package to create NCAS AMOF netCDF files.",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -37,6 +37,7 @@ setup(
     python_requires=">=3.7, <4",
     install_requires=["netcdf4",
                       "numpy<=1.21.*",
-                      "requests"
+                      "requests",
+                      "pandas"
                      ]
 )
