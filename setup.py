@@ -36,7 +36,7 @@ setup(
     packages=find_packages(where="src"),
     python_requires=">=3.7, <4",
     install_requires=["netcdf4",
-                      "numpy<=1.21",
+                      "numpy<=1.21.*",
                       "requests"
                      ]
 )
