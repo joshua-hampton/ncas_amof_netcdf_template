@@ -1,6 +1,5 @@
 from setuptools import setup, find_packages
 import pathlib
-#from ncas_amof_netcdf_template import __version__
 
 here = pathlib.Path(__file__).parent.resolve()
 
