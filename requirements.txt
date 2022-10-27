@@ -1,3 +1,4 @@
 netcdf4
-numpy
+numpy<=1.21.*
 requests
+pandas
