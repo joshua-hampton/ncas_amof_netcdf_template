@@ -1,6 +1,15 @@
 ncas-amof-netcdf-template
 =========================
 
+<h2>IMPORTANT: PLEASE READ!</h2>
+This branch is a development version, and while it should be installable with pip and work as intended there are no guarantees.
+
+For a stable version, please switch to the `main` branch or download the [latest release version](https://github.com/joshua-hampton/ncas_amof_netcdf_template/releases/latest).
+
+
+
+
+
 Makes 'just-add-data' AMOF-compliant netCDF4 file.
 
 > **NOTE 1**: Check out the [wiki], it's much bettter than what's written here.
