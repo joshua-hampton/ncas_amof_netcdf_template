@@ -73,7 +73,7 @@ def add_dimensions(ncfile, instrument_dict, product, dimension_lengths):
             ncfile.createDimension(key, length)
         
         
-def add_variables(ncfile, instrument_dict, product):
+def add_variables(ncfile, instrument_dict, product, verbose = 0):
     for obj in [product, 'common']:
         for key, value in instrument_dict[obj]['variables'].items():
             # therefore, value is instrument_dict[obj]['variables'][key]
@@ -117,14 +117,14 @@ def add_variables(ncfile, instrument_dict, product):
                         # turn list into array with int8 type 
                         mdatvalue = np.array(newmdatvalue, dtype = np.int8)
                     # print warning for example values, and don't add example values for standard_name
-                    if mdatkey == 'standard_name' and ('EXAMPLE' in mdatvalue or mdatvalue == ''):
+                    if mdatkey == 'standard_name' and ('EXAMPLE' in mdatvalue or mdatvalue == '') and verbose >= 1:
                         print(f"WARN: No standard name for variable {key}, standard_name attribute not added")
-                    elif 'EXAMPLE' in mdatvalue:
+                    elif 'EXAMPLE' in mdatvalue and verbose >= 1:
                         print(f"WARN: example value for attribute {mdatkey} for variable {key}")
                     # don't add EXAMPLE standard name
                     if not (mdatkey == 'standard_name' and ('EXAMPLE' in mdatvalue or mdatvalue == '')):
                         # don't add empty attributes
-                        if mdatvalue == '':
+                        if mdatvalue == '' and verbose >= 1:
                             print(f"WARN: No value for attribute {mdatkey} for variable {key}, attribute not added")
                         else:
                             var.setncattr(mdatkey, mdatvalue)
@@ -132,10 +132,11 @@ def add_variables(ncfile, instrument_dict, product):
 
             
 
-def make_netcdf(instrument, product, time, instrument_dict, loc = 'land', dimension_lengths = {}, **kwargs):
+def make_netcdf(instrument, product, time, instrument_dict, loc = 'land', dimension_lengths = {}, verbose = 0, **kwargs):
     """
     dimension_lengths = {dimension_name1: length, dimension_name2: length...}
     loc - one of land, sea, air, trajectory
+    verbose - level of additional info to print. At the moment, there is only 1 additional level.
     kwargs: options (default '')
             product_version (default 1.0)
             file_location (default '.')
@@ -165,7 +166,7 @@ def make_netcdf(instrument, product, time, instrument_dict, loc = 'land', dimens
     
     add_attributes(ncfile, instrument_dict, product, created_time, location, loc)
     add_dimensions(ncfile, instrument_dict, product, dimension_lengths)
-    add_variables(ncfile, instrument_dict, product)
+    add_variables(ncfile, instrument_dict, product, verbose = verbose)
     
     ncfile.close()
     
@@ -189,7 +190,7 @@ def list_products(instrument):
 
     
     
-def main(instrument, date = None, dimension_lengths = {}, loc = 'land', products = None, **kwargs):
+def main(instrument, date = None, dimension_lengths = {}, loc = 'land', products = None, verbose = 0, **kwargs):
     """
     Create 'just-add-data' AMOF-compliant netCDF file 
     
@@ -201,6 +202,7 @@ def main(instrument, date = None, dimension_lengths = {}, loc = 'land', products
                                   in dimension length
         loc (str): one of 'land', 'sea', 'air', 'trajectory'
         products (str): list of products to make netCDF file for this instrument. If None, then all applicable products are made.
+        verbose (int): level of info to print out. Note that at the moment there is only one additional layer, this may increase in future.
     """
     if date == None:
         date = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%d")
@@ -220,7 +222,7 @@ def main(instrument, date = None, dimension_lengths = {}, loc = 'land', products
             products = [products]
         for product in products:
             if product not in poss_products:
-                print(f'{product} is not available for this instrument, will be skipped.')
+                print(f'ERROR: {product} is not available for this instrument, will be skipped.')
                 remove_products.append(product)
         for remove_product in remove_products:
             products.remove(remove_product)
@@ -249,7 +251,7 @@ def main(instrument, date = None, dimension_lengths = {}, loc = 'land', products
     
     # make the files
     for product in products:
-        make_netcdf(instrument, product, date, instrument_dict, loc = loc, dimension_lengths = dimlengths, **kwargs)
+        make_netcdf(instrument, product, date, instrument_dict, loc = loc, dimension_lengths = dimlengths, verbose = verbose, **kwargs)
     
     
     
@@ -257,6 +259,7 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description = 'Create AMOF-compliant netCDF file with no data.')
     parser.add_argument('instrument', type=str, help = 'Name of NCAS instrument.')
+    parser.add_argument('-v','--verbose', action='count', default=0, help = 'Level of additional info to print.')
     parser.add_argument('-d','--date', type=str, help = 'Date for data in file, YYYYmmdd format. If not given, default to today.', default=None, dest='date')
     parser.add_argument('-l','--dim-lengths', nargs='*', help = 'Length for each dimension, e.g. -l time 96 altitude 45. If not given, or required dimension missing, python will ask for user input.', dest='dim_lengths')
     parser.add_argument('-m','--deployment-mode', type=str, choices=['land','sea','air','trajectory'], help = 'Deployment mode of instrument, one of "land", "sea", "air, "trajectory". Default is "land".', default='land', dest='deployment')
@@ -292,4 +295,4 @@ if __name__ == "__main__":
                     raise ValueError(msg)                
                     
             
-        main(args.instrument, date=args.date, dimension_lengths=dim_lengths, loc=args.deployment, products=args.products, **kwargs)
+        main(args.instrument, date=args.date, dimension_lengths=dim_lengths, loc=args.deployment, products=args.products, verbose=args.verbose, **kwargs)
