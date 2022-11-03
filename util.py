@@ -8,6 +8,43 @@ import datetime as dt
 import numpy as np
 
 
+def check_int(value):
+    """
+    Returns True if value is an integer, otherwise returns False.
+    
+    Args:
+        value (str): string to test
+
+    Returns:
+        bool: True if value is an integer
+    """
+    try:
+        int(value)
+        return True
+    except ValueError:
+        return False
+    except:
+        raise
+
+
+def check_float(value):
+    """
+    Returns True if value is a float, otherwise returns False.
+
+    Args:
+        value (str): string to test
+
+    Returns:
+        bool: True if value is a float
+    """
+    try:
+        float(value)
+        return True
+    except ValueError:
+        return False
+    except:
+        raise
+
 
 
 def get_metadata(metafile):
@@ -46,6 +83,12 @@ def add_metadata_to_netcdf(ncfile, metadata_file=None):
     if metadata_file != None:
         raw_metadata = get_metadata(metadata_file)
         for attr, value in raw_metadata.items():
+            # if value is int or float, use that type rather than str
+            if check_int(value):
+                value = int(value)
+            elif check_float(value):
+                value = float(value)
+
             if attr in ncfile.ncattrs():
                 ncfile.setncattr(attr, value)
             elif attr == 'latitude' or attr == 'longitude':
