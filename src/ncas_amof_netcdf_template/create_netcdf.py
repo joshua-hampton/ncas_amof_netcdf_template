@@ -55,6 +55,15 @@ def add_dimensions(ncfile, instrument_dict, product, dimension_lengths):
         
         
 def add_variables(ncfile, instrument_dict, product, verbose = 0):
+    """
+    Adds all variables and their attributes for a given product to the netCDF file.
+
+    Args:
+        ncfile (obj): netCDF file object
+        instrument_dict (dict): information about the instrument from tsv2dict.isntrument_dict.
+        product (str): name of data product.
+        verbose (int): level of additional info to print. At the moment, there is only 1 additional level. Default 0.
+    """
     for obj in [product, 'common']:
         for key, value in instrument_dict[obj]['variables'].items():
             # therefore, value is instrument_dict[obj]['variables'][key]
@@ -113,32 +122,32 @@ def add_variables(ncfile, instrument_dict, product, verbose = 0):
 
             
 
-def make_netcdf(instrument, product, time, instrument_dict, loc = 'land', dimension_lengths = {}, verbose = 0, **kwargs):
+def make_netcdf(instrument, product, time, instrument_dict, loc = 'land', dimension_lengths = {}, verbose = 0, options = '', product_version = '1.0', file_location = '.'):
     """
-    dimension_lengths = {dimension_name1: length, dimension_name2: length...}
-    loc - one of land, sea, air, trajectory
-    verbose - level of additional info to print. At the moment, there is only 1 additional level.
-    kwargs: options (default '')
-            product_version (default 1.0)
-            file_location (default '.')
+    Makes netCDF file for given instrument and arguments.
+
+    Args:
+        instrument (str): ncas instrument name.
+        product (str): name of data product.
+        time (str): time that the data represents, in YYYYmmdd-HHMMSS format or as much of as required.
+        instrument_dict (dict): information about the instrument from tsv2dict.isntrument_dict.
+        loc (str): location of instrument, one of 'land', 'sea', 'air' or 'trajectory'. Default 'land'.
+        dimension_lengths (dict): lengths of dimensions in file. If not given, 
+                                  python will prompt the user to enter lengths 
+                                  for each dimension. Default {}.
+        verbose (int): level of additional info to print. At the moment, there is only 1 additional level. Default 0.
+        options (str): options to be included in file name. All options should be in one string and 
+                       separated by an underscore ('_'), with up to three options permitted. Default ''.
+        product_version (str): version of the data file. Default '1.0'.
+        file_location (str): where to write the netCDF file. Default '.'.
     """
     location = instrument_dict['info']['Mobile/Fixed (loc)'].split('-')[-1].strip().lower()
-    if 'product_version' in kwargs:
-        product_version = kwargs['product_version']
-    else:
-        product_version = 1.0
-    if 'options' in kwargs:
-        no_options = len(kwargs['options'].split('_'))
+    if 'options' != '':
+        no_options = len(options.split('_'))
         if no_options > 3:
             msg = f'Too many options, maximum allowed 3, given {no_options}'
             raise ValueError(msg)
-        options = f"_{kwargs['options']}"
-    else:
-        options = ''
-    if 'file_location' in kwargs:
-        file_location = kwargs['file_location']
-    else:
-        file_location = '.'
+        options = f"_{options}"
         
     filename = f"{instrument}_{location}_{time}_{product}{options}_v{product_version}.nc"
     
@@ -171,7 +180,7 @@ def list_products(instrument):
 
     
     
-def main(instrument, date = None, dimension_lengths = {}, loc = 'land', products = None, verbose = 0, **kwargs):
+def main(instrument, date = None, dimension_lengths = {}, loc = 'land', products = None, verbose = 0, options = '', product_version = 1.0, file_locaton = '.'):
     """
     Create 'just-add-data' AMOF-compliant netCDF file 
     
@@ -184,6 +193,10 @@ def main(instrument, date = None, dimension_lengths = {}, loc = 'land', products
         loc (str): one of 'land', 'sea', 'air', 'trajectory'
         products (str): list of products to make netCDF file for this instrument. If None, then all applicable products are made.
         verbose (int): level of info to print out. Note that at the moment there is only one additional layer, this may increase in future.
+        options (str): options to be included in file name. All options should be in one string and
+                       separated by an underscore ('_'), with up to three options permitted. Default ''.
+        product_version (str): version of the data file. Default '1.0'.
+        file_location (str): where to write the netCDF file. Default '.'.
     """
     if date == None:
         date = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%d")
@@ -232,7 +245,7 @@ def main(instrument, date = None, dimension_lengths = {}, loc = 'land', products
     
     # make the files
     for product in products:
-        make_netcdf(instrument, product, date, instrument_dict, loc = loc, dimension_lengths = dimlengths, verbose = verbose, **kwargs)
+        make_netcdf(instrument, product, date, instrument_dict, loc = loc, dimension_lengths = dimlengths, verbose = verbose, options = options, product_version = product_version, file_location = file_location)
     
     
     
@@ -246,7 +259,7 @@ if __name__ == "__main__":
     parser.add_argument('-m','--deployment-mode', type=str, choices=['land','sea','air','trajectory'], help = 'Deployment mode of instrument, one of "land", "sea", "air, "trajectory". Default is "land".', default='land', dest='deployment')
     parser.add_argument('--list-products', action='store_true', dest='list_products', help = 'If given, available products for instrument are printed, then script exits.')
     parser.add_argument('-p','--products', nargs='*', default=None, help = 'Products for instrument to make netCDF file. If not given, netCDF files for all applicable products are made.', dest="products")
-    parser.add_argument('-k','--kwargs', nargs='*', help = 'Keyword arguments supplied to create_netcdf.make_netcdf through create_netcdf.main. Should be given as `argument value`, implemented kwargs are file_location, options, product_version. If argument option is given, each option for the netcdf file name should be separated by an underscore, e.g. `option opt1_opt2_opt3`', dest='kwargs')
+    parser.add_argument('-k','--kwargs', nargs='*', help = 'Addtitional keyword arguments supplied to create_netcdf.make_netcdf through create_netcdf.main. Should be given as `argument value`, implemented kwargs are file_location, options, product_version. If argument option is given, each option for the netcdf file name should be separated by an underscore, e.g. `option opt1_opt2_opt3`', dest='kwargs')
     args = parser.parse_args()
     
     
