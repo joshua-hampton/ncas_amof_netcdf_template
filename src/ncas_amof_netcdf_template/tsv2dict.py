@@ -1,3 +1,9 @@
+"""
+Take tsv files and return data as dictionaries 
+useful for creating netCDF files.
+
+"""
+
 import pandas as pd
 import re
 import requests
