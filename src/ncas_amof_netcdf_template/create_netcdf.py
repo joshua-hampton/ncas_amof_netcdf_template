@@ -14,6 +14,18 @@ from . import values
 
 
 def add_attributes(ncfile, instrument_dict, product, created_time, location, loc):
+    """
+    Adds all global attributes for a given product to the netCDF file.
+   
+    Args:
+        ncfile (obj): netCDF file object
+        instrument_dict (dict): information about the instrument from tsv2dict.isntrument_dict.
+        product (str): name of data product.
+        create_time (str): time of file creation.
+        location (str): value for the 'platform' global attribute.
+        loc (str): value for the 'deployment_mode' global attribute, should be one of 
+                   'land', 'sea', 'air', or 'trajectory'.
+    """
     for key,value in instrument_dict['common']['attributes'].items():
         if value['Fixed Value'] != '':
             ncfile.setncattr(key, value['Fixed Value'])
@@ -49,6 +61,15 @@ def add_attributes(ncfile, instrument_dict, product, created_time, location, loc
             
             
 def add_dimensions(ncfile, instrument_dict, product, dimension_lengths):
+    """
+    Adds all dimensions for a given product to the netCDF file.
+   
+    Args:
+        ncfile (obj): netCDF file object
+        instrument_dict (dict): information about the instrument from tsv2dict.isntrument_dict.
+        product (str): name of data product.
+        dimension_lengths (dict): length of each dimension.
+    """
     for key, length in dimension_lengths.items():
         if key in instrument_dict['common']['dimensions'].keys() or key in instrument_dict[product]['dimensions'].keys():
             ncfile.createDimension(key, length)
