@@ -6,6 +6,16 @@ from . import values
 
 
 def tsv2dict_vars(tsv_file):
+    """
+    For a given tsv file from https://github.com/ncasuk/AMF_CVs/tree/main/product-definitions/tsv
+    for data variables, return dictionary of variables and their attributes.
+
+    Args:
+        tsv_file (str): URL to location of tsv file
+
+    Returns:
+        dictionary of variables and attributes
+    """
     df_vars = pd.read_csv(tsv_file, sep='\t')
     df_vars=df_vars.fillna('')
     
@@ -35,6 +45,16 @@ def tsv2dict_vars(tsv_file):
 
 
 def tsv2dict_dims(tsv_file):
+    """
+    For a given tsv file from https://github.com/ncasuk/AMF_CVs/tree/main/product-definitions/tsv
+    for data dimensions, return dictionary of dimensions and additional info.
+
+    Args:
+        tsv_file (str): URL to location of tsv file
+
+    Returns:
+        dictionary of dimensions and info
+    """
     df_dims = pd.read_csv(tsv_file, sep='\t')
     df_dims = df_dims.fillna('')
     
@@ -49,6 +69,16 @@ def tsv2dict_dims(tsv_file):
 
 
 def tsv2dict_attrs(tsv_file):
+    """
+    For a given tsv file from https://github.com/ncasuk/AMF_CVs/tree/main/product-definitions/tsv
+    for data global attributes, return dictionary of attributes and associated values and info.
+
+    Args:
+        tsv_file (str): URL to location of tsv file
+
+    Returns:
+        dictionary of global attributes and associated values and info
+    """
     df_attrs = pd.read_csv(tsv_file, sep='\t')
     df_attrs = df_attrs.fillna('')
     
@@ -63,6 +93,16 @@ def tsv2dict_attrs(tsv_file):
 
 
 def tsv2dict_instruments(tsv_file):
+    """
+    For a given tsv file from https://github.com/ncasuk/AMF_CVs/tree/main/product-definitions/tsv
+    for ncas- or community- instruments, return dictionary of instruments and associated information.
+
+    Args:
+        tsv_file (str): URL to location of tsv file
+
+    Returns:
+        dictionary of instruments and associated information
+    """
     df_instruments = pd.read_csv(tsv_file, sep='\t')
     df_instruments = df_instruments.fillna('')
     
@@ -79,19 +119,62 @@ def tsv2dict_instruments(tsv_file):
     return all_instruments
 
 
-def create_variables_tsv_url(product):
-    return f'https://raw.githubusercontent.com/ncasuk/AMF_CVs/{values.TAG}/product-definitions/tsv/{product}/variables-specific.tsv'
+def create_variables_tsv_url(product, tag = values.TAG):
+    """
+    Returns URL for tsv file of variables specific to  a given product and tag release or branch.
+
+    Args:
+        product (str): data product
+        tag (str): tag release or branch name in GitHub for version of data. Default is set in values.py.
+
+    Return: 
+        URL
+    """
+    return f'https://raw.githubusercontent.com/ncasuk/AMF_CVs/{tag}/product-definitions/tsv/{product}/variables-specific.tsv'
 
 
-def create_dimensions_tsv_url(product):
-    return f'https://raw.githubusercontent.com/ncasuk/AMF_CVs/{values.TAG}/product-definitions/tsv/{product}/dimensions-specific.tsv'
+def create_dimensions_tsv_url(product, tag = values.TAG):
+    """
+    Returns URL for tsv file of dimensions specific to a given product and tag release or branch.
+
+    Args:
+        product (str): data product
+        tag (str): tag release or branch name in GitHub for version of data. Default is set in values.py.
+
+    Return: 
+        URL
+    """
+
+    return f'https://raw.githubusercontent.com/ncasuk/AMF_CVs/{tag}/product-definitions/tsv/{product}/dimensions-specific.tsv'
 
 
-def create_attributes_tsv_url(product):
-    return f'https://raw.githubusercontent.com/ncasuk/AMF_CVs/{values.TAG}/product-definitions/tsv/{product}/global-attributes-specific.tsv'
+def create_attributes_tsv_url(product, tag = values.TAG):
+    """
+    Returns URL for tsv file of global attributes specific to a given product and tag release or branch.
+
+    Args:
+        product (str): data product
+        tag (str): tag release or branch name in GitHub for version of data. Default is set in values.py.
+
+    Return: 
+        URL
+    """
+
+    return f'https://raw.githubusercontent.com/ncasuk/AMF_CVs/{tag}/product-definitions/tsv/{product}/global-attributes-specific.tsv'
 
 
 def instrument_dict(desired_instrument, loc='land'):
+    """
+    Collect all variables, dimensions and attributes required for all data products
+    associated with an instrument and deployment mode.
+
+    Args:
+        desired_instrument (str): name of instrument
+        loc (str): deployment mode, one of 'land', 'sea', 'air', or 'trajectory'. Default 'land'.
+
+    Returns:
+        dictionary of all attributes, dimensions and variables associated with the named instrument.
+    """
     if loc == 'land':
         common_dimensions_url = values.COMMON_DIMENSIONS_LAND_URL
         common_variables_url = values.COMMON_VARIABLES_LAND_URL
