@@ -201,7 +201,7 @@ def list_products(instrument):
 
     
     
-def main(instrument, date = None, dimension_lengths = {}, loc = 'land', products = None, verbose = 0, options = '', product_version = 1.0, file_locaton = '.'):
+def main(instrument, date = None, dimension_lengths = {}, loc = "land", products = None, verbose = 0, options = "", product_version = "1.0", file_locaton = "."):
     """
     Create 'just-add-data' AMOF-compliant netCDF file 
     
@@ -212,7 +212,7 @@ def main(instrument, date = None, dimension_lengths = {}, loc = 'land', products
                                   for needed dimension, user will be asked to type 
                                   in dimension length
         loc (str): one of 'land', 'sea', 'air', 'trajectory'
-        products (str): list of products to make netCDF file for this instrument. If None, then all applicable products are made.
+        products (str or list): string of one product or list of multiple products to make netCDF file for this instrument. If None, then all available products for the defined instrument are made.
         verbose (int): level of info to print out. Note that at the moment there is only one additional layer, this may increase in future.
         options (str): options to be included in file name. All options should be in one string and
                        separated by an underscore ('_'), with up to three options permitted. Default ''.
