@@ -201,7 +201,7 @@ def list_products(instrument):
 
     
     
-def main(instrument, date = None, dimension_lengths = {}, loc = "land", products = None, verbose = 0, options = "", product_version = "1.0", file_locaton = "."):
+def main(instrument, date = None, dimension_lengths = {}, loc = "land", products = None, verbose = 0, options = "", product_version = "1.0", file_location = "."):
     """
     Create 'just-add-data' AMOF-compliant netCDF file 
     
