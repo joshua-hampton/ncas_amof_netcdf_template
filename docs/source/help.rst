@@ -18,7 +18,3 @@ The best way to get help is through `issues on GitHub <https://github.com/joshua
 If you find a problem and also work out a solution to the issue, feel free to fork the GitHub repo and `create a pull request <https://github.com/joshua-hampton/ncas_amof_netcdf_template/pulls>`_ with your solution. This will then be reviewed before being accepted into a future release.
 
 
-Donations
----------
-Yeah, I bet I can't get away with this...
-
