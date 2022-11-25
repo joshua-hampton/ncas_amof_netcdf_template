@@ -10,6 +10,7 @@ on:
 
 jobs:
   update-version-number:
+    permissions: write-all
     runs-on: ubuntu-latest
     steps:
       - uses: peterjgrainger/action-create-branch@v2.2.0
