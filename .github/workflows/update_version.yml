@@ -19,6 +19,9 @@ jobs:
         with:
           branch: 'new_version'
           sha: '${{ github.event.pull_request.head.sha }}'
+      - uses: actions/checkout@v3
+        with:
+          ref: 'new_version'
       - name: Change version in setup.py
         run: awk -F= -F\" '$1=="    version="{$2=version}1' version=\"${NEW_VERSION}\" setup.py
         env:
