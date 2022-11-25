@@ -23,6 +23,8 @@ jobs:
         with:
           ref: 'new_version'
       - name: Change version in setup.py
-        run: awk -F= -F\" '$1=="TAG="{$2=version}1' version=\"${NEW_VERSION}\" values.py > tmp && mv tmp values.py
+        run: |
+          awk -F= -F\" '$1=="TAG="{$2=version}1' version=\"${NEW_VERSION}\" values.py > tmp 
+          mv tmp values.py
         env:
           NEW_VERSION: ${{ inputs.version }}
