@@ -1,4 +1,4 @@
-TAG="v2.0.0"
+TAG= "v2.0.1" 
 
 
 COMMON_ATTRIBUTES_URL = f'https://raw.githubusercontent.com/ncasuk/AMF_CVs/{TAG}/product-definitions/tsv/_common/global-attributes.tsv'
