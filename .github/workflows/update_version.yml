@@ -10,6 +10,7 @@ on:
 
 jobs:
   update-version-number:
+    permissions: write-all
     runs-on: ubuntu-latest
     steps:
       - uses: peterjgrainger/action-create-branch@v2.2.0
@@ -18,7 +19,29 @@ jobs:
         with:
           branch: 'new_version'
           sha: '${{ github.event.pull_request.head.sha }}'
-      - name: Change version in setup.py
-        run: awk -F= -F\" '$1=="    version="{$2=version}1' version=\"${NEW_VERSION}\" setup.py
+      - uses: actions/checkout@v3
+        with:
+          ref: 'new_version'
+      - name: Change version in setup.py and __init__.py
+        run: |
+          awk -F= -F\" '$1=="    version="{$2=version}1' version=\"${NEW_VERSION}\" setup.py > tmp.py
+          mv tmp.py setup.py
+          awk -F= -F\" '$1=="__version__="{$2=version}1' version=\"${NEW_VERSION}\" src/ncas_amof_netcdf_template/__init__.py > tmp.py
+          mv tmp.py src/ncas_amof_netcdf_template/__init__.py
         env:
           NEW_VERSION: ${{ inputs.version }}
+      - name: Push changes
+        run: |
+          git config --global user.email "joshua.hampton@live.co.uk"
+          git config --global user.name "Joshua Hampton"
+          git add .
+          git commit -m "Auto update version"
+          git push origin new_version
+      - name: Create PR
+        uses: devops-infra/action-pull-request@v0.5.3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          source_branch: new_version
+          target_branch: main
+          title: Version Update PR
+          body: "Automated pull request with updated version"
