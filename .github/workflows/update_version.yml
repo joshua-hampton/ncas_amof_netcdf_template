@@ -29,3 +29,8 @@ jobs:
           mv tmp.py values.py
         env:
           NEW_VERSION: ${{ inputs.version }}
+      - name: Push changes
+        run: |
+          git add .
+          git commit -m "Auto update version"
+          git push origin new_version
