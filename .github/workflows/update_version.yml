@@ -1,0 +1,24 @@
+name: Update version
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number'
+        required: true
+        type: string
+
+jobs:
+  update-version-number:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: peterjgrainger/action-create-branch@v2.2.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          branch: 'new_version'
+          sha: '${{ github.event.pull_request.head.sha }}'
+      - name: Change version in setup.py
+        run: awk -F= -F\" '$1=="    version="{$2=version}1' version=\"${NEW_VERSION}\" setup.py
+        env:
+          NEW_VERSION: ${{ inputs.version }}
