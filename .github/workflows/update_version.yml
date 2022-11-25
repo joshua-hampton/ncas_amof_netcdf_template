@@ -36,3 +36,11 @@ jobs:
           git add .
           git commit -m "Auto update version"
           git push origin new_version
+      - name: Create PR
+        uses: devops-infra/action-pull-request@v0.5.3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          source_branch: new_version
+          target_branch: main
+          title: Version Update PR
+          body: "Automated pull request with updated version"
