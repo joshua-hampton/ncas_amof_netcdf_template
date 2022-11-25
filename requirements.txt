@@ -1,4 +1,4 @@
 netcdf4
-numpy<=1.21.*
+numpy
 requests
 pandas
