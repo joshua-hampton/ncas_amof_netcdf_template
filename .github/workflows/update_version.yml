@@ -31,6 +31,8 @@ jobs:
           NEW_VERSION: ${{ inputs.version }}
       - name: Push changes
         run: |
+          git config --global user.email "joshua.hampton@live.co.uk"
+          git config --global user.name "Joshua Hampton"
           git add .
           git commit -m "Auto update version"
           git push origin new_version
