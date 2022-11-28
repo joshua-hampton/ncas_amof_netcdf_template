@@ -163,7 +163,7 @@ def make_netcdf(instrument, product, time, instrument_dict, loc = 'land', dimens
         file_location (str): where to write the netCDF file. Default '.'.
     """
     location = instrument_dict['info']['Mobile/Fixed (loc)'].split('-')[-1].strip().lower()
-    if 'options' != '':
+    if options != '':
         no_options = len(options.split('_'))
         if no_options > 3:
             msg = f'Too many options, maximum allowed 3, given {no_options}'
