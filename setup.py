@@ -26,6 +26,7 @@ setup(
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3 :: Only",
         "Topic :: Scientific/Engineering",
         "Topic :: Software Development :: Libraries :: Python Modules"
@@ -35,7 +36,7 @@ setup(
     packages=find_packages(where="src"),
     python_requires=">=3.7, <4",
     install_requires=["netcdf4",
-                      "numpy<=1.21.*",
+                      "numpy",
                       "requests",
                       "pandas"
                      ]
