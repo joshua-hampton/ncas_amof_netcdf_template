@@ -22,13 +22,63 @@ jobs:
       - uses: actions/checkout@v3
         with:
           ref: 'new_version'
-      - name: Change version in setup.py
+      - name: Change version in setup.py and __init__.py
         run: |
-          awk -F= -F\" '$1=="TAG="{$2=version}1' version=\"${NEW_VERSION}\" values.py > tmp.py
-          ls
-          mv tmp.py values.py
+          awk -F= -F\" '$1=="    version="{$2=version}1' version=\"${NEW_VERSION}\" setup.py > tmp.py
+          mv tmp.py setup.py
+          awk -F= -F\" '$1=="__version__="{$2=version}1' version=\"${NEW_VERSION}\" src/ncas_amof_netcdf_template/__init__.py > tmp.py
+          mv tmp.py src/ncas_amof_netcdf_template/__init__.py
         env:
           NEW_VERSION: ${{ inputs.version }}
+      - name: Change production status in setup.py
+        run: |
+          if [[ "${new_version}" == *"a"* ]]
+          then 
+            if $(grep -Fq "Development Status :: 3 - Alpha" setup.py)
+            then
+              echo "Already correct dev status"
+            elif $(grep -Fq "Development Status :: 4 - Beta" setup.py)
+            then 
+              sed -i 's/4 - Beta/3 - Alpha/' setup.py
+            elif $(grep -Fq "Development Status :: 5 - Production/Stable" setup.py)
+            then
+              sed -i 's|5 - Production/Stable|3 - Alpha|' setup.py
+            else
+              echo "Currently in unknown dev status, failing..."
+              exit 1
+            fi
+          elif [[ "${new_version}" == *"b"* || "${new_version}" == *"rc"* ]] 
+          then 
+            if $(grep -Fq "Development Status :: 4 - Beta" setup.py) 
+            then
+              echo "Already correct dev status"
+            elif $(grep -Fq "Development Status :: 3 - Alpha" setup.py) 
+            then 
+              sed -i 's/3 - Alpha/4 - Beta/' setup.py
+            elif $(grep -Fq "Development Status :: 5 - Production/Stable" setup.py)
+            then
+              sed -i 's|5 - Production/Stable|4 - Beta|' setup.py
+            else
+              echo "Currently in unknown dev status, failing..."
+              exit 1
+            fi
+          else
+            if $(grep -Fq "Development Status :: 5 - Production/Stable" setup.py)
+            then
+              echo "Already correct dev status"
+            elif $(grep -Fq "Development Status :: 3 - Alpha" setup.py)
+            then 
+              sed -i 's/3 - Alpha|5 - Production/Stable|' setup.py
+            elif $(grep -Fq "Development Status :: 4 - Beta" setup.py)
+            then
+              sed -i 's|4 - Beta|5 - Production/Stable|' setup.py
+            else
+              echo "Currently in unknown dev status, failing..."
+              exit 1
+            fi
+          fi
+        env:
+          new_version: ${{ inputs.version }}
       - name: Push changes
         run: |
           git config --global user.email "joshua.hampton@live.co.uk"

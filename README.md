@@ -1,21 +1,43 @@
 ncas-amof-netcdf-template
 =========================
+[![Documentation Status](https://readthedocs.org/projects/ncas-amof-netcdf-template/badge/?version=latest)](https://ncas-amof-netcdf-template.readthedocs.io/en/latest/?badge=latest)
+[![PyPI version](https://badge.fury.io/py/ncas-amof-netcdf-template.svg)](https://pypi.org/project/ncas-amof-netcdf-template/)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/ncas-amof-netcdf-template)
+
 
 Makes 'just-add-data' AMOF-compliant netCDF4 file.
 
-> **NOTE 1**: Check out the [wiki], it's much bettter than what's written here.
+A full description on how to install and use this module can be found [through the documentation](https://ncas-amof-netcdf-template.readthedocs.io/).
 
-> **NOTE 2**: Works, but still work in progress, bugs may well be present. Please report an issue with any problems discovered.
+Requirements
+------------
+* Python 3.7 or above
+* Python modules:
+  * [netCDF4](http://unidata.github.io/netcdf4-python/)
+  * [NumPy](https://numpy.org/) 
+  * [Requests](https://requests.readthedocs.io/en/latest/)
+  * [pandas](https://pandas.pydata.org/)
+
+Installation
+------------
+Releases of `ncas-amof-netcdf-template` can be installed from pip
+```
+pip install ncas-amof-netcdf-template
+```
+or releases can be [downloaded from GitHub](https://github.com/joshua-hampton/ncas_amof_netcdf_template/releases) and installed using
+```
+pip install .
+```
 
 
 Usage
 -----
 
-<h3>Python</h3>
+A fuller description of how to use this module can be found in the [documentation](https://ncas-amof-netcdf-template.readthedocs.io/en/latest/usage.html).
 
 ```python
-import create_netcdf
-create_netcdf.main(instrument, date = None, dimension_lengths = {}, loc = 'land', products = None, verbose = 0)
+import ncas_amof_netcdf_template as nant
+nant.create_netcdf.main(instrument, date = None, dimension_lengths = {}, loc = 'land', products = None)
 ```
 where:
 - `instrument` - name of NCAS instrument, e.g. "ncas-ceilometer-3"
@@ -27,20 +49,9 @@ where:
 
 All products associated with an instrument can be printed by
 ```python
-import create_netcdf
-create_netcdf.list_products(instrument)
+import ncas_amof_netcdf_template as nant
+nant.create_netcdf.list_products(instrument)
 ```
 where `instrument` is replaced with the name of the NCAS instrument.
 
-<h3>Command Line</h3>
 
-```bash
-python create_netcdf.py ncas-instrument
-```
-will make a netCDF file for every applicable product for `ncas-instrument`, where `ncas-instrument` is replaced with the name of an NCAS instrument. Products can be listed with the by executing 
-```bash 
-python create_netcdf.py ncas-instrument --list-products
-```
-and individual products can be specified using the `-p` flag. For all available options, `python create_netcdf.py --help`
-
-[wiki]: https://github.com/joshua-hampton/ncas_amof_netcdf_template/wiki
