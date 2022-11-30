@@ -45,6 +45,7 @@ where:
 - `dimension_lengths` - dictionary of lengths of dimensions, e.g. {'time':96, 'altitude':45}. If length for required dimensions are not given, then python will ask for user input, default empty. Optional.
 - `loc` - one of 'land', 'air', 'sea', or 'trajectory', default is 'land'. Optional.
 - `products` - applicable products of desired NCAS instrument to make netCDF for. Setting products as `None` (default) makes netCDF file for all available products. Optional.
+- `verbose` - additional level of information and warnings to print. Only 1 additional layer of warnings are currently available.
 
 All products associated with an instrument can be printed by
 ```python
