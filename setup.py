@@ -15,7 +15,7 @@ setup(
     author="Joshua M. Ralph-Hampton",
     author_email="joshua.hampton@ncas.ac.uk",
     classifiers=[
-        "Development Status :: 4 - Beta",
+        "Development Status :: 5 - Production/Stable",
         "Environment :: Console",
         "Intended Audience :: Developers",
         "Intended Audience :: Science/Research",
