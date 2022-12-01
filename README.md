@@ -29,8 +29,6 @@ or releases can be [downloaded from GitHub](https://github.com/joshua-hampton/nc
 pip install .
 ```
 
-Conda install is not currently available - coming soon.
-
 Usage
 -----
 
