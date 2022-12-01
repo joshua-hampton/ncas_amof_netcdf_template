@@ -1,7 +1,7 @@
 ncas-amof-netcdf-template
 =========================
 [![Documentation Status](https://readthedocs.org/projects/ncas-amof-netcdf-template/badge/?version=latest)](https://ncas-amof-netcdf-template.readthedocs.io/en/latest/?badge=latest)
-[![PyPI version](https://badge.fury.io/py/ncas-amof-netcdf-template.svg)](https://pypi.org/project/ncas-amof-netcdf-template/)
+[![PyPI](https://img.shields.io/pypi/v/ncas-amof-netcdf-template)](https://pypi.org/project/ncas-amof-netcdf-template/)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/ncas-amof-netcdf-template)
 
 
@@ -28,8 +28,6 @@ or releases can be [downloaded from GitHub](https://github.com/joshua-hampton/nc
 ```
 pip install .
 ```
-
-Conda install is not currently available - coming soon.
 
 Usage
 -----
