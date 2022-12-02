@@ -1,20 +1,23 @@
 Installation
 ============
 
-Pip
----
-
-The latest release version of the module, along with any dependencies, can be downloaded and installed using `pip <https://pypi.org/>`_:
-::
-
-   pip install ncas_amof_netcdf_template
-
-
-
 Conda
 -----
 
-A conda release is not currently available.
+The latest release version of the module, along with any dependencies, can be downloaded and installed using `conda <https://docs.conda.io/en/latest/>`_:
+::
+
+  conda install -c conda-forge ncas-amof-netcdf-template
+
+
+Pip
+---
+
+The latest release version is also availalbe through `pip <https://pypi.org/>`_:
+::
+
+  pip install ncas-amof-netcdf-template
+
 
 
 GitHub
