@@ -106,7 +106,7 @@ This module `includes a function <util.html#ncas_amof_netcdf_template.util.get_t
   unix_times, day_of_year, years, months, days, hours, minutes, seconds, \
     time_coverage_start_unix, time_coverage_end_unix, file_date = nant.util.get_times(times)
 
-This returns 8 lists with the time formatted as needed for variables in the netCDF file, as well as the first and last UNIX time stamp which can be used for the `time coverage start and end <#time-coverage-start-and-end>`_ metadata fields, and the date of the first time in YYYYmmdd format which, if required, could be used for the date in the ``create_netcdf.main`` functin.
+This returns 8 lists with the time formatted as needed for variables in the netCDF file, as well as the first and last UNIX time stamp which can be used for the `time coverage start and end <#time-coverage-start-and-end>`_ metadata fields, and the date/time with the correct precision which, if required, could be used for the date in the ``create_netcdf.main`` function (e.g. in the example above it would return ``'20221117-12'``).
 
 Metadata
 --------
