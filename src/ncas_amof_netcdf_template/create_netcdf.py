@@ -13,7 +13,7 @@ from . import tsv2dict
 from . import values
 
 
-def add_attributes(ncfile, instrument_dict, product, created_time, location, loc):
+def add_attributes(ncfile, instrument_dict, product, created_time, location, loc, tag):
     """
     Adds all global attributes for a given product to the netCDF file.
    
@@ -25,6 +25,7 @@ def add_attributes(ncfile, instrument_dict, product, created_time, location, loc
         location (str): value for the 'platform' global attribute.
         loc (str): value for the 'deployment_mode' global attribute, should be one of 
                    'land', 'sea', 'air', or 'trajectory'.
+        tag (str): tagged release version of AMF_CVs
     """
     for key,value in instrument_dict['common']['attributes'].items():
         if value['Fixed Value'] != '':
@@ -42,7 +43,9 @@ def add_attributes(ncfile, instrument_dict, product, created_time, location, loc
         elif key == 'instrument_serial_number':
             ncfile.setncattr(key, instrument_dict['info']['Serial Number'])
         elif key == 'amf_vocabularies_release':
-            ncfile.setncattr(key, f'https://github.com/ncasuk/AMF_CVs/releases/tag/{values.TAG}')
+            if tag == "latest":
+                tag = values.get_latest_CVs_version()
+            ncfile.setncattr(key, f'https://github.com/ncasuk/AMF_CVs/releases/tag/{tag}')
         elif key == 'history':
             ncfile.setncattr(key, f'{created_time} - File created')
         elif key == 'last_revised_date':
@@ -143,7 +146,7 @@ def add_variables(ncfile, instrument_dict, product, verbose = 0):
 
             
 
-def make_netcdf(instrument, product, time, instrument_dict, loc = 'land', dimension_lengths = {}, verbose = 0, options = '', product_version = '1.0', file_location = '.'):
+def make_netcdf(instrument, product, time, instrument_dict, loc = 'land', dimension_lengths = {}, verbose = 0, options = '', product_version = '1.0', file_location = '.', tag = 'latest'):
     """
     Makes netCDF file for given instrument and arguments.
 
@@ -161,6 +164,7 @@ def make_netcdf(instrument, product, time, instrument_dict, loc = 'land', dimens
                        separated by an underscore ('_'), with up to three options permitted. Default ''.
         product_version (str): version of the data file. Default '1.0'.
         file_location (str): where to write the netCDF file. Default '.'.
+        tag (str): tagged release version of AMF_CVs
     """
     location = instrument_dict['info']['Mobile/Fixed (loc)'].split('-')[-1].strip().lower()
     if options != '':
@@ -175,7 +179,7 @@ def make_netcdf(instrument, product, time, instrument_dict, loc = 'land', dimens
     ncfile = Dataset(f'{file_location}/{filename}', 'w', format='NETCDF4_CLASSIC')
     created_time = dt.datetime.now(dt.timezone.utc).strftime('%Y-%m-%dT%H:%M:%S')
     
-    add_attributes(ncfile, instrument_dict, product, created_time, location, loc)
+    add_attributes(ncfile, instrument_dict, product, created_time, location, loc, tag)
     add_dimensions(ncfile, instrument_dict, product, dimension_lengths)
     add_variables(ncfile, instrument_dict, product, verbose = verbose)
     
@@ -201,7 +205,7 @@ def list_products(instrument):
 
     
     
-def main(instrument, date = None, dimension_lengths = {}, loc = "land", products = None, verbose = 0, options = "", product_version = "1.0", file_location = "."):
+def main(instrument, date = None, dimension_lengths = {}, loc = "land", products = None, verbose = 0, options = "", product_version = "1.0", file_location = ".", tag = "latest"):
     """
     Create 'just-add-data' AMOF-compliant netCDF file 
     
@@ -218,11 +222,12 @@ def main(instrument, date = None, dimension_lengths = {}, loc = "land", products
                        separated by an underscore ('_'), with up to three options permitted. Default ''.
         product_version (str): version of the data file. Default '1.0'.
         file_location (str): where to write the netCDF file. Default '.'.
+        tag (str): tagged release version of AMF_CVs
     """
     if date == None:
         date = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%d")
     
-    instrument_dict = tsv2dict.instrument_dict(instrument, loc = loc)
+    instrument_dict = tsv2dict.instrument_dict(instrument, loc = loc, tag = tag)
     
     # get and check our list of products
     tsvdictkeys = instrument_dict.keys()
@@ -266,7 +271,7 @@ def main(instrument, date = None, dimension_lengths = {}, loc = "land", products
     
     # make the files
     for product in products:
-        make_netcdf(instrument, product, date, instrument_dict, loc = loc, dimension_lengths = dimlengths, verbose = verbose, options = options, product_version = product_version, file_location = file_location)
+        make_netcdf(instrument, product, date, instrument_dict, loc = loc, dimension_lengths = dimlengths, verbose = verbose, options = options, product_version = product_version, file_location = file_location, tag = tag)
     
     
     
