@@ -82,7 +82,7 @@ def main(infile, outfile = None, overwrite = True, verbose=0, **kwargs):
     
     if outfile == None:
         infile_name = infile.split('/')[-1]
-        infile_dir = '/'.join(infile.split('/')[:-1])
+        infile_dir = '/'.join(infile.split('/')[:-1]) or '.'
         outfile = f'{infile_dir}/tmp_{infile_name}'
     
     toexclude = []

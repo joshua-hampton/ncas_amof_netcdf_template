@@ -125,51 +125,55 @@ def tsv2dict_instruments(tsv_file):
     return all_instruments
 
 
-def create_variables_tsv_url(product, tag = values.TAG):
+def create_variables_tsv_url(product, tag = 'latest'):
     """
     Returns URL for tsv file of variables specific to  a given product and tag release or branch.
 
     Args:
         product (str): data product
-        tag (str): tag release or branch name in GitHub for version of data. Default is set in values.py.
+        tag (str): tag release or branch name in GitHub for version of data. Default is `'latest'`.
 
     Return: 
         URL
     """
+    if tag == 'latest':
+        tag = values.get_latest_CVs_version()
     return f'https://raw.githubusercontent.com/ncasuk/AMF_CVs/{tag}/product-definitions/tsv/{product}/variables-specific.tsv'
 
 
-def create_dimensions_tsv_url(product, tag = values.TAG):
+def create_dimensions_tsv_url(product, tag = 'latest'):
     """
     Returns URL for tsv file of dimensions specific to a given product and tag release or branch.
 
     Args:
         product (str): data product
-        tag (str): tag release or branch name in GitHub for version of data. Default is set in values.py.
+        tag (str): tag release or branch name in GitHub for version of data. Default is `'latest'`.
 
     Return: 
         URL
     """
-
+    if tag == 'latest':
+        tag = values.get_latest_CVs_version()
     return f'https://raw.githubusercontent.com/ncasuk/AMF_CVs/{tag}/product-definitions/tsv/{product}/dimensions-specific.tsv'
 
 
-def create_attributes_tsv_url(product, tag = values.TAG):
+def create_attributes_tsv_url(product, tag = 'latest'):
     """
     Returns URL for tsv file of global attributes specific to a given product and tag release or branch.
 
     Args:
         product (str): data product
-        tag (str): tag release or branch name in GitHub for version of data. Default is set in values.py.
+        tag (str): tag release or branch name in GitHub for version of data. Default is `'latest'`.
 
     Return: 
         URL
     """
-
+    if tag == 'latest':
+        tag = values.get_latest_CVs_version()
     return f'https://raw.githubusercontent.com/ncasuk/AMF_CVs/{tag}/product-definitions/tsv/{product}/global-attributes-specific.tsv'
 
 
-def instrument_dict(desired_instrument, loc='land'):
+def instrument_dict(desired_instrument, loc='land', tag = 'latest'):
     """
     Collect all variables, dimensions and attributes required for all data products
     associated with an instrument and deployment mode.
@@ -177,32 +181,20 @@ def instrument_dict(desired_instrument, loc='land'):
     Args:
         desired_instrument (str): name of instrument
         loc (str): deployment mode, one of 'land', 'sea', 'air', or 'trajectory'. Default 'land'.
+        tag (str): tagged release version of AMF_CVs
 
     Returns:
         dictionary of all attributes, dimensions and variables associated with the named instrument.
     """
-    if loc == 'land':
-        common_dimensions_url = values.COMMON_DIMENSIONS_LAND_URL
-        common_variables_url = values.COMMON_VARIABLES_LAND_URL
-    elif loc == 'sea':
-        common_dimensions_url = values.COMMON_DIMENSIONS_SEA_URL
-        common_variables_url = values.COMMON_VARIABLES_SEA_URL
-    elif loc == 'air':
-        common_dimensions_url = values.COMMON_DIMENSIONS_AIR_URL
-        common_variables_url = values.COMMON_VARIABLES_AIR_URL
-    elif loc == 'trajectory':
-        common_dimensions_url = values.COMMON_DIMENSIONS_TRAJECTORY_URL
-        common_variables_url = values.COMMON_VARIABLES_TRAJECTORY_URL
-    else:
-        msg = f'Unknown loc "{loc}" - should be one of "land", "sea", "air", "trajectory"'
-        raise ValueError(msg)
+    common_dimensions_url = values.get_common_dimensions_url(tag = tag, loc = loc)
+    common_variables_url = values.get_common_variables_url(tag = tag, loc = loc)
     
     instrument_dict = {}
-    main_instruments = tsv2dict_instruments(values.INSTRUMENTS_URL)
+    main_instruments = tsv2dict_instruments(values.get_instruments_url(tag = tag))
     if desired_instrument in main_instruments.keys():
         instrument_dict['info'] = main_instruments[desired_instrument]
     else:
-        instrument_dict['info'] = tsv2dict_instruments(values.COMMUNITY_INSTRUMENTS_URL)[desired_instrument]
+        instrument_dict['info'] = tsv2dict_instruments(values.get_community_instruments_url(tag = tag))[desired_instrument]
 
     # Add common stuff
     instrument_dict['common'] = {}
@@ -210,7 +202,7 @@ def instrument_dict(desired_instrument, loc='land'):
     instrument_dict['common']['dimensions'] = {}
     instrument_dict['common']['variables'] = {}
 
-    instrument_dict['common']['attributes'] = tsv2dict_attrs(values.COMMON_ATTRIBUTES_URL)
+    instrument_dict['common']['attributes'] = tsv2dict_attrs(values.get_common_attributes_url(tag = tag))
     instrument_dict['common']['dimensions'] = tsv2dict_dims(common_dimensions_url)
     instrument_dict['common']['variables'] = tsv2dict_vars(common_variables_url)
 
@@ -221,9 +213,9 @@ def instrument_dict(desired_instrument, loc='land'):
         instrument_dict[product]['dimensions'] = {}
         instrument_dict[product]['variables'] = {}
         
-        attr_url = create_attributes_tsv_url(product)
-        dim_url = create_dimensions_tsv_url(product)
-        var_url = create_variables_tsv_url(product)
+        attr_url = create_attributes_tsv_url(product, tag = tag)
+        dim_url = create_dimensions_tsv_url(product, tag = tag)
+        var_url = create_variables_tsv_url(product, tag = tag)
     
         request = requests.get(attr_url)
         if request.status_code == 200:
