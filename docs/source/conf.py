@@ -21,11 +21,11 @@ on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 # -- Project information -----------------------------------------------------
 
 project = 'ncas_amof_netcdf_template'
-copyright = '2022, Joshua M. Hampton'
+copyright = '2023, Joshua M. Hampton'
 author = 'Joshua M. Hampton'
 
 # The full version, including alpha/beta/rc tags
-release = '1'
+release = '2.0.1'
 
 
 # -- General configuration ---------------------------------------------------
