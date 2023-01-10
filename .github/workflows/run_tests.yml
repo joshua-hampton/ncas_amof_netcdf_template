@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-      - package_prep
-      - update_actions
   pull_request:
 
 jobs:
