@@ -1,6 +1,6 @@
 ncas-amof-netcdf-template
 =========================
-[![Documentation Status](https://readthedocs.org/projects/ncas-amof-netcdf-template/badge/?version=latest)](https://ncas-amof-netcdf-template.readthedocs.io/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/ncas-amof-netcdf-template/badge/?version=stable)](https://ncas-amof-netcdf-template.readthedocs.io/en/stable)
 [![PyPI](https://img.shields.io/pypi/v/ncas-amof-netcdf-template)](https://pypi.org/project/ncas-amof-netcdf-template/)
 [![Conda (channel only)](https://img.shields.io/conda/vn/conda-forge/ncas-amof-netcdf-template)](https://anaconda.org/conda-forge/ncas-amof-netcdf-template)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/ncas-amof-netcdf-template)
@@ -8,7 +8,7 @@ ncas-amof-netcdf-template
 
 Makes 'just-add-data' AMOF-compliant netCDF4 file.
 
-A full description on how to install and use this module can be found [through the documentation](https://ncas-amof-netcdf-template.readthedocs.io/).
+A full description on how to install and use this module can be found [through the documentation](https://ncas-amof-netcdf-template.readthedocs.io/en/stable).
 
 Requirements
 ------------
@@ -37,7 +37,7 @@ pip install .
 Usage
 -----
 
-A fuller description of how to use this module can be found in the [documentation](https://ncas-amof-netcdf-template.readthedocs.io/en/latest/usage.html).
+A fuller description of how to use this module can be found in the [documentation](https://ncas-amof-netcdf-template.readthedocs.io/en/stable/usage.html).
 
 ```python
 import ncas_amof_netcdf_template as nant
