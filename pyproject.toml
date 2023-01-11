@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ncas_amof_netcdf_template"
+version = "2.0.1"
+authors = [
+  { name="Joshua M. Ralph-Hampton", email="joshua.hampton@ncas.ac.uk" },
+]
+description = "Package to create NCAS AMOF netCDF files."
+readme = "README.md"
+license = {file = "LICENSE"}
+requires-python = ">=3.7, <4"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development :: Libraries :: Python Modules"
+]
+keywords = ["NCAS", "AMOF", "netcdf", "template", "standard"]
+dependencies = [
+    "netcdf4",
+    "numpy",
+    "requests",
+    "pandas"
+]
+
+[project.urls]
+"Homepage" = "https://github.com/joshua-hampton/ncas_amof_netcdf_template"
+"Documentation" = "https://ncas-amof-netcdf-template.readthedocs.io/en/stable/"
+
