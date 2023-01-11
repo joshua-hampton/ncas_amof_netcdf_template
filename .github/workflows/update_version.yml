@@ -51,7 +51,7 @@ jobs:
             fi
           elif [[ "${new_version}" == *"b"* || "${new_version}" == *"rc"* ]] 
           then 
-            if $(grep -Fq "Development Status :: 4 - Beta" pyproject.toml 
+            if $(grep -Fq "Development Status :: 4 - Beta" pyproject.toml)
             then
               echo "Already correct dev status"
             elif $(grep -Fq "Development Status :: 3 - Alpha" pyproject.toml) 
