@@ -32,48 +32,48 @@ jobs:
           mv tmp.py docs/source/conf.py
         env:
           NEW_VERSION: ${{ inputs.version }}
-      - name: Change production status in setup.py
+      - name: Change production status in pyproject.toml
         run: |
           if [[ "${new_version}" == *"a"* ]]
           then 
-            if $(grep -Fq "Development Status :: 3 - Alpha" setup.py)
+            if $(grep -Fq "Development Status :: 3 - Alpha" pyproject.toml)
             then
               echo "Already correct dev status"
-            elif $(grep -Fq "Development Status :: 4 - Beta" setup.py)
+            elif $(grep -Fq "Development Status :: 4 - Beta" pyproject.toml)
             then 
-              sed -i 's/4 - Beta/3 - Alpha/' setup.py
-            elif $(grep -Fq "Development Status :: 5 - Production/Stable" setup.py)
+              sed -i 's/4 - Beta/3 - Alpha/' pyproject.toml
+            elif $(grep -Fq "Development Status :: 5 - Production/Stable" pyproject.toml)
             then
-              sed -i 's|5 - Production/Stable|3 - Alpha|' setup.py
+              sed -i 's|5 - Production/Stable|3 - Alpha|' pyproject.toml
             else
               echo "Currently in unknown dev status, failing..."
               exit 1
             fi
           elif [[ "${new_version}" == *"b"* || "${new_version}" == *"rc"* ]] 
           then 
-            if $(grep -Fq "Development Status :: 4 - Beta" setup.py) 
+            if $(grep -Fq "Development Status :: 4 - Beta" pyproject.toml 
             then
               echo "Already correct dev status"
-            elif $(grep -Fq "Development Status :: 3 - Alpha" setup.py) 
+            elif $(grep -Fq "Development Status :: 3 - Alpha" pyproject.toml) 
             then 
-              sed -i 's/3 - Alpha/4 - Beta/' setup.py
-            elif $(grep -Fq "Development Status :: 5 - Production/Stable" setup.py)
+              sed -i 's/3 - Alpha/4 - Beta/' pyproject.toml
+            elif $(grep -Fq "Development Status :: 5 - Production/Stable" pyproject.toml)
             then
-              sed -i 's|5 - Production/Stable|4 - Beta|' setup.py
+              sed -i 's|5 - Production/Stable|4 - Beta|' pyproject.toml
             else
               echo "Currently in unknown dev status, failing..."
               exit 1
             fi
           else
-            if $(grep -Fq "Development Status :: 5 - Production/Stable" setup.py)
+            if $(grep -Fq "Development Status :: 5 - Production/Stable" pyproject.toml)
             then
               echo "Already correct dev status"
-            elif $(grep -Fq "Development Status :: 3 - Alpha" setup.py)
+            elif $(grep -Fq "Development Status :: 3 - Alpha" pyproject.toml)
             then 
-              sed -i 's/3 - Alpha|5 - Production/Stable|' setup.py
-            elif $(grep -Fq "Development Status :: 4 - Beta" setup.py)
+              sed -i 's/3 - Alpha|5 - Production/Stable|' pyproject.toml
+            elif $(grep -Fq "Development Status :: 4 - Beta" pyproject.toml)
             then
-              sed -i 's|4 - Beta|5 - Production/Stable|' setup.py
+              sed -i 's|4 - Beta|5 - Production/Stable|' pyproject.toml
             else
               echo "Currently in unknown dev status, failing..."
               exit 1
