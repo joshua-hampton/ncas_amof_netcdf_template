@@ -22,10 +22,10 @@ jobs:
       - uses: actions/checkout@v3
         with:
           ref: 'new_version'
-      - name: Change version in conf.py, setup.py and __init__.py
+      - name: Change version in conf.py, pyproject.toml and __init__.py
         run: |
-          awk -F= -F\" '$1=="    version="{$2=version}1' version=\"${NEW_VERSION}\" OFS="" setup.py > tmp.py
-          mv tmp.py setup.py
+          awk -F= -F\" '$1=="version = "{$2=version}1' version=\"${NEW_VERSION}\" OFS="" pyproject.toml > tmp.toml
+          mv tmp.toml pyproject.toml
           awk -F= -F\" '$1=="__version__="{$2=version}1' version=\"${NEW_VERSION}\" OFS="" src/ncas_amof_netcdf_template/__init__.py > tmp.py
           mv tmp.py src/ncas_amof_netcdf_template/__init__.py
           awk -F= -F\' '$1=="release = "{$2=version}1' version=\'${NEW_VERSION}\' OFS="" docs/source/conf.py > tmp.py
