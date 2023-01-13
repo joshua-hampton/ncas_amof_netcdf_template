@@ -123,15 +123,15 @@ def get_times(dt_times):
     if years[0] == years[-1]:
         file_date += str(years[0])
         if months[0] == months[-1]:
-            file_date += str(months[0])
+            file_date += str(zero_pad_number(months[0]))
             if days[0] == days[-1]:
-                file_date += str(days[0])
+                file_date += str(zero_pad_number(days[0]))
                 if hours[0] == hours[-1]:
-                    file_date += f'-{hours[0]}'
+                    file_date += f'-{zero_pad_number(hours[0])}'
                     if minutes[0] == minutes[-1]:
-                        file_date += str(minutes[0])
+                        file_date += str(zero_pad_number(minutes[0]))
                         if seconds[0] == seconds[-1]:
-                            file_date += str(seconds[0])
+                            file_date += str(zero_pad_number(int(seconds[0])))
     else:
         raise ValueError("Incompatible dates - data from over 2 years")
     return unix_times, doy, years, months, days, hours, minutes, seconds, time_coverage_start_dt, time_coverage_end_dt, file_date
