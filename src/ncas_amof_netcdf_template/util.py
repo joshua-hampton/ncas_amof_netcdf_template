@@ -118,6 +118,7 @@ def get_times(dt_times):
     seconds = [np.float32(i.second + (i.microsecond/(10**(len(str(i.microsecond)))))) for i in dt_times]    
     time_coverage_start_dt = unix_times[0]
     time_coverage_end_dt = unix_times[-1]
+    doy = np.array(doy) + np.array([ i/24 for i in hours ]) + np.array([ i/(24*60) for i in minutes ]) + np.array([ i/(24*60*60) for i in seconds ])
     #file_date = f'{dt_times[0].year}{zero_pad_number(dt_times[0].month)}{zero_pad_number(dt_times[0].day)}'    
     file_date = ''
     if years[0] == years[-1]:
