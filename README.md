@@ -1,9 +1,11 @@
 ncas-amof-netcdf-template
 =========================
-[![Documentation Status](https://readthedocs.org/projects/ncas-amof-netcdf-template/badge/?version=stable)](https://ncas-amof-netcdf-template.readthedocs.io/en/stable)
 [![PyPI](https://img.shields.io/pypi/v/ncas-amof-netcdf-template)](https://pypi.org/project/ncas-amof-netcdf-template/)
 [![Conda (channel only)](https://img.shields.io/conda/vn/conda-forge/ncas-amof-netcdf-template)](https://anaconda.org/conda-forge/ncas-amof-netcdf-template)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/ncas-amof-netcdf-template)
+
+[![Documentation Status](https://readthedocs.org/projects/ncas-amof-netcdf-template/badge/?version=stable)](https://ncas-amof-netcdf-template.readthedocs.io/en/stable)
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/joshua-hampton/ncas-amof-netcdf-template/run_tests.yml)
 
 
 Makes 'just-add-data' AMOF-compliant netCDF4 file.
