@@ -1,12 +1,12 @@
 name: build
 
 on:
-  push:
+  pull_request:
     branches:
       - main
-      - package_prep
-      - update_actions
-  pull_request:
+  schedule:
+    # midnight Sunday
+    - cron: '0 0 * * 0'
 
 jobs:
   build:
