@@ -7,6 +7,8 @@ ncas-amof-netcdf-template
 [![Documentation Status](https://readthedocs.org/projects/ncas-amof-netcdf-template/badge/?version=stable)](https://ncas-amof-netcdf-template.readthedocs.io/en/stable)
 [![GitHub Workflow Status](https://github.com/joshua-hampton/ncas_amof_netcdf_template/actions/workflows/run_tests.yml/badge.svg)](https://github.com/joshua-hampton/ncas_amof_netcdf_template/actions/workflows/run_tests.yml)
 
+---**pre-commit ci**---
+
 
 Makes 'just-add-data' AMOF-compliant netCDF4 file.
 
@@ -59,5 +61,16 @@ import ncas_amof_netcdf_template as nant
 nant.create_netcdf.list_products(instrument)
 ```
 where `instrument` is replaced with the name of the NCAS instrument.
+
+
+Contributing
+------------
+* Fork it
+* pre-commit
+* PR welcome
+
+Licence
+-------
+[MIT](https://mit-license.org/) 
 
 
