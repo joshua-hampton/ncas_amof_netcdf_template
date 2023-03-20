@@ -14,6 +14,26 @@ In its very simplest form:
 
 This will create a netCDF file with today's date for all data products availalbe for the given instrument.
 
+
+Dimensions
+^^^^^^^^^^
+Dimension sizes need to be defined when creating a netCDF file. Dimension lengths can be provided to the ``create_netcdf.main`` function as a dictionary:
+
+.. code-block:: python
+  
+  nant.create_netcdf.main('ncas-ceilometer-3', dimension_lengths = {'time':96, 'altitude':45, 'layer_index':4})
+
+
+If dimensions aren't given, Python asks for the dimension lengths to be given:
+
+.. code-block:: python
+
+  nant.create_netcdf.main('ncas-ceilometer-3')
+  Enter length for dimension time: 96
+  Enter length for dimension altitude: 45
+  Enter length for dimension layer_index: 4 
+
+
 Date
 ^^^^
 The `file-naming convention <https://sites.google.com/ncas.ac.uk/ncasobservations/home/data-project/ncas-data-standards/ncas-amof/file-naming>`_ for the NCAS-GENERAL standard includes the date, and sometimes time, which the data within the file represents. By default, today's date will be used in the file name. This behaviour can be overridden by giving the date to the ``create_netcdf.main`` function:
