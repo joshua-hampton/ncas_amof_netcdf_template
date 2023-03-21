@@ -66,11 +66,11 @@ where `instrument` is replaced with the name of the NCAS instrument.
 
 Contributing
 ------------
-Contributions are welcome from everyone, provided they enhance and improve the capabilities of this package, and code can be distributed under the conditions of the licence. When contributing, users should create a new branch under their forked repository. 
+Contributions are welcome from everyone, provided they enhance and improve the capabilities of this package, and code can be distributed under the conditions of the [licence](#licence). When contributing, users should create a new branch under their forked repository. 
 
 Note that `pre-commit-ci` will run on all pull requests to this repository, however autofix is disabled. It is recommended that users ensure their contributions pass these checks before submitting pull requests. See [pre-commit](https://pre-commit.com/) for more details.
 
 
 Licence
 -------
-This package is available under the [MIT](https://mit-license.org/) licence.
+This package is available under the [MIT licence](LICENSE).
