@@ -20,7 +20,7 @@ Dimensions
 Dimension sizes need to be defined when creating a netCDF file. Dimension lengths can be provided to the ``create_netcdf.main`` function as a dictionary:
 
 .. code-block:: python
-  
+
   nant.create_netcdf.main('ncas-ceilometer-3', dimension_lengths = {'time':96, 'altitude':45, 'layer_index':4})
 
 
@@ -31,7 +31,7 @@ If dimensions aren't given, Python asks for the dimension lengths to be given:
   nant.create_netcdf.main('ncas-ceilometer-3')
   Enter length for dimension time: 96
   Enter length for dimension altitude: 45
-  Enter length for dimension layer_index: 4 
+  Enter length for dimension layer_index: 4
 
 
 Date
@@ -48,7 +48,7 @@ Data Products
 List available data products for an instrument:
 
 .. code-block:: python
-   
+
   nant.create_netcdf.list_products('ncas-ceilometer-3')
 
 
@@ -105,7 +105,7 @@ After the netCDF file is created, the file then needs to be opened in append mod
 
   nant.util.update_variable(nc, 'attenuated_aerosol_backscatter_coefficient', backscatter_data)
 
-  
+
 where ``'attenuated_aerosol_backscatter_coefficient'`` is the name of the variable in the netCDF file, and ``'backscatter_data'`` is an array containing the data. This will also update the ``valid_min`` and ``valid_max`` attributes for each variable where applicable.
 
 Time
@@ -203,15 +203,15 @@ An example of a full work flow using ``ncas_amof_netcdf_template`` to create the
     time_coverage_start_unix, time_coverage_end_unix, file_date = nant.util.get_times(times)
 
   # Create netCDF file and read it back into the script in append mode
-  nant.create_netcdf.main('ncas-ceilometer-3', date = file_date, 
-                          dimension_lengths = {'time':len(times), 'altitude':len(altitudes)}, 
-                          loc = 'land', products = 'aerosol-backscatter', 
+  nant.create_netcdf.main('ncas-ceilometer-3', date = file_date,
+                          dimension_lengths = {'time':len(times), 'altitude':len(altitudes)},
+                          loc = 'land', products = 'aerosol-backscatter',
                           file_location=ncfile_location)
   nc = Dataset(f'{ncfile_location}/ncas-ceilometer-3_iao_{file_date}_aerosol-backscatter_v1.0.nc', 'a')
 
   # Add variable data to netCDF file
   nant.util.update_variable(ncfile, 'altitude', altitudes)
-  nant.util.update_variable(ncfile, 'attenuated_aerosol_backscatter_coefficient', 
+  nant.util.update_variable(ncfile, 'attenuated_aerosol_backscatter_coefficient',
                             backscatter_data)
   nant.util.update_variable(ncfile, 'time', unix_times)
   nant.util.update_variable(ncfile, 'day_of_year', day_of_year)
@@ -222,12 +222,12 @@ An example of a full work flow using ``ncas_amof_netcdf_template`` to create the
   nant.util.add_metadata_to_netcdf(ncfile, 'metadata.csv')
 
   # Add time_coverage_start and time_coverage_end metadata using data from get_times
-  nc.setncattr('time_coverage_start', 
+  nc.setncattr('time_coverage_start',
                dt.datetime.fromtimestamp(time_coverage_start_unix, dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%S"))
-  nc.setncattr('time_coverage_end', 
+  nc.setncattr('time_coverage_end',
                dt.datetime.fromtimestamp(time_coverage_end_unix, dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%S"))
 
-  # Look to see if latitude and longitude values have been added, and 
+  # Look to see if latitude and longitude values have been added, and
   # geospatial_bounds NOT added, through the metadata file
   lat_masked = nc.variables['latitude'][0].mask
   lon_masked = nc.variables['longitude'][0].mask
@@ -241,5 +241,3 @@ An example of a full work flow using ``ncas_amof_netcdf_template`` to create the
 
   # Check for empty variables and remove if necessary
   nant.remove_empty_variables.main(f'{ncfile_location}/ncas-ceilometer-3_iao_{file_date}_aerosol-backscatter_v1.0.nc')
-	
-

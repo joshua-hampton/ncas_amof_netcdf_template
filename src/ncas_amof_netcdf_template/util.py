@@ -11,7 +11,7 @@ import numpy as np
 def check_int(value):
     """
     Returns True if value is an integer, otherwise returns False.
-    
+
     Args:
         value (str): string to test
 
@@ -46,41 +46,39 @@ def check_float(value):
         raise
 
 
-
 def get_metadata(metafile):
     """
     Returns a dict from a csv with metadata.
     Can also include latitude and longitude variables if
     they are single values (e.g. point deployment).
-    
+
     Args:
         metafile (file): csv file with metadata, one attribute per line
 
     Returns:
         dict: metadata from csv as dictionary
     """
-    with open(metafile, 'rt') as meta:
-        raw_metadata = {} #empty dict
+    with open(metafile, "rt") as meta:
+        raw_metadata = {}  # empty dict
         metaread = csv.reader(meta)
         for row in metaread:
             if len(row) >= 2:
-                raw_metadata[row[0]] = ','.join(row[1:]).strip()
+                raw_metadata[row[0]] = ",".join(row[1:]).strip()
     return raw_metadata
-
 
 
 def add_metadata_to_netcdf(ncfile, metadata_file=None):
     """
-    Reads metadata from csv file using get_metadata, adds values to 
+    Reads metadata from csv file using get_metadata, adds values to
     global attributes in netCDF file.
-    Can also include latitude and longitude variables if they are 
+    Can also include latitude and longitude variables if they are
     single values (e.g. point deployment), using update_variable function.
-    
+
     Args:
         ncfile (netCDF Dataset): Dataset object of netCDF file.
         metadata_file (file): csv file with metadata, one attribute per line
     """
-    if metadata_file != None:
+    if metadata_file is not None:
         raw_metadata = get_metadata(metadata_file)
         for attr, value in raw_metadata.items():
             # if value is int or float, use that type rather than str
@@ -91,9 +89,8 @@ def add_metadata_to_netcdf(ncfile, metadata_file=None):
 
             if attr in ncfile.ncattrs():
                 ncfile.setncattr(attr, value)
-            elif attr == 'latitude' or attr == 'longitude':
+            elif attr == "latitude" or attr == "longitude":
                 update_variable(ncfile, attr, value)
-
 
 
 def get_times(dt_times):
@@ -105,7 +102,8 @@ def get_times(dt_times):
 
     Returns:
         lists: unix_times, day-of-year, years, months, days, hours, minutes, seconds
-        floats: unix time of first and last times (time_coverage_start and time_coverage_end)
+        floats: unix time of first and last times (time_coverage_start and
+                 time_coverage_end)
         str: date in YYYYmmdd format of first time, (file_date)
     """
     unix_times = [i.replace(tzinfo=dt.timezone.utc).timestamp() for i in dt_times]
@@ -115,12 +113,19 @@ def get_times(dt_times):
     days = [i.day for i in dt_times]
     hours = [i.hour for i in dt_times]
     minutes = [i.minute for i in dt_times]
-    seconds = [np.float32(i.second + (i.microsecond/(10**(len(str(i.microsecond)))))) for i in dt_times]    
+    seconds = [
+        np.float32(i.second + (i.microsecond / (10 ** (len(str(i.microsecond))))))
+        for i in dt_times
+    ]
     time_coverage_start_dt = unix_times[0]
     time_coverage_end_dt = unix_times[-1]
-    doy = np.array(doy) + np.array([ i/24 for i in hours ]) + np.array([ i/(24*60) for i in minutes ]) + np.array([ i/(24*60*60) for i in seconds ])
-    #file_date = f'{dt_times[0].year}{zero_pad_number(dt_times[0].month)}{zero_pad_number(dt_times[0].day)}'    
-    file_date = ''
+    doy = (
+        np.array(doy)
+        + np.array([i / 24 for i in hours])
+        + np.array([i / (24 * 60) for i in minutes])
+        + np.array([i / (24 * 60 * 60) for i in seconds])
+    )
+    file_date = ""
     if years[0] == years[-1]:
         file_date += str(years[0])
         if months[0] == months[-1]:
@@ -128,31 +133,46 @@ def get_times(dt_times):
             if days[0] == days[-1]:
                 file_date += str(zero_pad_number(days[0]))
                 if hours[0] == hours[-1]:
-                    file_date += f'-{zero_pad_number(hours[0])}'
+                    file_date += f"-{zero_pad_number(hours[0])}"
                     if minutes[0] == minutes[-1]:
                         file_date += str(zero_pad_number(minutes[0]))
                         if seconds[0] == seconds[-1]:
                             file_date += str(zero_pad_number(int(seconds[0])))
     else:
         raise ValueError("Incompatible dates - data from over 2 years")
-    return unix_times, doy, years, months, days, hours, minutes, seconds, time_coverage_start_dt, time_coverage_end_dt, file_date
-
+    return (
+        unix_times,
+        doy,
+        years,
+        months,
+        days,
+        hours,
+        minutes,
+        seconds,
+        time_coverage_start_dt,
+        time_coverage_end_dt,
+        file_date,
+    )
 
 
 def update_variable(ncfile, ncfile_varname, data):
     """
-    Adds data to variable, and updates valid_min and valid_max variable attrs if they exist.
-    
+    Adds data to variable, and updates valid_min and valid_max
+     variable attrs if they exist.
+
     Args:
         ncfile (netCDF Dataset): Dataset object of netCDF file.
         ncfile_varname (str): Name of variable in netCDF file.
         data (array or list): Data to be added to netCDF variable.
     """
-    if 'valid_min' in ncfile.variables[ncfile_varname].ncattrs():
-        ncfile.variables[ncfile_varname].valid_min = np.float64(np.nanmin(data)).astype(ncfile.variables[ncfile_varname].datatype)
-        ncfile.variables[ncfile_varname].valid_max = np.float64(np.nanmax(data)).astype(ncfile.variables[ncfile_varname].datatype)
+    if "valid_min" in ncfile.variables[ncfile_varname].ncattrs():
+        ncfile.variables[ncfile_varname].valid_min = np.float64(np.nanmin(data)).astype(
+            ncfile.variables[ncfile_varname].datatype
+        )
+        ncfile.variables[ncfile_varname].valid_max = np.float64(np.nanmax(data)).astype(
+            ncfile.variables[ncfile_varname].datatype
+        )
     ncfile.variables[ncfile_varname][:] = data
-
 
 
 def zero_pad_number(n):
@@ -160,15 +180,15 @@ def zero_pad_number(n):
     Returns single digit number n as '0n'
     Returns multiple digit number n as 'n'
     Used for date or month strings
-    
+
     Args:
         n (int): Number
-        
+
     Returns:
         str: Number with zero padding if single digit.
-        
+
     """
-    if len(f'{n}') == 1:
-        return f'0{n}'
+    if len(f"{n}") == 1:
+        return f"0{n}"
     else:
-        return f'{n}'
+        return f"{n}"
