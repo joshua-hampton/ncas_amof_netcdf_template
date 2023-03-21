@@ -42,3 +42,10 @@ dependencies = [
 "Homepage" = "https://github.com/joshua-hampton/ncas_amof_netcdf_template"
 "Documentation" = "https://ncas-amof-netcdf-template.readthedocs.io/en/stable/"
 
+
+[tool.ruff]
+ignore = ["F401"]
+
+[tool.black]
+extend-exclude = "docs"
+force-exclude = "^/src/ncas_amof_netcdf_template/__init__.py"
