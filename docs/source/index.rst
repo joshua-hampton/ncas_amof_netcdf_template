@@ -7,7 +7,7 @@ ncas_amof_netcdf_template is a Python module to help `NCAS <https://ncas.ac.uk/>
 .. toctree::
    :maxdepth: 1
    :caption: Getting Started
-   
+
    installation
    usage
 
@@ -29,4 +29,3 @@ ncas_amof_netcdf_template is a Python module to help `NCAS <https://ncas.ac.uk/>
    GitHub <https://github.com/joshua-hampton/ncas_amof_netcdf_template>
    NCAS <https://ncas.ac.uk>
    NCAS Data Project <https://sites.google.com/ncas.ac.uk/ncasobservations/home/data-project/>
-   

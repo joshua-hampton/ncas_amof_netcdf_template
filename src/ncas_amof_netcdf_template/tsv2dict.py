@@ -1,5 +1,5 @@
 """
-Take tsv files and return data as dictionaries 
+Take tsv files and return data as dictionaries
 useful for creating netCDF files.
 
 """

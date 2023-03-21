@@ -7,8 +7,9 @@ ncas-amof-netcdf-template
 [![Documentation Status](https://readthedocs.org/projects/ncas-amof-netcdf-template/badge/?version=stable)](https://ncas-amof-netcdf-template.readthedocs.io/en/stable)
 [![GitHub Workflow Status](https://github.com/joshua-hampton/ncas_amof_netcdf_template/actions/workflows/run_tests.yml/badge.svg)](https://github.com/joshua-hampton/ncas_amof_netcdf_template/actions/workflows/run_tests.yml)
 
----**pre-commit ci**---
-
+[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/joshua-hampton/ncas_amof_netcdf_template/main.svg)](https://results.pre-commit.ci/latest/github/joshua-hampton/ncas_amof_netcdf_template/main)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/charliermarsh/ruff/main/assets/badge/v1.json)](https://github.com/charliermarsh/ruff)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 Makes 'just-add-data' AMOF-compliant netCDF4 file.
 
@@ -19,7 +20,7 @@ Requirements
 * Python 3.7 or above
 * Python modules:
   * [netCDF4](http://unidata.github.io/netcdf4-python/)
-  * [NumPy](https://numpy.org/) 
+  * [NumPy](https://numpy.org/)
   * [Requests](https://requests.readthedocs.io/en/latest/)
   * [pandas](https://pandas.pydata.org/)
 
@@ -71,6 +72,4 @@ Contributing
 
 Licence
 -------
-[MIT](https://mit-license.org/) 
-
-
+[MIT](https://mit-license.org/)
