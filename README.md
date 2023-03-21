@@ -68,7 +68,7 @@ Contributing
 ------------
 Contributions are welcome from everyone, provided they enhance and improve the capabilities of this package, and code can be distributed under the conditions of the [licence](#licence). When contributing, users should create a new branch under their forked repository. 
 
-Note that `pre-commit-ci` will run on all pull requests to this repository, however autofix is disabled. It is recommended that users ensure their contributions pass these checks before submitting pull requests. See [pre-commit](https://pre-commit.com/) for more details.
+Note that `pre-commit-ci` will run on all pull requests to this repository, however autofix is disabled. It is recommended that users ensure their contributions pass these checks before submitting pull requests, however users can type `pre-commit.ci autofix` into a comment after a failed pre-commit-ci run to automatically fix issues. See [pre-commit](https://pre-commit.com/) for more details.
 
 
 Licence
