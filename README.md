@@ -6,8 +6,8 @@ ncas-amof-netcdf-template
 
 [![Documentation Status](https://readthedocs.org/projects/ncas-amof-netcdf-template/badge/?version=stable)](https://ncas-amof-netcdf-template.readthedocs.io/en/stable)
 [![GitHub Workflow Status](https://github.com/joshua-hampton/ncas_amof_netcdf_template/actions/workflows/run_tests.yml/badge.svg)](https://github.com/joshua-hampton/ncas_amof_netcdf_template/actions/workflows/run_tests.yml)
-
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/joshua-hampton/ncas_amof_netcdf_template/main.svg)](https://results.pre-commit.ci/latest/github/joshua-hampton/ncas_amof_netcdf_template/main)
+
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/charliermarsh/ruff/main/assets/badge/v1.json)](https://github.com/charliermarsh/ruff)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
@@ -66,10 +66,11 @@ where `instrument` is replaced with the name of the NCAS instrument.
 
 Contributing
 ------------
-* Fork it
-* pre-commit
-* PR welcome
+Contributions are welcome from everyone, provided they enhance and improve the capabilities of this package, and code can be distributed under the conditions of the licence. When contributing, users should create a new branch under their forked repository. 
+
+Note that `pre-commit-ci` will run on all pull requests to this repository, however autofix is disabled. It is recommended that users ensure their contributions pass these checks before submitting pull requests. See [pre-commit](https://pre-commit.com/) for more details.
+
 
 Licence
 -------
-[MIT](https://mit-license.org/)
+This package is available under the [MIT](https://mit-license.org/) licence.
