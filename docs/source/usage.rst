@@ -20,7 +20,7 @@ Dimensions
 Dimension sizes need to be defined when creating a netCDF file. Dimension lengths can be provided to the ``create_netcdf.main`` function as a dictionary:
 
 .. code-block:: python
-  
+
   nant.create_netcdf.main('ncas-ceilometer-3', dimension_lengths = {'time':96, 'altitude':45, 'layer_index':4})
 
 
@@ -31,7 +31,7 @@ If dimensions aren't given, Python asks for the dimension lengths to be given:
   nant.create_netcdf.main('ncas-ceilometer-3')
   Enter length for dimension time: 96
   Enter length for dimension altitude: 45
-  Enter length for dimension layer_index: 4 
+  Enter length for dimension layer_index: 4
 
 
 Date
