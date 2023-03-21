@@ -152,7 +152,7 @@ def create_variables_tsv_url(product, tag="latest"):
         tag = values.get_latest_CVs_version()
     return (
         f"https://raw.githubusercontent.com/ncasuk/AMF_CVs/{tag}/product-definitions"
-        "/tsv/{product}/variables-specific.tsv"
+        f"/tsv/{product}/variables-specific.tsv"
     )
 
 
@@ -173,7 +173,7 @@ def create_dimensions_tsv_url(product, tag="latest"):
         tag = values.get_latest_CVs_version()
     return (
         f"https://raw.githubusercontent.com/ncasuk/AMF_CVs/{tag}/product-definitions/"
-        "tsv/{product}/dimensions-specific.tsv"
+        f"tsv/{product}/dimensions-specific.tsv"
     )
 
 
@@ -194,7 +194,7 @@ def create_attributes_tsv_url(product, tag="latest"):
         tag = values.get_latest_CVs_version()
     return (
         f"https://raw.githubusercontent.com/ncasuk/AMF_CVs/{tag}/product-definitions/"
-        "tsv/{product}/global-attributes-specific.tsv"
+        f"tsv/{product}/global-attributes-specific.tsv"
     )
 
 
