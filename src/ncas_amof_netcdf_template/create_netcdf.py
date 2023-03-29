@@ -8,6 +8,8 @@ from netCDF4 import Dataset
 import datetime as dt
 import copy
 import numpy as np
+import getpass
+import socket
 
 from . import tsv2dict
 from . import values
@@ -50,7 +52,13 @@ def add_attributes(ncfile, instrument_dict, product, created_time, location, loc
                 key, f"https://github.com/ncasuk/AMF_CVs/releases/tag/{tag}"
             )
         elif key == "history":
-            ncfile.setncattr(key, f"{created_time} - File created")
+            user = getpass.getuser()
+            machine = socket.gethostname()
+            history_text = (
+                f"{created_time} - File created by {user} on {machine} "
+                "using the ncas_amof_netcdf_template python package"
+            )
+            ncfile.setncattr(key, history_text)
         elif key == "last_revised_date":
             ncfile.setncattr(key, created_time)
         elif key == "deployment_mode":
