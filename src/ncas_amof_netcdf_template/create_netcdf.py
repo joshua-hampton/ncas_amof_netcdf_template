@@ -236,7 +236,7 @@ def make_netcdf(
         options = f"_{options}"
 
     filename = (
-        f"{instrument}_{location}_{time}_{product}{options}_v{product_version}.nc"
+        f"{instrument}_{f'{location}_' if location != '' else ''}{time}_{product}{options}_v{product_version}.nc"
     )
 
     ncfile = Dataset(f"{file_location}/{filename}", "w", format="NETCDF4_CLASSIC")
@@ -265,6 +265,87 @@ def list_products(instrument):
     products.remove("info")
     products.remove("common")
     return products
+
+
+def make_product_netcdf(
+    product,
+    instrument_name,
+    date=None,
+    dimension_lengths={},
+    instrument_loc="",
+    deployment_loc="land",
+    verbose=0,
+    options="",
+    product_version="1.0",
+    file_location=".",
+    tag="latest",
+):
+    """
+    Create an AMOF-like netCDF file for a given data product. This means files can be 
+    made to the NCAS-GENERAL standard for instruments that aren't part of the AMOF 
+    instrument suite.
+
+    Args:
+        product (str): name of data product
+        instrument_name (str): instrument name for use in file name
+        date (str): date for file, format YYYYmmdd. If not given, finds today's date
+        dimension_lengths (dict): dictionary of dimension:length. If length not given
+                                  for needed dimension, user will be asked to type
+                                  in dimension length
+        instrument_loc (str): observatory or location of the instrument. Default "".
+        deployment_loc (str): one of 'land', 'sea', 'air', 'trajectory'. 
+                              Default "land".
+        verbose (int): level of info to print out. Note that at the moment there is
+                        only one additional layer, this may increase in future.
+        options (str): options to be included in file name. All options should be in
+                       one string and separated by an underscore ("_"), with up to
+                       three options permitted. Default "".
+        product_version (str): version of the data file. Default "1.0".
+        file_location (str): where to write the netCDF file. Default ".".
+        tag (str): tagged release version of AMF_CVs, or "latest". Default "latest".
+    """
+    if date is None:
+        date = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%d")
+
+    product_dict = tsv2dict.product_dict(
+                       product,
+                       instrument_loc=instrument_loc,
+                       deployment_loc=deployment_loc,
+                       tag=tag,
+                   )
+
+    # make sure we have dimension lengths for all expected dimensions
+    all_dimensions = []
+    dimlengths = {}
+    for key, val in product_dict.items():
+        if "dimensions" in val.keys() and (key == product or key == "common"):
+            for dim in list(val["dimensions"].keys()):
+                if dim not in all_dimensions:
+                    all_dimensions.append(dim)
+                    if "<" not in val["dimensions"][dim]["Length"]:
+                        dimlengths[dim] = int(val["dimensions"][dim]["Length"])
+    for key, value in dimension_lengths.items():
+        if key not in dimlengths.keys():
+            dimlengths[key] = value
+    for dim in all_dimensions:
+        if dim not in dimlengths.keys():
+            length = input(f"Enter length for dimension {dim}: ")
+            dimlengths[dim] = int(length)
+
+    # make the files
+    make_netcdf(
+        instrument_name,
+        product,
+        date,
+        product_dict,
+        loc=deployment_loc,
+        dimension_lengths=dimlengths,
+        verbose=verbose,
+        options=options,
+        product_version=product_version,
+        file_location=file_location,
+        tag=tag,
+    )
 
 
 def main(
