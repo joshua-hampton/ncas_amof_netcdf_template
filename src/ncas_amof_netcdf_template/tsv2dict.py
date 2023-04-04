@@ -263,7 +263,9 @@ def instrument_dict(desired_instrument, loc="land", tag="latest"):
     return instrument_dict
 
 
-def product_dict(desired_product, instrument_loc="", deployment_loc="land", tag="latest"):
+def product_dict(
+    desired_product, instrument_loc="", deployment_loc="land", tag="latest"
+):
     """
     Collect all variables, dimensions and attributes required for a data products
     and deployment mode.
@@ -280,13 +282,9 @@ def product_dict(desired_product, instrument_loc="", deployment_loc="land", tag=
         associated with the named data product.
     """
     common_dimensions_url = values.get_common_dimensions_url(
-                                tag=tag, 
-                                loc=deployment_loc
-                            )
-    common_variables_url = values.get_common_variables_url(
-                               tag=tag, 
-                               loc=deployment_loc
-                           )
+        tag=tag, loc=deployment_loc
+    )
+    common_variables_url = values.get_common_variables_url(tag=tag, loc=deployment_loc)
 
     product_dict = {}
 

@@ -236,7 +236,8 @@ def make_netcdf(
         options = f"_{options}"
 
     filename = (
-        f"{instrument}_{f'{location}_' if location != '' else ''}{time}_{product}{options}_v{product_version}.nc"
+        f"{instrument}_{f'{location}_' if location != '' else ''}"
+        f"{time}_{product}{options}_v{product_version}.nc"
     )
 
     ncfile = Dataset(f"{file_location}/{filename}", "w", format="NETCDF4_CLASSIC")
@@ -281,8 +282,8 @@ def make_product_netcdf(
     tag="latest",
 ):
     """
-    Create an AMOF-like netCDF file for a given data product. This means files can be 
-    made to the NCAS-GENERAL standard for instruments that aren't part of the AMOF 
+    Create an AMOF-like netCDF file for a given data product. This means files can be
+    made to the NCAS-GENERAL standard for instruments that aren't part of the AMOF
     instrument suite.
 
     Args:
@@ -293,7 +294,7 @@ def make_product_netcdf(
                                   for needed dimension, user will be asked to type
                                   in dimension length
         instrument_loc (str): observatory or location of the instrument. Default "".
-        deployment_loc (str): one of 'land', 'sea', 'air', 'trajectory'. 
+        deployment_loc (str): one of 'land', 'sea', 'air', 'trajectory'.
                               Default "land".
         verbose (int): level of info to print out. Note that at the moment there is
                         only one additional layer, this may increase in future.
@@ -308,11 +309,11 @@ def make_product_netcdf(
         date = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%d")
 
     product_dict = tsv2dict.product_dict(
-                       product,
-                       instrument_loc=instrument_loc,
-                       deployment_loc=deployment_loc,
-                       tag=tag,
-                   )
+        product,
+        instrument_loc=instrument_loc,
+        deployment_loc=deployment_loc,
+        tag=tag,
+    )
 
     # make sure we have dimension lengths for all expected dimensions
     all_dimensions = []
