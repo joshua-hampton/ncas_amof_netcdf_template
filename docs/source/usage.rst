@@ -60,6 +60,7 @@ List available data products for an instrument:
 
   nant.create_netcdf.list_products('ncas-ceilometer-3')
 
+Alternatively, all possible data products can be listed if no instrument name is given.
 
 A data product can be defined in the call to create the netCDF file:
 
