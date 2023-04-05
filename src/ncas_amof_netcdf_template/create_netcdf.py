@@ -250,21 +250,26 @@ def make_netcdf(
     ncfile.close()
 
 
-def list_products(instrument):
+def list_products(instrument="all", tag="latest"):
     """
-    Lists available products for an instrument
+    Lists available products, either for a specific instrument or all data products.
 
     Args:
-        instrument (str): ncas instrument name
+        instrument (str): ncas instrument name, or "all" for all data products.
+                          Default "all".
+        tag (str): tagged release version of AMF_CVs. Default `'latest'`.
 
     Returns:
         list of products available for the given instrument
     """
-    instrument_dict = tsv2dict.instrument_dict(instrument)
-    tsvdictkeys = instrument_dict.keys()
-    products = list(tsvdictkeys)
-    products.remove("info")
-    products.remove("common")
+    if instrument != "all":
+        instrument_dict = tsv2dict.instrument_dict(instrument, tag=tag)
+        tsvdictkeys = instrument_dict.keys()
+        products = list(tsvdictkeys)
+        products.remove("info")
+        products.remove("common")
+    else:
+        products = tsv2dict.list_all_products(tag=tag)
     return products
 
 

@@ -342,6 +342,19 @@ def product_dict(
     return product_dict
 
 
+def list_all_products(tag="latest"):
+    """
+    Return list of all available data products.
+
+    Args:
+        tag (str): tag release or branch name in GitHub for version of data.
+                   Default is `'latest'`.
+    """
+    data_products_url = values.get_all_data_products_url(tag=tag)
+    df_data_products = pd.read_csv(data_products_url, sep="\t")
+    return list(df_data_products["Data Products"])
+
+
 if __name__ == "__main__":
     import sys
 
