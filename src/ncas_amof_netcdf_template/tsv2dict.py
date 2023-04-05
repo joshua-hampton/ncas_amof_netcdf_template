@@ -352,7 +352,7 @@ def list_all_products(tag="latest"):
     """
     data_products_url = values.get_all_data_products_url(tag=tag)
     df_data_products = pd.read_csv(data_products_url, sep="\t")
-    return list(df_data_products["Data Products"])
+    return list(df_data_products["Data Product"])
 
 
 if __name__ == "__main__":
