@@ -263,6 +263,98 @@ def instrument_dict(desired_instrument, loc="land", tag="latest"):
     return instrument_dict
 
 
+def product_dict(
+    desired_product, instrument_loc="", deployment_loc="land", tag="latest"
+):
+    """
+    Collect all variables, dimensions and attributes required for a data products
+    and deployment mode.
+
+    Args:
+        desired_product (str): name of data product
+        instrument_loc (str): location or observatory of instrument
+        deployment_loc (str): deployment mode, one of 'land', 'sea', 'air',
+                              or 'trajectory'. Default 'land'.
+        tag (str): tagged release version of AMF_CVs
+
+    Returns:
+        dictionary of all attributes, dimensions and variables
+        associated with the named data product.
+    """
+    common_dimensions_url = values.get_common_dimensions_url(
+        tag=tag, loc=deployment_loc
+    )
+    common_variables_url = values.get_common_variables_url(tag=tag, loc=deployment_loc)
+
+    product_dict = {}
+
+    # Add common stuff
+    product_dict["common"] = {}
+    product_dict["common"]["attributes"] = {}
+    product_dict["common"]["dimensions"] = {}
+    product_dict["common"]["variables"] = {}
+
+    product_dict["common"]["attributes"] = tsv2dict_attrs(
+        values.get_common_attributes_url(tag=tag)
+    )
+    product_dict["common"]["dimensions"] = tsv2dict_dims(common_dimensions_url)
+    product_dict["common"]["variables"] = tsv2dict_vars(common_variables_url)
+
+    # Add stuff for each product of instrument it specifics exist
+    product_dict[desired_product] = {}
+    product_dict[desired_product]["attributes"] = {}
+    product_dict[desired_product]["dimensions"] = {}
+    product_dict[desired_product]["variables"] = {}
+
+    attr_url = create_attributes_tsv_url(desired_product, tag=tag)
+    dim_url = create_dimensions_tsv_url(desired_product, tag=tag)
+    var_url = create_variables_tsv_url(desired_product, tag=tag)
+
+    request = requests.get(attr_url)
+    if request.status_code == 200:
+        product_dict[desired_product]["attributes"] = tsv2dict_attrs(attr_url)
+
+    request = requests.get(dim_url)
+    if request.status_code == 200:
+        product_dict[desired_product]["dimensions"] = tsv2dict_dims(dim_url)
+
+    request = requests.get(var_url)
+    if request.status_code == 200:
+        product_dict[desired_product]["variables"] = tsv2dict_vars(var_url)
+
+    # Add basic info bits
+    product_dict["info"] = {}
+    product_dict["info"]["Mobile/Fixed (loc)"] = instrument_loc
+    product_dict["info"]["Manufacturer"] = (
+        "CHANGE: Manufacturer of instrument and key sub components."
+        " String: min 2 characters."
+    )
+    product_dict["info"]["Model No."] = (
+        "CHANGE: Model number of instrument and key sub components."
+        " String: min 3 characters"
+    )
+    product_dict["info"]["Serial Number"] = (
+        "CHANGE: Serial number of instrument and key sub components."
+        " String: min 3 characters."
+    )
+    product_dict["info"]["Descriptor"] = "CHANGE: Descripton of instrument."
+
+    return product_dict
+
+
+def list_all_products(tag="latest"):
+    """
+    Return list of all available data products.
+
+    Args:
+        tag (str): tag release or branch name in GitHub for version of data.
+                   Default is `'latest'`.
+    """
+    data_products_url = values.get_all_data_products_url(tag=tag)
+    df_data_products = pd.read_csv(data_products_url, sep="\t")
+    return list(df_data_products["Data Product"])
+
+
 if __name__ == "__main__":
     import sys
 

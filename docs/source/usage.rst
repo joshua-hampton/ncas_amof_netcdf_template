@@ -15,6 +15,15 @@ In its very simplest form:
 This will create a netCDF file with today's date for all data products availalbe for the given instrument.
 
 
+A netCDF file can also be created for a specific data product, rather than by a specific instrument.
+
+.. code-block:: python
+
+  nant.create_netcdf.make_product_netcdf('surface-met', 'my-home-weather-station')
+
+The file created in this example uses the ``surface-met`` data product definition, and requires the instrument name ``my-home-weather-station`` for the file name.
+
+
 Dimensions
 ^^^^^^^^^^
 Dimension sizes need to be defined when creating a netCDF file. Dimension lengths can be provided to the ``create_netcdf.main`` function as a dictionary:
@@ -51,6 +60,7 @@ List available data products for an instrument:
 
   nant.create_netcdf.list_products('ncas-ceilometer-3')
 
+Alternatively, all possible data products can be listed if no instrument name is given.
 
 A data product can be defined in the call to create the netCDF file:
 

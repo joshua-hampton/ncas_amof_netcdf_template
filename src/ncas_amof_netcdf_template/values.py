@@ -120,3 +120,21 @@ def get_community_instruments_url(tag="latest"):
         f"https://raw.githubusercontent.com/ncasuk/AMF_CVs/{tag}/product-definitions/"
         "tsv/_vocabularies/community-instrument-name-and-descriptors.tsv"
     )
+
+
+def get_all_data_products_url(tag="latest"):
+    """
+    Return URL to TSV file of data products.
+
+    Args:
+        tag (str): tagged release of definitions, or 'latest' to get most recent release
+
+    Returns:
+        URL string
+    """
+    if tag == "latest":
+        tag = get_latest_CVs_version()
+    return (
+        f"https://raw.githubusercontent.com/ncasuk/AMF_CVs/{tag}/product-definitions/"
+        "tsv/_vocabularies/data-products.tsv"
+    )
