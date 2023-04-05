@@ -25,7 +25,7 @@ copyright = '2023, Joshua M. Hampton'
 author = 'Joshua M. Hampton'
 
 # The full version, including alpha/beta/rc tags
-release = '2.1.2'
+release = '2.2.0'
 
 
 # -- General configuration ---------------------------------------------------
