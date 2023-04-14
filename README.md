@@ -11,7 +11,7 @@ ncas-amof-netcdf-template
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/charliermarsh/ruff/main/assets/badge/v1.json)](https://github.com/charliermarsh/ruff)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-Makes 'just-add-data' AMOF-compliant netCDF4 file.
+Makes 'just-add-data' AMOF-compliant netCDF4 file for either a given NCAS instrument or one of the defined data products.
 
 A full description on how to install and use this module can be found [through the documentation](https://ncas-amof-netcdf-template.readthedocs.io/en/stable).
 
