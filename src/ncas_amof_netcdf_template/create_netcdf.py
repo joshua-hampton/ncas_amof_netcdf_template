@@ -179,7 +179,11 @@ def add_variables(ncfile, instrument_dict, product, verbose=0):
                         and ("EXAMPLE" in mdatvalue or mdatvalue == "")
                     ):
                         # don't add empty attributes
-                        if mdatvalue == "" and verbose >= 1:
+                        if (
+                            isinstance(mdatvalue, str)
+                            and mdatvalue == ""
+                            and verbose >= 1
+                        ):
                             print(
                                 f"WARN: No value for attribute {mdatkey} "
                                 "for variable {key}, attribute not added"
