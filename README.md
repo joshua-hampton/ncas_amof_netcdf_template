@@ -17,7 +17,7 @@ A full description on how to install and use this module can be found [through t
 
 Requirements
 ------------
-* Python 3.7 or above
+* Python 3.8 or above
 * Python modules:
   * [netCDF4](http://unidata.github.io/netcdf4-python/)
   * [NumPy](https://numpy.org/)
