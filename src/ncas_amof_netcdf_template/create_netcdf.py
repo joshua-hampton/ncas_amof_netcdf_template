@@ -125,7 +125,9 @@ def add_variables(ncfile, instrument_dict, product, verbose=0):
                 # if we encounter one, we're going to print out an error
                 # and forget about that variable
                 if "dimension" not in tmp_value.keys():
-                    print(f"ERROR: Missing dimensions for variable {key} in product {obj}")
+                    print(
+                        f"ERROR: Missing dimensions for variable {key} in product {obj}"
+                    )
                     print("Variable not added file")
                 else:
                     var_dims = tmp_value.pop("dimension")
@@ -152,13 +154,21 @@ def add_variables(ncfile, instrument_dict, product, verbose=0):
                         # flag meanings in the tsv files are separated by '|',
                         # should be space separated
                         if "|" in mdatvalue and "flag_meaning" in mdatkey:
-                            mdatvalue = " ".join([i.strip() for i in mdatvalue.split("|")])
+                            mdatvalue = " ".join(
+                                [i.strip() for i in mdatvalue.split("|")]
+                            )
                         # flag values are bytes, can't add byte array
                         # into NETCDF4_CLASSIC so have to muddle a bit
-                        if "flag_value" in mdatkey and "qc" in key and var.dtype == np.int8:
+                        if (
+                            "flag_value" in mdatkey
+                            and "qc" in key
+                            and var.dtype == np.int8
+                        ):
                             # turn string like "0b,1b..." into list of ints like [0,1...]
                             mdatvalue = mdatvalue.strip(",")
-                            newmdatvalue = [int(i.strip("b")) for i in mdatvalue.split(",")]
+                            newmdatvalue = [
+                                int(i.strip("b")) for i in mdatvalue.split(",")
+                            ]
                             # turn list into array with int8 type
                             mdatvalue = np.array(newmdatvalue, dtype=np.int8)
                         # print warning for example values,
@@ -337,7 +347,7 @@ def make_product_netcdf(
                 if dim not in all_dimensions:
                     all_dimensions.append(dim)
                     if (
-                        isinstance(val["dimensions"][dim]["Length"], int) 
+                        isinstance(val["dimensions"][dim]["Length"], int)
                         or "<" not in val["dimensions"][dim]["Length"]
                     ):
                         dimlengths[dim] = int(val["dimensions"][dim]["Length"])
@@ -439,7 +449,7 @@ def main(
                 if dim not in all_dimensions:
                     all_dimensions.append(dim)
                     if (
-                        isinstance(val["dimensions"][dim]["Length"], int) 
+                        isinstance(val["dimensions"][dim]["Length"], int)
                         or "<" not in val["dimensions"][dim]["Length"]
                     ):
                         dimlengths[dim] = int(val["dimensions"][dim]["Length"])
