@@ -164,7 +164,7 @@ def add_variables(ncfile, instrument_dict, product, verbose=0):
                             and "qc" in key
                             and var.dtype == np.int8
                         ):
-                            # turn string like "0b,1b..." into list of ints like [0,1...]
+                            # turn string "0b,1b..." into list of ints [0,1...]
                             mdatvalue = mdatvalue.strip(",")
                             newmdatvalue = [
                                 int(i.strip("b")) for i in mdatvalue.split(",")
