@@ -336,7 +336,10 @@ def make_product_netcdf(
             for dim in list(val["dimensions"].keys()):
                 if dim not in all_dimensions:
                     all_dimensions.append(dim)
-                    if "<" not in val["dimensions"][dim]["Length"]:
+                    if (
+                        isinstance(val["dimensions"][dim]["Length"], int) 
+                        or "<" not in val["dimensions"][dim]["Length"]
+                    ):
                         dimlengths[dim] = int(val["dimensions"][dim]["Length"])
     for key, value in dimension_lengths.items():
         if key not in dimlengths.keys():
@@ -435,7 +438,10 @@ def main(
             for dim in list(val["dimensions"].keys()):
                 if dim not in all_dimensions:
                     all_dimensions.append(dim)
-                    if "<" not in val["dimensions"][dim]["Length"]:
+                    if (
+                        isinstance(val["dimensions"][dim]["Length"], int) 
+                        or "<" not in val["dimensions"][dim]["Length"]
+                    ):
                         dimlengths[dim] = int(val["dimensions"][dim]["Length"])
     for key, value in dimension_lengths.items():
         if key not in dimlengths.keys():
