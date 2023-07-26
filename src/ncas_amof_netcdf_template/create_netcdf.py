@@ -112,84 +112,88 @@ def add_variables(ncfile, instrument_dict, product, verbose=0):
     """
     for obj in [product, "common"]:
         for key, value in instrument_dict[obj]["variables"].items():
-            # therefore, value is instrument_dict[obj]['variables'][key]
-            # want to pop certain things here, but not for ever, so make tmp_value
-            tmp_value = copy.copy(value)
-
-            # error, there are some variables with dimensions
-            # missing, error in spreadsheet
-            # if we encounter one, we're going to print out an error
-            # and forget about that variable
-            if "dimension" not in tmp_value.keys():
-                print(f"ERROR: Missing dimensions for variable {key} in product {obj}")
-                print("Variable not added file")
+            # make sure variable doesn't already exist, warn if it does
+            if key in ncfile.variables.keys():
+                print(f"WARN: variable {key} defined multiple times.")
             else:
-                var_dims = tmp_value.pop("dimension")
-                # there was an error somewhere meaning 2 dimensions
-                # had a '.' instead of ',' between them
-                var_dims = var_dims.replace(".", ",")
-                var_dims = tuple(x.strip() for x in var_dims.split(","))
+                # therefore, value is instrument_dict[obj]['variables'][key]
+                # want to pop certain things here, but not for ever, so make tmp_value
+                tmp_value = copy.copy(value)
 
-                datatype = tmp_value.pop("type")
-
-                if "_FillValue" in tmp_value:
-                    fill_value = float(tmp_value.pop("_FillValue"))
+                # error, there are some variables with dimensions
+                # missing, error in spreadsheet
+                # if we encounter one, we're going to print out an error
+                # and forget about that variable
+                if "dimension" not in tmp_value.keys():
+                    print(f"ERROR: Missing dimensions for variable {key} in product {obj}")
+                    print("Variable not added file")
                 else:
-                    fill_value = ""
+                    var_dims = tmp_value.pop("dimension")
+                    # there was an error somewhere meaning 2 dimensions
+                    # had a '.' instead of ',' between them
+                    var_dims = var_dims.replace(".", ",")
+                    var_dims = tuple(x.strip() for x in var_dims.split(","))
 
-                if fill_value != "":
-                    var = ncfile.createVariable(
-                        key, datatype, var_dims, fill_value=fill_value
-                    )
-                else:
-                    var = ncfile.createVariable(key, datatype, var_dims)
+                    datatype = tmp_value.pop("type")
 
-                for mdatkey, mdatvalue in tmp_value.items():
-                    # flag meanings in the tsv files are separated by '|',
-                    # should be space separated
-                    if "|" in mdatvalue and "flag_meaning" in mdatkey:
-                        mdatvalue = " ".join([i.strip() for i in mdatvalue.split("|")])
-                    # flag values are bytes, can't add byte array
-                    # into NETCDF4_CLASSIC so have to muddle a bit
-                    if "flag_value" in mdatkey and "qc" in key and var.dtype == np.int8:
-                        # turn string like "0b,1b..." into list of ints like [0,1...]
-                        mdatvalue = mdatvalue.strip(",")
-                        newmdatvalue = [int(i.strip("b")) for i in mdatvalue.split(",")]
-                        # turn list into array with int8 type
-                        mdatvalue = np.array(newmdatvalue, dtype=np.int8)
-                    # print warning for example values,
-                    # and don't add example values for standard_name
-                    if (
-                        mdatkey == "standard_name"
-                        and ("EXAMPLE" in mdatvalue or mdatvalue == "")
-                        and verbose >= 1
-                    ):
-                        print(
-                            f"WARN: No standard name for variable {key}, "
-                            "standard_name attribute not added"
+                    if "_FillValue" in tmp_value:
+                        fill_value = float(tmp_value.pop("_FillValue"))
+                    else:
+                        fill_value = ""
+
+                    if fill_value != "":
+                        var = ncfile.createVariable(
+                            key, datatype, var_dims, fill_value=fill_value
                         )
-                    elif "EXAMPLE" in mdatvalue and verbose >= 1:
-                        print(
-                            "WARN: example value for attribute "
-                            f"{mdatkey} for variable {key}"
-                        )
-                    # don't add EXAMPLE standard name
-                    if not (
-                        mdatkey == "standard_name"
-                        and ("EXAMPLE" in mdatvalue or mdatvalue == "")
-                    ):
-                        # don't add empty attributes
+                    else:
+                        var = ncfile.createVariable(key, datatype, var_dims)
+
+                    for mdatkey, mdatvalue in tmp_value.items():
+                        # flag meanings in the tsv files are separated by '|',
+                        # should be space separated
+                        if "|" in mdatvalue and "flag_meaning" in mdatkey:
+                            mdatvalue = " ".join([i.strip() for i in mdatvalue.split("|")])
+                        # flag values are bytes, can't add byte array
+                        # into NETCDF4_CLASSIC so have to muddle a bit
+                        if "flag_value" in mdatkey and "qc" in key and var.dtype == np.int8:
+                            # turn string like "0b,1b..." into list of ints like [0,1...]
+                            mdatvalue = mdatvalue.strip(",")
+                            newmdatvalue = [int(i.strip("b")) for i in mdatvalue.split(",")]
+                            # turn list into array with int8 type
+                            mdatvalue = np.array(newmdatvalue, dtype=np.int8)
+                        # print warning for example values,
+                        # and don't add example values for standard_name
                         if (
-                            isinstance(mdatvalue, str)
-                            and mdatvalue == ""
+                            mdatkey == "standard_name"
+                            and ("EXAMPLE" in mdatvalue or mdatvalue == "")
                             and verbose >= 1
                         ):
                             print(
-                                f"WARN: No value for attribute {mdatkey} "
-                                "for variable {key}, attribute not added"
+                                f"WARN: No standard name for variable {key}, "
+                                "standard_name attribute not added"
                             )
-                        else:
-                            var.setncattr(mdatkey, mdatvalue)
+                        elif "EXAMPLE" in mdatvalue and verbose >= 1:
+                            print(
+                                "WARN: example value for attribute "
+                                f"{mdatkey} for variable {key}"
+                            )
+                        # don't add EXAMPLE standard name
+                        if not (
+                            mdatkey == "standard_name"
+                            and ("EXAMPLE" in mdatvalue or mdatvalue == "")
+                        ):
+                            # don't add empty attributes
+                            if (
+                                isinstance(mdatvalue, str)
+                                and mdatvalue == ""
+                                and verbose >= 1
+                            ):
+                                print(
+                                    f"WARN: No value for attribute {mdatkey} "
+                                    "for variable {key}, attribute not added"
+                                )
+                            else:
+                                var.setncattr(mdatkey, mdatvalue)
 
 
 def make_netcdf(
