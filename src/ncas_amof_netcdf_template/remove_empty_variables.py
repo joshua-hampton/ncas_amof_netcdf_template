@@ -106,7 +106,7 @@ def main(infile, outfile=None, overwrite=True, verbose=0, **kwargs):
                 and in_ncfile[var].valid_min == "<derived from file>"
             ):
                 toexclude.append(var)
-            elif np.all(in_ncfile[var][:].mask) is True:
+            elif np.all(in_ncfile[var][:].mask):
                 toexclude.append(var)
 
     if verbose:
