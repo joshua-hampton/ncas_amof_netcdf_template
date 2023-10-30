@@ -95,6 +95,11 @@ The netCDF file will be written to the current working directory by default. To 
   ncs = nant.create_netcdf.main('ncas-ceilometer-3', return_open = True, file_location = '/path/to/save/location')
 
 
+Offline Use
+^^^^^^^^^^^
+The information needed to create these netCDF files are stored in the `AMF_CVs`_ GitHub repository, and this package reads data from this repository when it is used. If the package will need to be used offline, the `tsv product-definitions`_ folder should be downloaded onto the computer, and the option ``use_local_files`` can be passed to functions such as ``create_netcdf.main`` with the path to the product definitions as the argument.
+
+
 Other Options
 ^^^^^^^^^^^^^
 All available options for this function can be found on `this API page <create_netcdf.html#ncas_amof_netcdf_template.create_netcdf.main>`_.
@@ -251,3 +256,7 @@ An example of a full work flow using ``ncas_amof_netcdf_template`` to create the
 
   # Check for empty variables and remove if necessary
   nant.remove_empty_variables.main(f'{ncfile_location}/ncas-ceilometer-3_iao_{file_date}_aerosol-backscatter_v1.0.nc')
+
+
+.. _AMF_CVs: https://github.com/ncasuk/AMF_CVs
+.. _tsv product-definitions: https://github.com/ncasuk/AMF_CVs/tree/main/product-definitions/tsv
