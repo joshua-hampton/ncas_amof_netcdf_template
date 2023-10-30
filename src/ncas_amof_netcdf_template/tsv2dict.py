@@ -401,8 +401,10 @@ def list_all_products(use_local_files=None, tag="latest"):
     Return list of all available data products.
 
     Args:
-        tag (str): tag release or branch name in GitHub for version of data.
-                   Default is `'latest'`.
+        use_local_files (str or None): path to local directory where tsv files are
+                                    stored. If "None", read from online. Default None.
+        tag (str): tagged release of definitions, or 'latest' to get most recent
+                release. Ignored if use_local_files is not None. Default "latest".
     """
     data_products_url = values.get_all_data_products_url(
         use_local_files=use_local_files, tag=tag
