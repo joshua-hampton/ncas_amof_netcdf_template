@@ -155,7 +155,7 @@ def get_times(dt_times):
     )
 
 
-def update_variable(ncfile, ncfile_varname, data):
+def update_variable(ncfile, ncfile_varname, data, qc_data_error=True):
     """
     Adds data to variable, and updates valid_min and valid_max
      variable attrs if they exist.
@@ -164,6 +164,9 @@ def update_variable(ncfile, ncfile_varname, data):
         ncfile (netCDF Dataset): Dataset object of netCDF file.
         ncfile_varname (str): Name of variable in netCDF file.
         data (array or list): Data to be added to netCDF variable.
+        qc_data_error (bool): Raise error if trying to add values to QC flag
+                               variables that are not in the flag_values attribute.
+                               Otherwise, just a warning is printed. Default True.
     """
     if "valid_min" in ncfile.variables[ncfile_varname].ncattrs():
         ncfile.variables[ncfile_varname].valid_min = np.float64(np.nanmin(data)).astype(
@@ -172,6 +175,20 @@ def update_variable(ncfile, ncfile_varname, data):
         ncfile.variables[ncfile_varname].valid_max = np.float64(np.nanmax(data)).astype(
             ncfile.variables[ncfile_varname].datatype
         )
+    if (
+        "qc" in ncfile_varname.lower()
+        and "flag_values" in ncfile.variables[ncfile_varname].ncattrs()
+    ):
+        if not np.in1d(data, ncfile.variables[ncfile_varname].flag_values).all():
+            valid_values = list(ncfile.variables[ncfile_varname].flag_values)
+            msg = (
+                "Invalid data being added to QC variable, "
+                f"only {valid_values} are allowed."
+            )
+            if qc_data_error:
+                raise ValueError(msg)
+            else:
+                print(f"[WARN]: {msg}")
     ncfile.variables[ncfile_varname][:] = data
 
 
