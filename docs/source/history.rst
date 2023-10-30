@@ -7,7 +7,7 @@ Important changes of note with each release:
 
 2.3.0
 ^^^^^
-- Dropped support for Python 3.7
+- Dropped support for Python 3.7, added support for Python 3.12
 - Added History and Deprecations page to documentation.
 - Added deprecation to ``create_netcdf.main``, ``create_netcdf.make_netcdf``, and ``create_netcdf.make_product_netcdf``, for closing the netCDF file after initial creation and population. As of version 2.5.0, these functions will all return an open netCDF file, or a list containing open netCDF files in the case of the function creating multiple files, e.g. multiple data products. This behaviour can be used from version 2.3.0 by passing ``return_open=True`` to these functions. As of version 2.4.0, ``return_open=True`` will be the default option, with the previous behaviour available by passing ``return_open=False``. In version 2.5.0, the behaviour of ``return_open=False`` will be removed.
 
