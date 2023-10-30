@@ -59,11 +59,16 @@ def add_attributes(
         elif key == "instrument_serial_number":
             ncfile.setncattr(key, instrument_dict["info"]["Serial Number"])
         elif key == "amf_vocabularies_release":
-            if not use_local_files and tag == "latest":
-                tag = values.get_latest_CVs_version()
-            ncfile.setncattr(
-                key, f"https://github.com/ncasuk/AMF_CVs/releases/tag/{tag}"
-            )
+            if use_local_files:
+                attrsdict = tsv2dict.tsv2dict_attrs(
+                    f"{use_local_files}/_common/global-attributes.tsv"
+                )
+                tagurl = attrsdict["amf_vocabularies_release"]["Example"]
+            else:
+                if tag == "latest":
+                    tag = values.get_latest_CVs_version()
+                tagurl = f"https://github.com/ncasuk/AMF_CVs/releases/tag/{tag}"
+            ncfile.setncattr(key, tagurl)
         elif key == "history":
             user = getpass.getuser()
             machine = socket.gethostname()
