@@ -14,9 +14,6 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('../../src/ncas_amof_netcdf_template'))
 
-# check if build will be local or on readthedocs.org
-on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
-
 
 # -- Project information -----------------------------------------------------
 
@@ -57,8 +54,7 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-if not on_rtd:
-    html_theme = 'sphinx_rtd_theme'
+html_theme = 'sphinx_rtd_theme'
 
 html_theme_options = {
     'collapse_navigation': False
