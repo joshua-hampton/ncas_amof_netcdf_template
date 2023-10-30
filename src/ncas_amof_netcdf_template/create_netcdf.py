@@ -268,6 +268,9 @@ def make_netcdf(
         return_open (bool): If True, return the netCDF file as an open object. If
                              False, closes netCDF file. Default False (will change
                              to True in 2.4.0).
+
+    Returns:
+        netCDF file object or nothing.
     """
     if not return_open:
         warnings.warn(
@@ -386,6 +389,9 @@ def make_product_netcdf(
         return_open (bool): If True, return the netCDF file as an open object. If
                              False, closes netCDF file. Default False (will change
                              to True in 2.4.0).
+
+    Returns:
+        netCDF file object or nothing.
     """
     if not return_open:
         warnings.warn(
@@ -505,6 +511,9 @@ def main(
         return_open (bool): If True, return the netCDF file as an open object. If
                              False, closes netCDF file. Default False (will change
                              to True in 2.4.0).
+
+    Returns:
+        netCDF file object or nothing
     """
     if not return_open:
         warnings.warn(
