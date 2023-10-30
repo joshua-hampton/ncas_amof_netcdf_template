@@ -10,6 +10,7 @@ import copy
 import numpy as np
 import getpass
 import socket
+import warnings
 
 from . import tsv2dict
 from . import values
@@ -218,6 +219,7 @@ def make_netcdf(
     product_version="1.0",
     file_location=".",
     tag="latest",
+    return_open=False,
 ):
     """
     Makes netCDF file for given instrument and arguments.
@@ -242,7 +244,18 @@ def make_netcdf(
         product_version (str): version of the data file. Default '1.0'.
         file_location (str): where to write the netCDF file. Default '.'.
         tag (str): tagged release version of AMF_CVs
+        return_open (bool): If True, return the netCDF file as an open object. If
+                             False, closes netCDF file. Default False (will change
+                             to True in 2.4.0).
     """
+    if not return_open:
+        warnings.warn(
+            "Closing netCDF file immediately after creation is being deprecated."
+            " This option will be removed from version 2.5.0, use return_open=True"
+            " (default from 2.4.0) to return open netCDF object.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
     location = (
         instrument_dict["info"]["Mobile/Fixed (loc)"].split("-")[-1].strip().lower()
     )
@@ -265,7 +278,10 @@ def make_netcdf(
     add_dimensions(ncfile, instrument_dict, product, dimension_lengths)
     add_variables(ncfile, instrument_dict, product, verbose=verbose)
 
-    ncfile.close()
+    if return_open:
+        return ncfile
+    else:
+        ncfile.close()
 
 
 def list_products(instrument="all", tag="latest"):
@@ -303,6 +319,7 @@ def make_product_netcdf(
     product_version="1.0",
     file_location=".",
     tag="latest",
+    return_open=False,
 ):
     """
     Create an AMOF-like netCDF file for a given data product. This means files can be
@@ -327,7 +344,18 @@ def make_product_netcdf(
         product_version (str): version of the data file. Default "1.0".
         file_location (str): where to write the netCDF file. Default ".".
         tag (str): tagged release version of AMF_CVs, or "latest". Default "latest".
+        return_open (bool): If True, return the netCDF file as an open object. If
+                             False, closes netCDF file. Default False (will change
+                             to True in 2.4.0).
     """
+    if not return_open:
+        warnings.warn(
+            "Closing netCDF file immediately after creation is being deprecated."
+            " This option will be removed from version 2.5.0, use return_open=True"
+            " (default from 2.4.0) to return open netCDF object.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
     if date is None:
         date = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%d")
 
@@ -360,19 +388,37 @@ def make_product_netcdf(
             dimlengths[dim] = int(length)
 
     # make the files
-    make_netcdf(
-        instrument_name,
-        product,
-        date,
-        product_dict,
-        loc=deployment_loc,
-        dimension_lengths=dimlengths,
-        verbose=verbose,
-        options=options,
-        product_version=product_version,
-        file_location=file_location,
-        tag=tag,
-    )
+    if return_open:
+        nc = make_netcdf(
+            instrument_name,
+            product,
+            date,
+            product_dict,
+            loc=deployment_loc,
+            dimension_lengths=dimlengths,
+            verbose=verbose,
+            options=options,
+            product_version=product_version,
+            file_location=file_location,
+            tag=tag,
+            return_open=return_open,
+        )
+        return nc
+    else:
+        make_netcdf(
+            instrument_name,
+            product,
+            date,
+            product_dict,
+            loc=deployment_loc,
+            dimension_lengths=dimlengths,
+            verbose=verbose,
+            options=options,
+            product_version=product_version,
+            file_location=file_location,
+            tag=tag,
+            return_open=return_open,
+        )
 
 
 def main(
@@ -386,6 +432,7 @@ def main(
     product_version="1.0",
     file_location=".",
     tag="latest",
+    return_open=False,
 ):
     """
     Create 'just-add-data' AMOF-compliant netCDF file
@@ -409,7 +456,18 @@ def main(
         product_version (str): version of the data file. Default '1.0'.
         file_location (str): where to write the netCDF file. Default '.'.
         tag (str): tagged release version of AMF_CVs
+        return_open (bool): If True, return the netCDF file as an open object. If
+                             False, closes netCDF file. Default False (will change
+                             to True in 2.4.0).
     """
+    if not return_open:
+        warnings.warn(
+            "Closing netCDF file immediately after creation is being deprecated."
+            " This option will be removed from version 2.5.0, use return_open=True"
+            " (default from 2.4.0) to return open netCDF object.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
     if date is None:
         date = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%d")
 
@@ -462,20 +520,45 @@ def main(
             dimlengths[dim] = int(length)
 
     # make the files
-    for product in products:
-        make_netcdf(
-            instrument,
-            product,
-            date,
-            instrument_dict,
-            loc=loc,
-            dimension_lengths=dimlengths,
-            verbose=verbose,
-            options=options,
-            product_version=product_version,
-            file_location=file_location,
-            tag=tag,
-        )
+    if return_open:
+        ncfiles = []
+        for product in products:
+            ncfiles.append(
+                make_netcdf(
+                    instrument,
+                    product,
+                    date,
+                    instrument_dict,
+                    loc=loc,
+                    dimension_lengths=dimlengths,
+                    verbose=verbose,
+                    options=options,
+                    product_version=product_version,
+                    file_location=file_location,
+                    tag=tag,
+                    return_open=return_open,
+                )
+            )
+        if len(ncfiles) == 1:
+            return ncfiles[0]
+        else:
+            return ncfiles
+    else:
+        for product in products:
+            make_netcdf(
+                instrument,
+                product,
+                date,
+                instrument_dict,
+                loc=loc,
+                dimension_lengths=dimlengths,
+                verbose=verbose,
+                options=options,
+                product_version=product_version,
+                file_location=file_location,
+                tag=tag,
+                return_open=return_open,
+            )
 
 
 if __name__ == "__main__":
