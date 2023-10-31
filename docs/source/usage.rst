@@ -124,6 +124,10 @@ After the netCDF file is created, the file then needs to be opened in append mod
 
 where ``'attenuated_aerosol_backscatter_coefficient'`` is the name of the variable in the netCDF file, and ``'backscatter_data'`` is an array containing the data. This will also update the ``valid_min`` and ``valid_max`` attributes for each variable where applicable.
 
+Quality Control Flag Data
+^^^^^^^^^^^^^^^^^^^^^^^^^
+Quality control flags in the NCAS-GENERAL standard use flag_values and flag_meanings to convey the quality of the data. When adding data to a quality control variable, an error is raised if that data includes values not in the flag_values attribute.
+
 Time
 ----
 netCDF files that follow the NCAS-GENERAL metadata standard require a number of variables that correspond to time, or a portion of it, including (but not limited to) UNIX time, year, month and day.
