@@ -10,12 +10,22 @@ import copy
 import numpy as np
 import getpass
 import socket
+import warnings
 
 from . import tsv2dict
 from . import values
 
 
-def add_attributes(ncfile, instrument_dict, product, created_time, location, loc, tag):
+def add_attributes(
+    ncfile,
+    instrument_dict,
+    product,
+    created_time,
+    location,
+    loc,
+    use_local_files=None,
+    tag="latest",
+):
     """
     Adds all global attributes for a given product to the netCDF file.
 
@@ -28,7 +38,10 @@ def add_attributes(ncfile, instrument_dict, product, created_time, location, loc
         location (str): value for the 'platform' global attribute.
         loc (str): value for the 'deployment_mode' global attribute, should be one of
                    'land', 'sea', 'air', or 'trajectory'.
-        tag (str): tagged release version of AMF_CVs
+        tag (str): tagged release version of AMF_CVs, or "latest" to get most recent
+                release. Ignored if use_local_files is not None. Default latest.
+        use_local_files (str or None): path to local directory where tsv files are
+                                    stored. If "None", read from online. Default None.
     """
     for key, value in instrument_dict["common"]["attributes"].items():
         if value["Fixed Value"] != "":
@@ -46,11 +59,16 @@ def add_attributes(ncfile, instrument_dict, product, created_time, location, loc
         elif key == "instrument_serial_number":
             ncfile.setncattr(key, instrument_dict["info"]["Serial Number"])
         elif key == "amf_vocabularies_release":
-            if tag == "latest":
-                tag = values.get_latest_CVs_version()
-            ncfile.setncattr(
-                key, f"https://github.com/ncasuk/AMF_CVs/releases/tag/{tag}"
-            )
+            if use_local_files:
+                attrsdict = tsv2dict.tsv2dict_attrs(
+                    f"{use_local_files}/_common/global-attributes.tsv"
+                )
+                tagurl = attrsdict["amf_vocabularies_release"]["Example"]
+            else:
+                if tag == "latest":
+                    tag = values.get_latest_CVs_version()
+                tagurl = f"https://github.com/ncasuk/AMF_CVs/releases/tag/{tag}"
+            ncfile.setncattr(key, tagurl)
         elif key == "history":
             user = getpass.getuser()
             machine = socket.gethostname()
@@ -217,7 +235,9 @@ def make_netcdf(
     options="",
     product_version="1.0",
     file_location=".",
+    use_local_files=None,
     tag="latest",
+    return_open=False,
 ):
     """
     Makes netCDF file for given instrument and arguments.
@@ -241,8 +261,25 @@ def make_netcdf(
                        three options permitted. Default ''.
         product_version (str): version of the data file. Default '1.0'.
         file_location (str): where to write the netCDF file. Default '.'.
-        tag (str): tagged release version of AMF_CVs
+        use_local_files (str or None): path to local directory where tsv files are
+                                    stored. If "None", read from online. Default None.
+        tag (str): tagged release version of AMF_CVs, or 'latest' to get most recent
+                release. Ignored if use_local_files is not None. Default "latest".
+        return_open (bool): If True, return the netCDF file as an open object. If
+                             False, closes netCDF file. Default False (will change
+                             to True in 2.4.0).
+
+    Returns:
+        netCDF file object or nothing.
     """
+    if not return_open:
+        warnings.warn(
+            "Closing netCDF file immediately after creation is being deprecated."
+            " This option will be removed from version 2.5.0, use return_open=True"
+            " (default from 2.4.0) to return open netCDF object.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
     location = (
         instrument_dict["info"]["Mobile/Fixed (loc)"].split("-")[-1].strip().lower()
     )
@@ -261,33 +298,50 @@ def make_netcdf(
     ncfile = Dataset(f"{file_location}/{filename}", "w", format="NETCDF4_CLASSIC")
     created_time = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%S")
 
-    add_attributes(ncfile, instrument_dict, product, created_time, location, loc, tag)
+    add_attributes(
+        ncfile,
+        instrument_dict,
+        product,
+        created_time,
+        location,
+        loc,
+        use_local_files=use_local_files,
+        tag=tag,
+    )
     add_dimensions(ncfile, instrument_dict, product, dimension_lengths)
     add_variables(ncfile, instrument_dict, product, verbose=verbose)
 
-    ncfile.close()
+    if return_open:
+        return ncfile
+    else:
+        ncfile.close()
 
 
-def list_products(instrument="all", tag="latest"):
+def list_products(instrument="all", use_local_files=None, tag="latest"):
     """
     Lists available products, either for a specific instrument or all data products.
 
     Args:
         instrument (str): ncas instrument name, or "all" for all data products.
                           Default "all".
-        tag (str): tagged release version of AMF_CVs. Default `'latest'`.
+        use_local_files (str or None): path to local directory where tsv files are
+                                    stored. If "None", read from online. Default None.
+        tag (str): tagged release of definitions, or 'latest' to get most recent
+                release. Ignored if use_local_files is not None. Default "latest".
 
     Returns:
         list of products available for the given instrument
     """
     if instrument != "all":
-        instrument_dict = tsv2dict.instrument_dict(instrument, tag=tag)
+        instrument_dict = tsv2dict.instrument_dict(
+            instrument, use_local_files=use_local_files, tag=tag
+        )
         tsvdictkeys = instrument_dict.keys()
         products = list(tsvdictkeys)
         products.remove("info")
         products.remove("common")
     else:
-        products = tsv2dict.list_all_products(tag=tag)
+        products = tsv2dict.list_all_products(use_local_files=use_local_files, tag=tag)
     return products
 
 
@@ -302,7 +356,9 @@ def make_product_netcdf(
     options="",
     product_version="1.0",
     file_location=".",
+    use_local_files=None,
     tag="latest",
+    return_open=False,
 ):
     """
     Create an AMOF-like netCDF file for a given data product. This means files can be
@@ -326,8 +382,25 @@ def make_product_netcdf(
                        three options permitted. Default "".
         product_version (str): version of the data file. Default "1.0".
         file_location (str): where to write the netCDF file. Default ".".
-        tag (str): tagged release version of AMF_CVs, or "latest". Default "latest".
+        use_local_files (str or None): path to local directory where tsv files are
+                                    stored. If "None", read from online. Default None.
+        tag (str): tagged release of definitions, or 'latest' to get most recent
+                release. Ignored if use_local_files is not None. Default "latest".
+        return_open (bool): If True, return the netCDF file as an open object. If
+                             False, closes netCDF file. Default False (will change
+                             to True in 2.4.0).
+
+    Returns:
+        netCDF file object or nothing.
     """
+    if not return_open:
+        warnings.warn(
+            "Closing netCDF file immediately after creation is being deprecated."
+            " This option will be removed from version 2.5.0, use return_open=True"
+            " (default from 2.4.0) to return open netCDF object.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
     if date is None:
         date = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%d")
 
@@ -335,6 +408,7 @@ def make_product_netcdf(
         product,
         instrument_loc=instrument_loc,
         deployment_loc=deployment_loc,
+        use_local_files=use_local_files,
         tag=tag,
     )
 
@@ -360,19 +434,39 @@ def make_product_netcdf(
             dimlengths[dim] = int(length)
 
     # make the files
-    make_netcdf(
-        instrument_name,
-        product,
-        date,
-        product_dict,
-        loc=deployment_loc,
-        dimension_lengths=dimlengths,
-        verbose=verbose,
-        options=options,
-        product_version=product_version,
-        file_location=file_location,
-        tag=tag,
-    )
+    if return_open:
+        nc = make_netcdf(
+            instrument_name,
+            product,
+            date,
+            product_dict,
+            loc=deployment_loc,
+            dimension_lengths=dimlengths,
+            verbose=verbose,
+            options=options,
+            product_version=product_version,
+            file_location=file_location,
+            use_local_files=use_local_files,
+            tag=tag,
+            return_open=return_open,
+        )
+        return nc
+    else:
+        make_netcdf(
+            instrument_name,
+            product,
+            date,
+            product_dict,
+            loc=deployment_loc,
+            dimension_lengths=dimlengths,
+            verbose=verbose,
+            options=options,
+            product_version=product_version,
+            file_location=file_location,
+            use_local_files=use_local_files,
+            tag=tag,
+            return_open=return_open,
+        )
 
 
 def main(
@@ -385,7 +479,9 @@ def main(
     options="",
     product_version="1.0",
     file_location=".",
+    use_local_files=None,
     tag="latest",
+    return_open=False,
 ):
     """
     Create 'just-add-data' AMOF-compliant netCDF file
@@ -408,12 +504,31 @@ def main(
                        three options permitted. Default ''.
         product_version (str): version of the data file. Default '1.0'.
         file_location (str): where to write the netCDF file. Default '.'.
-        tag (str): tagged release version of AMF_CVs
+        use_local_files (str or None): path to local directory where tsv files are
+                                    stored. If "None", read from online. Default None.
+        tag (str): tagged release of definitions, or 'latest' to get most recent
+                release. Ignored if use_local_files is not None. Default "latest".
+        return_open (bool): If True, return the netCDF file as an open object. If
+                             False, closes netCDF file. Default False (will change
+                             to True in 2.4.0).
+
+    Returns:
+        netCDF file object or nothing
     """
+    if not return_open:
+        warnings.warn(
+            "Closing netCDF file immediately after creation is being deprecated."
+            " This option will be removed from version 2.5.0, use return_open=True"
+            " (default from 2.4.0) to return open netCDF object.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
     if date is None:
         date = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%d")
 
-    instrument_dict = tsv2dict.instrument_dict(instrument, loc=loc, tag=tag)
+    instrument_dict = tsv2dict.instrument_dict(
+        instrument, loc=loc, use_local_files=use_local_files, tag=tag
+    )
 
     # get and check our list of products
     tsvdictkeys = instrument_dict.keys()
@@ -462,20 +577,47 @@ def main(
             dimlengths[dim] = int(length)
 
     # make the files
-    for product in products:
-        make_netcdf(
-            instrument,
-            product,
-            date,
-            instrument_dict,
-            loc=loc,
-            dimension_lengths=dimlengths,
-            verbose=verbose,
-            options=options,
-            product_version=product_version,
-            file_location=file_location,
-            tag=tag,
-        )
+    if return_open:
+        ncfiles = []
+        for product in products:
+            ncfiles.append(
+                make_netcdf(
+                    instrument,
+                    product,
+                    date,
+                    instrument_dict,
+                    loc=loc,
+                    dimension_lengths=dimlengths,
+                    verbose=verbose,
+                    options=options,
+                    product_version=product_version,
+                    file_location=file_location,
+                    use_local_files=use_local_files,
+                    tag=tag,
+                    return_open=return_open,
+                )
+            )
+        if len(ncfiles) == 1:
+            return ncfiles[0]
+        else:
+            return ncfiles
+    else:
+        for product in products:
+            make_netcdf(
+                instrument,
+                product,
+                date,
+                instrument_dict,
+                loc=loc,
+                dimension_lengths=dimlengths,
+                verbose=verbose,
+                options=options,
+                product_version=product_version,
+                file_location=file_location,
+                use_local_files=use_local_files,
+                tag=tag,
+                return_open=return_open,
+            )
 
 
 if __name__ == "__main__":

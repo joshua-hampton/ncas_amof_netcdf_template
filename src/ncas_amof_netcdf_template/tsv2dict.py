@@ -7,6 +7,7 @@ useful for creating netCDF files.
 import pandas as pd
 import re
 import requests
+import os
 
 from . import values
 
@@ -135,70 +136,88 @@ def tsv2dict_instruments(tsv_file):
     return all_instruments
 
 
-def create_variables_tsv_url(product, tag="latest"):
+def create_variables_tsv_url(product, use_local_files=None, tag="latest"):
     """
     Returns URL for tsv file of variables specific to  a given product and tag
     release or branch.
 
     Args:
         product (str): data product
-        tag (str): tag release or branch name in GitHub for version of data.
-                   Default is `'latest'`.
+        use_local_files (str or None): path to local directory where tsv files are
+                                    stored. If "None", read from online. Default None.
+        tag (str): tagged release of definitions, or 'latest' to get most recent
+                release. Ignored if use_local_files is not None. Default "latest".
 
     Return:
         URL
     """
-    if tag == "latest":
-        tag = values.get_latest_CVs_version()
-    return (
-        f"https://raw.githubusercontent.com/ncasuk/AMF_CVs/{tag}/product-definitions"
-        f"/tsv/{product}/variables-specific.tsv"
-    )
+    if use_local_files:
+        file_loc = use_local_files
+    else:
+        if tag == "latest":
+            tag = values.get_latest_CVs_version()
+        file_loc = (
+            f"https://raw.githubusercontent.com/ncasuk/AMF_CVs/{tag}"
+            "/product-definitions/tsv"
+        )
+    return f"{file_loc}/{product}/variables-specific.tsv"
 
 
-def create_dimensions_tsv_url(product, tag="latest"):
+def create_dimensions_tsv_url(product, use_local_files=None, tag="latest"):
     """
     Returns URL for tsv file of dimensions specific to a given product and tag
     release or branch.
 
     Args:
         product (str): data product
-        tag (str): tag release or branch name in GitHub for version of
-                   data. Default is `'latest'`.
+        use_local_files (str or None): path to local directory where tsv files are
+                                    stored. If "None", read from online. Default None.
+        tag (str): tagged release of definitions, or 'latest' to get most recent
+                release. Ignored if use_local_files is not None. Default "latest".
 
     Return:
         URL
     """
-    if tag == "latest":
-        tag = values.get_latest_CVs_version()
-    return (
-        f"https://raw.githubusercontent.com/ncasuk/AMF_CVs/{tag}/product-definitions/"
-        f"tsv/{product}/dimensions-specific.tsv"
-    )
+    if use_local_files:
+        file_loc = use_local_files
+    else:
+        if tag == "latest":
+            tag = values.get_latest_CVs_version()
+        file_loc = (
+            f"https://raw.githubusercontent.com/ncasuk/AMF_CVs/{tag}"
+            "/product-definitions/tsv"
+        )
+    return f"{file_loc}/{product}/dimensions-specific.tsv"
 
 
-def create_attributes_tsv_url(product, tag="latest"):
+def create_attributes_tsv_url(product, use_local_files=None, tag="latest"):
     """
     Returns URL for tsv file of global attributes specific to a given product and tag
     release or branch.
 
     Args:
         product (str): data product
-        tag (str): tag release or branch name in GitHub for version
-                   of data. Default is `'latest'`.
+        use_local_files (str or None): path to local directory where tsv files are
+                                    stored. If "None", read from online. Default None.
+        tag (str): tagged release of definitions, or 'latest' to get most recent
+                release. Ignored if use_local_files is not None. Default "latest".
 
     Return:
         URL
     """
-    if tag == "latest":
-        tag = values.get_latest_CVs_version()
-    return (
-        f"https://raw.githubusercontent.com/ncasuk/AMF_CVs/{tag}/product-definitions/"
-        f"tsv/{product}/global-attributes-specific.tsv"
-    )
+    if use_local_files:
+        file_loc = use_local_files
+    else:
+        if tag == "latest":
+            tag = values.get_latest_CVs_version()
+        file_loc = (
+            f"https://raw.githubusercontent.com/ncasuk/AMF_CVs/{tag}"
+            "/product-definitions/tsv"
+        )
+    return f"{file_loc}/{product}/global-attributes-specific.tsv"
 
 
-def instrument_dict(desired_instrument, loc="land", tag="latest"):
+def instrument_dict(desired_instrument, loc="land", use_local_files=None, tag="latest"):
     """
     Collect all variables, dimensions and attributes required for all data products
     associated with an instrument and deployment mode.
@@ -207,22 +226,33 @@ def instrument_dict(desired_instrument, loc="land", tag="latest"):
         desired_instrument (str): name of instrument
         loc (str): deployment mode, one of 'land', 'sea', 'air',
                    or 'trajectory'. Default 'land'.
-        tag (str): tagged release version of AMF_CVs
+        use_local_files (str or None): path to local directory where tsv files are
+                                    stored. If "None", read from online. Default None.
+        tag (str): tagged release of definitions, or 'latest' to get most recent
+                release. Ignored if use_local_files is not None. Default "latest".
 
     Returns:
         dictionary of all attributes, dimensions and variables
         associated with the named instrument.
     """
-    common_dimensions_url = values.get_common_dimensions_url(tag=tag, loc=loc)
-    common_variables_url = values.get_common_variables_url(tag=tag, loc=loc)
+    common_dimensions_url = values.get_common_dimensions_url(
+        use_local_files=use_local_files, tag=tag, loc=loc
+    )
+    common_variables_url = values.get_common_variables_url(
+        use_local_files=use_local_files, tag=tag, loc=loc
+    )
 
     instrument_dict = {}
-    main_instruments = tsv2dict_instruments(values.get_instruments_url(tag=tag))
+    main_instruments = tsv2dict_instruments(
+        values.get_instruments_url(use_local_files=use_local_files, tag=tag)
+    )
     if desired_instrument in main_instruments.keys():
         instrument_dict["info"] = main_instruments[desired_instrument]
     else:
         instrument_dict["info"] = tsv2dict_instruments(
-            values.get_community_instruments_url(tag=tag)
+            values.get_community_instruments_url(
+                use_local_files=use_local_files, tag=tag
+            )
         )[desired_instrument]
 
     # Add common stuff
@@ -232,7 +262,7 @@ def instrument_dict(desired_instrument, loc="land", tag="latest"):
     instrument_dict["common"]["variables"] = {}
 
     instrument_dict["common"]["attributes"] = tsv2dict_attrs(
-        values.get_common_attributes_url(tag=tag)
+        values.get_common_attributes_url(use_local_files=use_local_files, tag=tag)
     )
     instrument_dict["common"]["dimensions"] = tsv2dict_dims(common_dimensions_url)
     instrument_dict["common"]["variables"] = tsv2dict_vars(common_variables_url)
@@ -244,27 +274,40 @@ def instrument_dict(desired_instrument, loc="land", tag="latest"):
         instrument_dict[product]["dimensions"] = {}
         instrument_dict[product]["variables"] = {}
 
-        attr_url = create_attributes_tsv_url(product, tag=tag)
-        dim_url = create_dimensions_tsv_url(product, tag=tag)
-        var_url = create_variables_tsv_url(product, tag=tag)
+        attr_url = create_attributes_tsv_url(
+            product, use_local_files=use_local_files, tag=tag
+        )
+        dim_url = create_dimensions_tsv_url(
+            product, use_local_files=use_local_files, tag=tag
+        )
+        var_url = create_variables_tsv_url(
+            product, use_local_files=use_local_files, tag=tag
+        )
 
-        request = requests.get(attr_url)
-        if request.status_code == 200:
+        if (use_local_files and os.path.isfile(attr_url)) or (
+            not use_local_files and requests.get(attr_url).status_code == 200
+        ):
             instrument_dict[product]["attributes"] = tsv2dict_attrs(attr_url)
 
-        request = requests.get(dim_url)
-        if request.status_code == 200:
+        if (use_local_files and os.path.isfile(dim_url)) or (
+            not use_local_files and requests.get(dim_url).status_code == 200
+        ):
             instrument_dict[product]["dimensions"] = tsv2dict_dims(dim_url)
 
-        request = requests.get(var_url)
-        if request.status_code == 200:
+        if (use_local_files and os.path.isfile(var_url)) or (
+            not use_local_files and requests.get(var_url).status_code == 200
+        ):
             instrument_dict[product]["variables"] = tsv2dict_vars(var_url)
 
     return instrument_dict
 
 
 def product_dict(
-    desired_product, instrument_loc="", deployment_loc="land", tag="latest"
+    desired_product,
+    instrument_loc="",
+    deployment_loc="land",
+    use_local_files=None,
+    tag="latest",
 ):
     """
     Collect all variables, dimensions and attributes required for a data products
@@ -275,16 +318,21 @@ def product_dict(
         instrument_loc (str): location or observatory of instrument
         deployment_loc (str): deployment mode, one of 'land', 'sea', 'air',
                               or 'trajectory'. Default 'land'.
-        tag (str): tagged release version of AMF_CVs
+        use_local_files (str or None): path to local directory where tsv files are
+                                    stored. If "None", read from online. Default None.
+        tag (str): tagged release of definitions, or 'latest' to get most recent
+                release. Ignored if use_local_files is not None. Default "latest".
 
     Returns:
         dictionary of all attributes, dimensions and variables
         associated with the named data product.
     """
     common_dimensions_url = values.get_common_dimensions_url(
-        tag=tag, loc=deployment_loc
+        use_local_files=use_local_files, tag=tag, loc=deployment_loc
     )
-    common_variables_url = values.get_common_variables_url(tag=tag, loc=deployment_loc)
+    common_variables_url = values.get_common_variables_url(
+        use_local_files=use_local_files, tag=tag, loc=deployment_loc
+    )
 
     product_dict = {}
 
@@ -295,7 +343,7 @@ def product_dict(
     product_dict["common"]["variables"] = {}
 
     product_dict["common"]["attributes"] = tsv2dict_attrs(
-        values.get_common_attributes_url(tag=tag)
+        values.get_common_attributes_url(use_local_files=use_local_files, tag=tag)
     )
     product_dict["common"]["dimensions"] = tsv2dict_dims(common_dimensions_url)
     product_dict["common"]["variables"] = tsv2dict_vars(common_variables_url)
@@ -306,20 +354,26 @@ def product_dict(
     product_dict[desired_product]["dimensions"] = {}
     product_dict[desired_product]["variables"] = {}
 
-    attr_url = create_attributes_tsv_url(desired_product, tag=tag)
-    dim_url = create_dimensions_tsv_url(desired_product, tag=tag)
-    var_url = create_variables_tsv_url(desired_product, tag=tag)
+    attr_url = create_attributes_tsv_url(
+        desired_product, use_local_files=use_local_files, tag=tag
+    )
+    dim_url = create_dimensions_tsv_url(
+        desired_product, use_local_files=use_local_files, tag=tag
+    )
+    var_url = create_variables_tsv_url(
+        desired_product, use_local_files=use_local_files, tag=tag
+    )
 
     request = requests.get(attr_url)
-    if request.status_code == 200:
+    if request.status_code == 200 or use_local_files:
         product_dict[desired_product]["attributes"] = tsv2dict_attrs(attr_url)
 
     request = requests.get(dim_url)
-    if request.status_code == 200:
+    if request.status_code == 200 or use_local_files:
         product_dict[desired_product]["dimensions"] = tsv2dict_dims(dim_url)
 
     request = requests.get(var_url)
-    if request.status_code == 200:
+    if request.status_code == 200 or use_local_files:
         product_dict[desired_product]["variables"] = tsv2dict_vars(var_url)
 
     # Add basic info bits
@@ -342,15 +396,19 @@ def product_dict(
     return product_dict
 
 
-def list_all_products(tag="latest"):
+def list_all_products(use_local_files=None, tag="latest"):
     """
     Return list of all available data products.
 
     Args:
-        tag (str): tag release or branch name in GitHub for version of data.
-                   Default is `'latest'`.
+        use_local_files (str or None): path to local directory where tsv files are
+                                    stored. If "None", read from online. Default None.
+        tag (str): tagged release of definitions, or 'latest' to get most recent
+                release. Ignored if use_local_files is not None. Default "latest".
     """
-    data_products_url = values.get_all_data_products_url(tag=tag)
+    data_products_url = values.get_all_data_products_url(
+        use_local_files=use_local_files, tag=tag
+    )
     df_data_products = pd.read_csv(data_products_url, sep="\t")
     return list(df_data_products["Data Product"])
 

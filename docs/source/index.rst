@@ -18,6 +18,7 @@ ncas_amof_netcdf_template is a Python module to help `NCAS <https://ncas.ac.uk/>
 
    help
    api
+   history
 
 
 .. toctree::
