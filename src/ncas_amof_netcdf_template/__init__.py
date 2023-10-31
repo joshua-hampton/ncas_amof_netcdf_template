@@ -5,4 +5,4 @@ from . import tsv2dict
 from . import util
 from . import values
 
-__version__="2.2.2"
+__version__="2.3.0"
