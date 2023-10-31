@@ -11,6 +11,7 @@ Important changes of note with each release:
 - Added History and Deprecations page to documentation.
 - Error raised (with option for warning instead) when using ``util.update_variable`` to add data to Quality Control variable if that data includes values not in the ``flag_values`` variable attribute.
 - Added deprecation to ``create_netcdf.main``, ``create_netcdf.make_netcdf``, and ``create_netcdf.make_product_netcdf``, for closing the netCDF file after initial creation and population. As of version 2.5.0, these functions will all return an open netCDF file, or a list containing open netCDF files in the case of the function creating multiple files, e.g. multiple data products. This behaviour can be used from version 2.3.0 by passing ``return_open=True`` to these functions. As of version 2.4.0, ``return_open=True`` will be the default option, with the previous behaviour available by passing ``return_open=False``. In version 2.5.0, the behaviour of ``return_open=False`` will be removed.
+- Added option to use locally saved tsv files rather than reading from GitHub.
 
 
 Deprecation Policy
