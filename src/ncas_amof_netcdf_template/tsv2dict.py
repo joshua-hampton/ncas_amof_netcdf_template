@@ -160,7 +160,7 @@ def create_variables_tsv_url(product, use_local_files=None, tag="latest"):
             f"https://raw.githubusercontent.com/ncasuk/AMF_CVs/{tag}"
             "/product-definitions/tsv"
         )
-    return f"{file_loc}/{product}/variables-specfic.tsv"
+    return f"{file_loc}/{product}/variables-specific.tsv"
 
 
 def create_dimensions_tsv_url(product, use_local_files=None, tag="latest"):
