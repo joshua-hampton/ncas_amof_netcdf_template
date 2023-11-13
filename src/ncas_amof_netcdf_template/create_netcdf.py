@@ -14,6 +14,7 @@ import warnings
 
 from . import tsv2dict
 from . import values
+from .__init__ import __version__
 
 
 def add_attributes(
@@ -74,7 +75,7 @@ def add_attributes(
             machine = socket.gethostname()
             history_text = (
                 f"{created_time} - File created by {user} on {machine} "
-                "using the ncas_amof_netcdf_template python package"
+                f"using the ncas_amof_netcdf_template v{__version__} python package"
             )
             ncfile.setncattr(key, history_text)
         elif key == "last_revised_date":
