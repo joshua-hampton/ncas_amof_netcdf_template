@@ -119,7 +119,7 @@ def get_times(dt_times):
     ]
     time_coverage_start_dt = unix_times[0]
     time_coverage_end_dt = unix_times[-1]
-    doy = (
+    doy = list(
         np.array(doy)
         + np.array([i / 24 for i in hours])
         + np.array([i / (24 * 60) for i in minutes])
