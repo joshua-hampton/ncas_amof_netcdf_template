@@ -5,6 +5,11 @@ Revision History
 ----------------
 Important changes of note with each release:
 
+2.3.1
+^^^^^
+- Added package version number to text in the history global attribute.
+- ``util.get_times`` returns ``day_of_year`` as a list rather than an array, in line with other times returned.
+
 2.3.0
 ^^^^^
 - Dropped support for Python 3.7, added support for Python 3.12
