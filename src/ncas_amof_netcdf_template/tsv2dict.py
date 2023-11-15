@@ -128,7 +128,7 @@ def tsv2dict_instruments(tsv_file):
     for current_instrument in df_instruments.iloc:
         inst_dict = current_instrument.to_dict()
         inst_name = inst_dict.pop("New Instrument Name")
-        data_products = re.split(",| |\|", inst_dict["Data Product(s)"])
+        data_products = re.split(r",| |\|", inst_dict["Data Product(s)"])
         data_products = list(filter(None, data_products))
         inst_dict["Data Product(s)"] = data_products
         all_instruments[inst_name] = inst_dict
