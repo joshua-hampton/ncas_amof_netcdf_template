@@ -113,10 +113,7 @@ def get_times(dt_times):
     days = [i.day for i in dt_times]
     hours = [i.hour for i in dt_times]
     minutes = [i.minute for i in dt_times]
-    seconds = [
-        np.float32(i.second + (i.microsecond / (10 ** (len(str(i.microsecond))))))
-        for i in dt_times
-    ]
+    seconds = [i.second + i.microsecond / 1000000 for i in dt_times]
     time_coverage_start_dt = unix_times[0]
     time_coverage_end_dt = unix_times[-1]
     doy = list(
@@ -136,7 +133,7 @@ def get_times(dt_times):
                     file_date += f"-{zero_pad_number(hours[0])}"
                     if minutes[0] == minutes[-1]:
                         file_date += str(zero_pad_number(minutes[0]))
-                        if seconds[0] == seconds[-1]:
+                        if int(seconds[0]) == int(seconds[-1]):
                             file_date += str(zero_pad_number(int(seconds[0])))
     else:
         raise ValueError("Incompatible dates - data from over 2 years")
