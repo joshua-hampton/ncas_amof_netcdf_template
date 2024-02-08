@@ -122,6 +122,32 @@ def test_get_times():
     assert result[9] == 1641081600.0  # time_coverage_end_dt
     assert result[10] == "202201"  # file_date
 
+    # Same again but with date times all within 1 second
+    # Prepare a list of datetime objects
+    dt_times = [
+        dt.datetime(2022, 1, 1, 1, 5, 2, 1),
+        dt.datetime(2022, 1, 1, 1, 5, 2, 2),
+        dt.datetime(2022, 1, 1, 1, 5, 2, 3),
+    ]
+
+    # Call the get_times function with the list of datetime objects
+    result = util.get_times(dt_times)
+
+    # Check the result
+    assert np.allclose(
+        result[0], [1640999102.000001, 1640999102.000002, 1640999102.000003]
+    )  # unix_times
+    assert np.allclose(result[1], [1.0451631944433408, 1.0451643518524039, 1.0451655092587075])  # doy
+    assert result[2] == [2022, 2022, 2022]  # years
+    assert result[3] == [1, 1, 1]  # months
+    assert result[4] == [1, 1, 1]  # days
+    assert result[5] == [1, 1, 1]  # hours
+    assert result[6] == [5, 5, 5]  # minutes
+    assert np.allclose(result[7], [2.000001, 2.000002, 2.000003])  # seconds
+    assert result[8] == 1640999102.000001  # time_coverage_start_dt
+    assert result[9] == 1640999102.000003  # time_coverage_end_dt
+    assert result[10] == "20220101-010502"  # file_date
+
 
 def test_get_times_with_incompatible_dates():
     # Prepare a list of datetime objects
