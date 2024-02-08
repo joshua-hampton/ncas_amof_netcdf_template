@@ -23,13 +23,12 @@ def test_main_process():
 
 
 def test_add_attributes():
-
     # Create a temporary file for testing
     temp_file = tempfile.NamedTemporaryFile(delete=False)
     temp_file.close()
 
     # Create a netCDF file for testing
-    ncfile = Dataset(temp_file.name, 'w', format='NETCDF4')
+    ncfile = Dataset(temp_file.name, "w", format="NETCDF4")
 
     instrument_dict = {
         "info": {
@@ -87,16 +86,31 @@ def test_add_attributes():
     )
 
     assert ncfile.getncattr("source") == instrument_dict["info"]["Descriptor"]
-    assert ncfile.getncattr("institution") == "National Centre for Atmospheric Science (NCAS)"
+    assert (
+        ncfile.getncattr("institution")
+        == "National Centre for Atmospheric Science (NCAS)"
+    )
     assert ncfile.getncattr("platform") == location
-    assert ncfile.getncattr("instrument_manufacturer") == instrument_dict["info"]["Manufacturer"]
+    assert (
+        ncfile.getncattr("instrument_manufacturer")
+        == instrument_dict["info"]["Manufacturer"]
+    )
     assert ncfile.getncattr("instrument_model") == instrument_dict["info"]["Model No."]
-    assert ncfile.getncattr("instrument_serial_number") == instrument_dict["info"]["Serial Number"]
-    assert ncfile.getncattr("amf_vocabularies_release") == "https://github.com/ncasuk/AMF_CVs/releases/tag/v1.2.3"
+    assert (
+        ncfile.getncattr("instrument_serial_number")
+        == instrument_dict["info"]["Serial Number"]
+    )
+    assert (
+        ncfile.getncattr("amf_vocabularies_release")
+        == "https://github.com/ncasuk/AMF_CVs/releases/tag/v1.2.3"
+    )
     assert ncfile.getncattr("history") == history_text
     assert ncfile.getncattr("last_revised_date") == created_time
     assert ncfile.getncattr("deployment_mode") == loc
-    assert ncfile.getncattr("defined_attribute") == instrument_dict["common"]["attributes"]["defined_attribute"]["Fixed Value"]
+    assert (
+        ncfile.getncattr("defined_attribute")
+        == instrument_dict["common"]["attributes"]["defined_attribute"]["Fixed Value"]
+    )
     assert ncfile.getncattr("attribute1") == "value1"
     assert ncfile.getncattr("attribute2") == "value2"
 
@@ -111,7 +125,7 @@ def test_add_dimensions():
     temp_file.close()
 
     # Create a netCDF file for testing
-    ncfile = Dataset(temp_file.name, 'w', format='NETCDF4')
+    ncfile = Dataset(temp_file.name, "w", format="NETCDF4")
 
     instrument_dict = {
         "common": {
@@ -131,7 +145,9 @@ def test_add_dimensions():
     product = "product1"
     dimension_lengths = {"time": 10, "latitude": 5, "longitude": 5, "height": 50}
 
-    nant.create_netcdf.add_dimensions(ncfile, instrument_dict, product, dimension_lengths)
+    nant.create_netcdf.add_dimensions(
+        ncfile, instrument_dict, product, dimension_lengths
+    )
 
     assert "time" in ncfile.dimensions
     assert len(ncfile.dimensions["time"]) == dimension_lengths["time"]
@@ -153,7 +169,7 @@ def test_add_variables():
     temp_file.close()
 
     # Create a netCDF file for testing
-    ncfile = Dataset(temp_file.name, 'w', format='NETCDF4')
+    ncfile = Dataset(temp_file.name, "w", format="NETCDF4")
 
     instrument_dict = {
         "common": {
@@ -171,7 +187,7 @@ def test_add_variables():
                     "standard_name": "air_temperature",
                     "units": "K",
                 }
-            }
+            },
         },
         "product1": {
             "variables": {
@@ -193,7 +209,7 @@ def test_add_variables():
     ncfile.createDimension("latitude", 5)
     ncfile.createDimension("longitude", 5)
     ncfile.createDimension("height", 50)
-    
+
     nant.create_netcdf.add_variables(ncfile, instrument_dict, product)
 
     assert "variable1" in ncfile.variables
@@ -255,7 +271,7 @@ def test_make_netcdf():
                 "last_revised_date": {"Fixed Value": ""},
                 "deployment_mode": {"Fixed Value": ""},
                 "defined_attribute": {"Fixed Value": "Defined Value"},
-            }
+            },
         },
         "surface-met": {
             "attributes": {
@@ -270,7 +286,7 @@ def test_make_netcdf():
                     "standard_name": "air_pressure_at_sea_level",
                     "units": "Pa",
                 }
-            }
+            },
         },
     }
     loc = "land"
@@ -306,14 +322,32 @@ def test_make_netcdf():
 
     # Check the file attributes
     assert ncfile.getncattr("source") == instrument_dict["info"]["Descriptor"]
-    assert ncfile.getncattr("institution") == "National Centre for Atmospheric Science (NCAS)"
-    assert ncfile.getncattr("platform") == instrument_dict["info"]["Mobile/Fixed (loc)"].split("-")[-1].strip().lower()
-    assert ncfile.getncattr("instrument_manufacturer") == instrument_dict["info"]["Manufacturer"]
+    assert (
+        ncfile.getncattr("institution")
+        == "National Centre for Atmospheric Science (NCAS)"
+    )
+    assert (
+        ncfile.getncattr("platform")
+        == instrument_dict["info"]["Mobile/Fixed (loc)"].split("-")[-1].strip().lower()
+    )
+    assert (
+        ncfile.getncattr("instrument_manufacturer")
+        == instrument_dict["info"]["Manufacturer"]
+    )
     assert ncfile.getncattr("instrument_model") == instrument_dict["info"]["Model No."]
-    assert ncfile.getncattr("instrument_serial_number") == instrument_dict["info"]["Serial Number"]
-    assert ncfile.getncattr("amf_vocabularies_release") == "https://github.com/ncasuk/AMF_CVs/releases/tag/v1.2.3"
+    assert (
+        ncfile.getncattr("instrument_serial_number")
+        == instrument_dict["info"]["Serial Number"]
+    )
+    assert (
+        ncfile.getncattr("amf_vocabularies_release")
+        == "https://github.com/ncasuk/AMF_CVs/releases/tag/v1.2.3"
+    )
     assert ncfile.getncattr("deployment_mode") == loc
-    assert ncfile.getncattr("defined_attribute") == instrument_dict["common"]["attributes"]["defined_attribute"]["Fixed Value"]
+    assert (
+        ncfile.getncattr("defined_attribute")
+        == instrument_dict["common"]["attributes"]["defined_attribute"]["Fixed Value"]
+    )
     assert ncfile.getncattr("attribute1") == "value1"
     assert ncfile.getncattr("attribute2") == "value2"
 
@@ -323,7 +357,9 @@ def test_make_netcdf():
 
     # Close the file
     ncfile.close()
-    os.remove(f"{file_location}/{instrument}_{loc}_{time}_{product}_v{product_version}.nc")
+    os.remove(
+        f"{file_location}/{instrument}_{loc}_{time}_{product}_v{product_version}.nc"
+    )
 
 
 @pytest.mark.parametrize(

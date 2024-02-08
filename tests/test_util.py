@@ -137,7 +137,9 @@ def test_get_times():
     assert np.allclose(
         result[0], [1640999102.000001, 1640999102.000002, 1640999102.000003]
     )  # unix_times
-    assert np.allclose(result[1], [1.0451631944433408, 1.0451643518524039, 1.0451655092587075])  # doy
+    assert np.allclose(
+        result[1], [1.0451631944433408, 1.0451643518524039, 1.0451655092587075]
+    )  # doy
     assert result[2] == [2022, 2022, 2022]  # years
     assert result[3] == [1, 1, 1]  # months
     assert result[4] == [1, 1, 1]  # days
@@ -218,7 +220,7 @@ def test_update_variable_with_invalid_qc_flag():
     # Call the update_variable function with the temporary netCDF file and invalid data and check if it raises a ValueError
     with pytest.raises(
         ValueError,
-        match="Invalid data being added to QC variable, only \[0, 1, 2\] are allowed.",
+        match=r"Invalid data being added to QC variable, only \[0, 1, 2\] are allowed.",
     ):
         util.update_variable(ncfile, "qc_var", [0, 1, 3])
 

@@ -113,10 +113,7 @@ def get_times(dt_times):
     days = [i.day for i in dt_times]
     hours = [i.hour for i in dt_times]
     minutes = [i.minute for i in dt_times]
-    seconds = [
-        i.second + i.microsecond/1000000
-        for i in dt_times
-    ]
+    seconds = [i.second + i.microsecond / 1000000 for i in dt_times]
     time_coverage_start_dt = unix_times[0]
     time_coverage_end_dt = unix_times[-1]
     doy = list(
