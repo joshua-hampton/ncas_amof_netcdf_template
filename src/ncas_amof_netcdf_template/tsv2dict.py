@@ -48,9 +48,9 @@ def tsv2dict_vars(tsv_file):
                 and "example value" in current_line.keys()
                 and current_line["example value"] != ""
             ):
-                current_var_dict[
-                    current_line["Attribute"]
-                ] = f"EXAMPLE: {current_line['example value']}"
+                current_var_dict[current_line["Attribute"]] = (
+                    f"EXAMPLE: {current_line['example value']}"
+                )
             else:
                 current_var_dict[current_line["Attribute"]] = current_line["Value"]
     all_vars_dict[current_var] = current_var_dict
