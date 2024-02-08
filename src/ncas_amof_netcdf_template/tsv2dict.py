@@ -364,16 +364,19 @@ def product_dict(
         desired_product, use_local_files=use_local_files, tag=tag
     )
 
-    request = requests.get(attr_url)
-    if request.status_code == 200 or use_local_files:
+    if (use_local_files and os.path.isfile(attr_url)) or (
+        not use_local_files and requests.get(attr_url).status_code == 200
+    ):
         product_dict[desired_product]["attributes"] = tsv2dict_attrs(attr_url)
 
-    request = requests.get(dim_url)
-    if request.status_code == 200 or use_local_files:
+    if (use_local_files and os.path.isfile(dim_url)) or (
+        not use_local_files and requests.get(dim_url).status_code == 200
+    ):
         product_dict[desired_product]["dimensions"] = tsv2dict_dims(dim_url)
 
-    request = requests.get(var_url)
-    if request.status_code == 200 or use_local_files:
+    if (use_local_files and os.path.isfile(var_url)) or (
+        not use_local_files and requests.get(var_url).status_code == 200
+    ):
         product_dict[desired_product]["variables"] = tsv2dict_vars(var_url)
 
     # Add basic info bits
