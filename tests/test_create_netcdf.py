@@ -2,7 +2,6 @@ import pytest
 import os
 from netCDF4 import Dataset
 import numpy as np
-import os
 import tempfile
 import getpass
 import socket
