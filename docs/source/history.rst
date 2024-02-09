@@ -5,6 +5,11 @@ Revision History
 ----------------
 Important changes of note with each release:
 
+2.3.2
+^^^^^
+- Corrected how microseconds were being treated by ``util.get_times``
+- Numbers in metadata can be neatly added as strings to global attributes by surrounding them with single quotes, for example `'1.2'` in the metadata CSV file. Numbers not surrounded by single quotes are still treated as integers or floats.
+
 2.3.1
 ^^^^^
 - Added package version number to text in the history global attribute.
