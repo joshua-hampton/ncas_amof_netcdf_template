@@ -78,7 +78,7 @@ def test_add_metadata_to_netcdf():
     #    writer.writerow(["longitude", "56.78"])
     #    metadata_path = temp.name
 
-    with open("test_csv.csv", "rt") as meta:
+    with open("tests/test_csv.csv", "rt") as meta:
         raw_metadata = {}
         metaread = csv.reader(meta)
         metaread = meta.readlines()
@@ -90,7 +90,7 @@ def test_add_metadata_to_netcdf():
     assert raw_metadata["key4"] == "'12'"
 
     # Call the add_metadata_to_netcdf function with the temporary netCDF file and the temporary CSV file
-    util.add_metadata_to_netcdf(ncfile, "test_csv.csv")
+    util.add_metadata_to_netcdf(ncfile, "tests/test_csv.csv")
 
     # Check the result
     # overwrite existing
