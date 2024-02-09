@@ -73,8 +73,15 @@ def test_add_metadata_to_netcdf():
         for row in metaread:
             if len(row.split(",")) >= 2:
                 raw_metadata[row.split(",")[0]] = ",".join(row.split(",")[1:]).strip()
-    
-    assert raw_metadata.keys() == {"key1", "key2", "key3", "key4", "latitude", "longitude"}
+
+    assert raw_metadata.keys() == {
+        "key1",
+        "key2",
+        "key3",
+        "key4",
+        "latitude",
+        "longitude",
+    }
     assert raw_metadata["key4"] == "'12'"
 
     # Call the add_metadata_to_netcdf function with the temporary netCDF file and the temporary CSV file
@@ -97,7 +104,7 @@ def test_add_metadata_to_netcdf():
 
     # Delete the temporary netCDF file and the temporary CSV file
     os.remove(temp_path)
-    #os.remove(metadata_path)
+    # os.remove(metadata_path)
 
 
 def test_get_times():

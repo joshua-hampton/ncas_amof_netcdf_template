@@ -89,7 +89,11 @@ def add_metadata_to_netcdf(ncfile, metadata_file=None):
             elif check_float(value):
                 value = float(value)
             # if value is a string number, make it tidy
-            elif (isinstance(value, str)) and (value[0] == value[-1] == "'") and (check_float(value[1:-1])):
+            elif (
+                (isinstance(value, str))
+                and (value[0] == value[-1] == "'")
+                and (check_float(value[1:-1]))
+            ):
                 value = str(value[1:-1])
 
             if attr in ncfile.ncattrs():
