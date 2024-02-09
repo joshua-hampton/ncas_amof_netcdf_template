@@ -1,3 +1,4 @@
+from sys import platform
 import pytest
 import os
 from netCDF4 import Dataset
@@ -19,6 +20,21 @@ def test_main_process():
     assert nc["air_temperature"].valid_min == np.float32(12.3)
     nc.close()
     os.remove("ncas-aws-10_iao_20221117_surface-met_v1.0.nc")
+
+    # Same tests but defining platform
+    nc = nant.create_netcdf.main(
+        "ncas-aws-10",
+        platform="somewhere-else",
+        date="20221117",
+        dimension_lengths={"time": 5},
+        return_open=True,
+    )
+    assert os.path.exists("ncas-aws-10_somewhere-else_20221117_surface-met_v1.0.nc")
+    assert nc["air_temperature"].size == 5
+    nant.util.update_variable(nc, "air_temperature", [12.3, 14.54, 23.5, 12.4, 65.3])
+    assert nc["air_temperature"].valid_min == np.float32(12.3)
+    nc.close()
+    os.remove("ncas-aws-10_somewhere-else_20221117_surface-met_v1.0.nc")
 
 
 def test_add_attributes():
@@ -233,11 +249,12 @@ def test_add_variables():
 def test_make_netcdf():
     # Test parameters
     instrument = "ncas-aws-10"
+    platform = "iao"
     product = "surface-met"
     time = "20221117"
     instrument_dict = {
         "info": {
-            "Mobile/Fixed (loc)": "Fixed - land",
+            "Mobile/Fixed (loc)": f"Fixed - {platform}",
             "Descriptor": "Instrument Description",
             "Manufacturer": "Manufacturer",
             "Model No.": "Model Number",
@@ -357,7 +374,7 @@ def test_make_netcdf():
     # Close the file
     ncfile.close()
     os.remove(
-        f"{file_location}/{instrument}_{loc}_{time}_{product}_v{product_version}.nc"
+        f"{file_location}/{instrument}_{platform}_{time}_{product}_v{product_version}.nc"
     )
 
 
@@ -374,7 +391,7 @@ def test_list_products(instrument, products):
 
 
 def test_make_product_netcdf():
-    # Test with return_open=False
+    # Test with return_open=False and using instrument_loc
     nant.create_netcdf.make_product_netcdf(
         "product1",
         "instrument1",
@@ -392,13 +409,31 @@ def test_make_product_netcdf():
     )
     assert os.path.exists("instrument1_location1_20221117_product1_v1.0.nc")
 
+    # Test with return_open=False and using platform
+    nant.create_netcdf.make_product_netcdf(
+        "product1",
+        "instrument1",
+        date="20221117",
+        dimension_lengths={"time": 5},
+        platform="location1",
+        deployment_loc="land",
+        verbose=0,
+        options="",
+        product_version="1.0",
+        file_location=".",
+        use_local_files=None,
+        tag="latest",
+        return_open=False,
+    )
+    assert os.path.exists("instrument1_location1_20221117_product1_v1.0.nc")
+
     # Test with return_open=True
     nc = nant.create_netcdf.make_product_netcdf(
         "product1",
         "instrument1",
         date="20221117",
         dimension_lengths={"time": 5},
-        instrument_loc="location1",
+        platform="location1",
         deployment_loc="land",
         verbose=0,
         options="",

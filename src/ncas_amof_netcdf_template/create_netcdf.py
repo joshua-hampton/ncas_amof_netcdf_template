@@ -281,9 +281,12 @@ def make_netcdf(
             DeprecationWarning,
             stacklevel=2,
         )
-    location = (
-        instrument_dict["info"]["Mobile/Fixed (loc)"].split("-")[-1].strip().lower()
-    )
+
+    if instrument_dict["info"]["Mobile/Fixed (loc)"].split("-")[0].strip().lower() == "fixed":
+        platform = instrument_dict["info"]["Mobile/Fixed (loc)"].split("-")[-1].strip().lower()
+    else:
+        platform = instrument_dict["info"]["Mobile/Fixed (loc)"].strip().lower()
+
     if options != "":
         no_options = len(options.split("_"))
         if no_options > 3:
@@ -292,7 +295,7 @@ def make_netcdf(
         options = f"_{options}"
 
     filename = (
-        f"{instrument}_{f'{location}_' if location != '' else ''}"
+        f"{instrument}_{f'{platform}_' if platform != '' else ''}"
         f"{time}_{product}{options}_v{product_version}.nc"
     )
 
@@ -304,7 +307,7 @@ def make_netcdf(
         instrument_dict,
         product,
         created_time,
-        location,
+        platform,
         loc,
         use_local_files=use_local_files,
         tag=tag,
@@ -351,6 +354,7 @@ def make_product_netcdf(
     instrument_name,
     date=None,
     dimension_lengths={},
+    platform="",
     instrument_loc="",
     deployment_loc="land",
     verbose=0,
@@ -373,7 +377,11 @@ def make_product_netcdf(
         dimension_lengths (dict): dictionary of dimension:length. If length not given
                                   for needed dimension, user will be asked to type
                                   in dimension length
-        instrument_loc (str): observatory or location of the instrument. Default "".
+        platform (str): observatory or location of the instrument. If not given or is
+                        None, will use default platform for instrument from instrument
+                        vocabularies. Default "".
+        instrument_loc (str): [DEPRECATED - use "platform" instead] observatory or
+                              location of the instrument. Default "".
         deployment_loc (str): one of 'land', 'sea', 'air', 'trajectory'.
                               Default "land".
         verbose (int): level of info to print out. Note that at the moment there is
@@ -402,12 +410,30 @@ def make_product_netcdf(
             DeprecationWarning,
             stacklevel=2,
         )
+
+    if platform != "" and instrument_loc != "":
+        warnings.warn(
+            "Both platform and instrument_loc are given, using platform."
+            " instrument_loc will be removed from version 2.6.0.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+
+    if instrument_loc != "":
+        warnings.warn(
+            "instrument_loc is deprecated, use platform instead."
+            " This option will be removed from version 2.6.0.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        platform = instrument_loc
+
     if date is None:
         date = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%d")
 
     product_dict = tsv2dict.product_dict(
         product,
-        instrument_loc=instrument_loc,
+        platform=platform,
         deployment_loc=deployment_loc,
         use_local_files=use_local_files,
         tag=tag,
@@ -474,6 +500,7 @@ def main(
     instrument,
     date=None,
     dimension_lengths={},
+    platform=None,
     loc="land",
     products=None,
     verbose=0,
@@ -493,6 +520,9 @@ def main(
         dimension_lengths (dict): dictionary of dimension:length. If length not given
                                   for needed dimension, user will be asked to type
                                   in dimension length
+        platform (str): observatory or location of the instrument. If not given or is
+                        None, will use default platform for instrument from instrument
+                        vocabularies. Default None.
         loc (str): one of 'land', 'sea', 'air', 'trajectory'
         products (str or list): string of one product or list of multiple products to
                                 make netCDF file for this instrument. If None, then
@@ -530,6 +560,15 @@ def main(
     instrument_dict = tsv2dict.instrument_dict(
         instrument, loc=loc, use_local_files=use_local_files, tag=tag
     )
+
+    # check if platform needs changing
+    if platform is not None:
+        if "mobile" not in instrument_dict["info"]["Mobile/Fixed (loc)"].lower():
+            print(
+                "[WARNING]: Changing platform for an "
+                f"observatory instrument {instrument}."
+            )
+        instrument_dict["info"]["Mobile/Fixed (loc)"] = platform
 
     # get and check our list of products
     tsvdictkeys = instrument_dict.keys()
