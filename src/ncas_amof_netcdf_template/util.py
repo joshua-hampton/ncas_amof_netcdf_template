@@ -71,6 +71,8 @@ def add_metadata_to_netcdf(ncfile, metadata_file=None):
     """
     Reads metadata from csv file using get_metadata, adds values to
     global attributes in netCDF file.
+    Numbers in metadata file are converted to integers or floats unless
+    they are strings in the format 'number' (e.g. '123').
     Can also include latitude and longitude variables if they are
     single values (e.g. point deployment), using update_variable function.
 
@@ -86,6 +88,13 @@ def add_metadata_to_netcdf(ncfile, metadata_file=None):
                 value = int(value)
             elif check_float(value):
                 value = float(value)
+            # if value is a string number, make it tidy
+            elif (
+                (isinstance(value, str))
+                and (value[0] == value[-1] == "'")
+                and (check_float(value[1:-1]))
+            ):
+                value = str(value[1:-1])
 
             if attr in ncfile.ncattrs():
                 ncfile.setncattr(attr, value)

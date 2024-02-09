@@ -63,20 +63,29 @@ def test_add_metadata_to_netcdf():
         ncfile.createVariable("longitude", "f4", ("dim",))
         ncfile.key1 = "old_value1"
         ncfile.key3 = "old_value3"
+        ncfile.key4 = "old_value4"
         temp_path = temp.name
 
-    # Create a temporary CSV file with metadata
-    with tempfile.NamedTemporaryFile(delete=False, mode="w", newline="") as temp:
-        writer = csv.writer(temp)
-        writer.writerow(["key1", "value1"])
-        writer.writerow(["key2", "value2"])
-        writer.writerow(["key3", 12])
-        writer.writerow(["latitude", "12.34"])
-        writer.writerow(["longitude", "56.78"])
-        metadata_path = temp.name
+    with open("tests/test_csv.csv", "rt") as meta:
+        raw_metadata = {}
+        metaread = csv.reader(meta)
+        metaread = meta.readlines()
+        for row in metaread:
+            if len(row.split(",")) >= 2:
+                raw_metadata[row.split(",")[0]] = ",".join(row.split(",")[1:]).strip()
+
+    assert raw_metadata.keys() == {
+        "key1",
+        "key2",
+        "key3",
+        "key4",
+        "latitude",
+        "longitude",
+    }
+    assert raw_metadata["key4"] == "'12'"
 
     # Call the add_metadata_to_netcdf function with the temporary netCDF file and the temporary CSV file
-    util.add_metadata_to_netcdf(ncfile, metadata_path)
+    util.add_metadata_to_netcdf(ncfile, "tests/test_csv.csv")
 
     # Check the result
     # overwrite existing
@@ -85,6 +94,8 @@ def test_add_metadata_to_netcdf():
     assert "key2" not in ncfile.ncattrs()
     # integer in csv is integer in netCDF
     assert ncfile.getncattr("key3") == 12
+    # string number in csv is tidy string in netCDF
+    assert ncfile.getncattr("key4") == "12"
     # latitude and longitude are added as variables
     assert np.allclose(ncfile.variables["latitude"][:], 12.34)
     assert np.allclose(ncfile.variables["longitude"][:], 56.78)
@@ -93,7 +104,7 @@ def test_add_metadata_to_netcdf():
 
     # Delete the temporary netCDF file and the temporary CSV file
     os.remove(temp_path)
-    os.remove(metadata_path)
+    # os.remove(metadata_path)
 
 
 def test_get_times():

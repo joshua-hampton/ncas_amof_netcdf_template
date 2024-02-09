@@ -166,6 +166,17 @@ The contents of this CSV file can then be added to the netCDF file
   nant.util.add_metadata_to_netcdf(nc, 'metadata.csv')
 
 
+Numbers
+^^^^^^^
+There are places where numbers need to be stored in the netCDF file as numbers (integers or floats), and other times where they should be strings. The `add_metadata_to_netcdf` function will attempt to convert the values in the CSV file to numbers where appropriate, but if the value should be a string, then the value in the CSV file should be enclosed in single quotes, for example
+
+.. code-block:: none
+
+   integer_value,123
+   float_value,123.456
+   string_value,'123.456'
+
+
 Latitude, Longitude, and Geospatial Bounds
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Although latitude and longitude are variables in the netCDF file, single value latitude and longitude values, with units `degrees North` and `degrees East` respectively can be included in the ``metadata.csv`` file, for example
