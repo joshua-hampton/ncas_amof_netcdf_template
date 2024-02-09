@@ -66,18 +66,6 @@ def test_add_metadata_to_netcdf():
         ncfile.key4 = "old_value4"
         temp_path = temp.name
 
-    # Create a temporary CSV file with metadata
-    #with tempfile.NamedTemporaryFile(delete=False, mode="w", newline="") as temp:
-    #with open("./test_csv", "w") as temp:
-    #    writer = csv.writer(temp)
-    #    writer.writerow(["key1", "value1"])
-    #    writer.writerow(["key2", "value2"])
-    #    writer.writerow(["key3", 12])
-    #    writer.writerow(["key4", str("12")])
-    #    writer.writerow(["latitude", "12.34"])
-    #    writer.writerow(["longitude", "56.78"])
-    #    metadata_path = temp.name
-
     with open("tests/test_csv.csv", "rt") as meta:
         raw_metadata = {}
         metaread = csv.reader(meta)
