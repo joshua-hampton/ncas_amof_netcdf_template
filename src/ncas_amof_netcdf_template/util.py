@@ -8,11 +8,14 @@ import datetime as dt
 import numpy as np
 import warnings
 import json
+import yaml
+import xml.etree.ElementTree as ET
 
 
 def _map_data_type(data_type):
     types_dict = {"str": str, "int": int, "float": float, "bool": bool}
     return types_dict[data_type]
+
 
 def check_int(value):
     """
@@ -75,12 +78,18 @@ def read_csv_metadata(metafile):
                     raw_metadata[row[0]][row[-1].split("=")[0]] = row[-1].split("=")[1]
                     if row[-2].startswith("type=") or row[-2].startswith("append="):
                         n = -2
-                        raw_metadata[row[0]][row[-2].split("=")[0]] = row[-2].split("=")[1]
+                        raw_metadata[row[0]][row[-2].split("=")[0]] = row[-2].split(
+                            "="
+                        )[1]
                     else:
                         n = -1
                 raw_metadata[row[0]]["value"] = ",".join(row[1:n]).strip()
-                raw_metadata[row[0]]["type"] = _map_data_type(raw_metadata[row[0]]["type"])
-                raw_metadata[row[0]]["append"] = True if raw_metadata[row[0]]["append"] == "True" else False
+                raw_metadata[row[0]]["type"] = _map_data_type(
+                    raw_metadata[row[0]]["type"]
+                )
+                raw_metadata[row[0]]["append"] = (
+                    True if raw_metadata[row[0]]["append"].lower() == "true" else False
+                )
     return raw_metadata
 
 
@@ -105,14 +114,66 @@ def read_json_metadata(metafile):
         if "append" not in value:
             value["append"] = False
         else:
-            value["append"] = True if value["append"] == "True" else False
+            value["append"] = True if value["append"].lower() == "true" else False
     return raw_metadata
 
+
 def read_yaml_metadata(metafile):
-    pass
+    """
+    Returns a dict from a YAML with metadata.
+    Can also include latitude and longitude variables if
+    they are single values (e.g. point deployment).
+
+    Args:
+        metafile (file): YAML file with metadata
+
+    Returns:
+        dict: metadata from YAML as dictionary
+    """
+    with open(metafile, "rt") as meta:
+        raw_metadata = yaml.safe_load(meta)
+    for key, value in raw_metadata.items():
+        if isinstance(value, str):
+            raw_metadata[key] = {"value": value, "type": "str", "append": False}
+        if "type" not in raw_metadata[key]:
+            raw_metadata[key]["type"] = "str"
+        raw_metadata[key]["type"] = _map_data_type(raw_metadata[key]["type"])
+        if "append" not in raw_metadata[key]:
+            raw_metadata[key]["append"] = False
+        else:
+            raw_metadata[key]["append"] = (
+                True if raw_metadata[key]["append"].lower() == "true" else False
+            )
+    return raw_metadata
+
 
 def read_xml_metadata(metafile):
-    pass
+    """
+    Returns a dict from a XML with metadata.
+    Can also include latitude and longitude variables if
+    they are single values (e.g. point deployment).
+
+    Args:
+        metafile (file): XML file with metadata
+
+    Returns:
+        dict: metadata from XML as dictionary
+    """
+    raw_metadata = {}
+    tree = ET.parse(metafile)
+    root = tree.getroot()
+    for child in root:
+        raw_metadata[child.tag] = {"value": "", "append": "False", "type": "str"}
+        for subchild in child:
+            if subchild.tag == "type":
+                raw_metadata[child.tag]["type"] = _map_data_type(subchild.text)
+            elif subchild.tag == "append":
+                raw_metadata[child.tag]["append"] = (
+                    True if subchild.text.lower() == "true" else False
+                )
+            else:
+                raw_metadata[child.tag]["value"] = subchild.text
+    return raw_metadata
 
 
 def get_metadata(metafile):
@@ -131,15 +192,13 @@ def get_metadata(metafile):
         return read_csv_metadata(metafile)
     elif metafile.endswith(".json"):
         return read_json_metadata(metafile)
-    elif metafile.endswith(".yaml"):
+    elif metafile.endswith(".yaml") or metafile.endswith(".yml"):
         return read_yaml_metadata(metafile)
     elif metafile.endswith(".xml"):
         return read_xml_metadata(metafile)
     else:
         warnings.warn(
-            "Unknown metadata file type, trying csv...",
-            UserWarning,
-            stacklevel=2
+            "Unknown metadata file type, trying csv...", UserWarning, stacklevel=2
         )
         return read_csv_metadata(metafile)
 
