@@ -26,14 +26,23 @@ def test_get_metadata():
         writer = csv.writer(temp)
         writer.writerow(["key1", "value1"])
         writer.writerow(["key2", "value2", "extra"])
-        writer.writerow(["key3"])
+        writer.writerow(["key3", "value3", "extra", "append=True"])
+        writer.writerow(["key4", "value4", "type=int"])
+        writer.writerow(["key5", "value5", "type=int", "append=True"])
+        writer.writerow(["key6"])
         temp_path = temp.name
 
     # Call the get_metadata function with the temporary CSV file
     result = util.get_metadata(temp_path)
 
     # Check the result
-    assert result == {"key1": "value1", "key2": "value2,extra"}
+    assert result == {
+        "key1": {"value": "value1", "append": False, "type": str},
+        "key2": {"value": "value2,extra", "append": False, "type": str},
+        "key3": {"value": "value3,extra", "append": True, "type": str},
+        "key4": {"value": "value4", "append": False, "type": int},
+        "key5": {"value": "value5", "append": True, "type": int},
+    }
 
     # Delete the temporary CSV file
     os.remove(temp_path)

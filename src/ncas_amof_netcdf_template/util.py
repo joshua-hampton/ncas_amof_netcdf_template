@@ -6,7 +6,13 @@ Reasonably helpful functions that can be often used.
 import csv
 import datetime as dt
 import numpy as np
+import warnings
+import json
 
+
+def _map_data_type(data_type):
+    types_dict = {"str": str, "int": int, "float": float, "bool": bool}
+    return types_dict[data_type]
 
 def check_int(value):
     """
@@ -46,7 +52,7 @@ def check_float(value):
         raise
 
 
-def get_metadata(metafile):
+def read_csv_metadata(metafile):
     """
     Returns a dict from a csv with metadata.
     Can also include latitude and longitude variables if
@@ -63,8 +69,79 @@ def get_metadata(metafile):
         metaread = csv.reader(meta)
         for row in metaread:
             if len(row) >= 2:
-                raw_metadata[row[0]] = ",".join(row[1:]).strip()
+                raw_metadata[row[0]] = {"value": "", "append": "False", "type": "str"}
+                n = None
+                if row[-1].startswith("type=") or row[-1].startswith("append="):
+                    raw_metadata[row[0]][row[-1].split("=")[0]] = row[-1].split("=")[1]
+                    if row[-2].startswith("type=") or row[-2].startswith("append="):
+                        n = -2
+                        raw_metadata[row[0]][row[-2].split("=")[0]] = row[-2].split("=")[1]
+                    else:
+                        n = -1
+                raw_metadata[row[0]]["value"] = ",".join(row[1:n]).strip()
+                raw_metadata[row[0]]["type"] = _map_data_type(raw_metadata[row[0]]["type"])
+                raw_metadata[row[0]]["append"] = True if raw_metadata[row[0]]["append"] == "True" else False
     return raw_metadata
+
+
+def read_json_metadata(metafile):
+    """
+    Returns a dict from a JSON with metadata.
+    Can also include latitude and longitude variables if
+    they are single values (e.g. point deployment).
+
+    Args:
+        metafile (file): JSON file with metadata
+
+    Returns:
+        dict: metadata from JSON as dictionary
+    """
+    with open(metafile, "rt") as meta:
+        raw_metadata = json.load(meta)
+    for value in raw_metadata.values():
+        if "type" not in value:
+            value["type"] = "str"
+        value["type"] = _map_data_type(value["type"])
+        if "append" not in value:
+            value["append"] = False
+        else:
+            value["append"] = True if value["append"] == "True" else False
+    return raw_metadata
+
+def read_yaml_metadata(metafile):
+    pass
+
+def read_xml_metadata(metafile):
+    pass
+
+
+def get_metadata(metafile):
+    """
+    Returns a dict from of metadata from file. Metadata can be in a CSV, JSON, YAML, or XML file.
+    Can also include latitude and longitude variables if
+    they are single values (e.g. point deployment).
+
+    Args:
+        metafile (file): file with metadata
+
+    Returns:
+        dict: metadata as dictionary
+    """
+    if metafile.endswith(".csv"):
+        return read_csv_metadata(metafile)
+    elif metafile.endswith(".json"):
+        return read_json_metadata(metafile)
+    elif metafile.endswith(".yaml"):
+        return read_yaml_metadata(metafile)
+    elif metafile.endswith(".xml"):
+        return read_xml_metadata(metafile)
+    else:
+        warnings.warn(
+            "Unknown metadata file type, trying csv...",
+            UserWarning,
+            stacklevel=2
+        )
+        return read_csv_metadata(metafile)
 
 
 def add_metadata_to_netcdf(ncfile, metadata_file=None):
@@ -82,7 +159,8 @@ def add_metadata_to_netcdf(ncfile, metadata_file=None):
     """
     if metadata_file is not None:
         raw_metadata = get_metadata(metadata_file)
-        for attr, value in raw_metadata.items():
+        for attr, attr_info in raw_metadata.items():
+            value = attr_info["value"]
             # if value is int or float, use that type rather than str
             if check_int(value):
                 value = int(value)
