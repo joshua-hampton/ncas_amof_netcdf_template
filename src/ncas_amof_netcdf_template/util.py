@@ -13,7 +13,14 @@ import xml.etree.ElementTree as ET
 
 
 def _map_data_type(data_type):
-    types_dict = {"str": str, "int": int, "float": float, "bool": bool}
+    types_dict = {
+        "str": str,
+        "string": str,
+        "int": int,
+        "integer": int,
+        "float": float,
+        "bool": bool,
+    }
     return types_dict[data_type]
 
 
@@ -48,6 +55,26 @@ def check_float(value):
     """
     try:
         float(value)
+        return True
+    except ValueError:
+        return False
+    except:
+        raise
+
+
+def check_type(value, dtype):
+    """
+    Returns True if value is of type dtype, otherwise returns False.
+
+    Args:
+        value (str): string to test
+        dtype (type): type to test
+
+    Returns:
+        bool: True if value can be of type dtype
+    """
+    try:
+        dtype(value)
         return True
     except ValueError:
         return False
@@ -107,14 +134,22 @@ def read_json_metadata(metafile):
     """
     with open(metafile, "rt") as meta:
         raw_metadata = json.load(meta)
-    for value in raw_metadata.values():
-        if "type" not in value:
-            value["type"] = "str"
-        value["type"] = _map_data_type(value["type"])
-        if "append" not in value:
-            value["append"] = False
+    for key, value in raw_metadata.items():
+        # Convert all values to strings for now, type will convert later
+        if not isinstance(value, dict):
+            raw_metadata[key] = {"value": str(value), "type": "str", "append": "False"}
+        elif not isinstance(value["value"], str):
+            raw_metadata[key]["value"] = str(value["value"])
+        # Set defaults if not present, convert where needed
+        if "type" not in raw_metadata[key]:
+            raw_metadata[key]["type"] = "str"
+        raw_metadata[key]["type"] = _map_data_type(raw_metadata[key]["type"])
+        if "append" not in raw_metadata[key]:
+            raw_metadata[key]["append"] = False
         else:
-            value["append"] = True if value["append"].lower() == "true" else False
+            raw_metadata[key]["append"] = (
+                True if raw_metadata[key]["append"].lower() == "true" else False
+            )
     return raw_metadata
 
 
@@ -133,8 +168,12 @@ def read_yaml_metadata(metafile):
     with open(metafile, "rt") as meta:
         raw_metadata = yaml.safe_load(meta)
     for key, value in raw_metadata.items():
-        if isinstance(value, str):
-            raw_metadata[key] = {"value": value, "type": "str", "append": False}
+        # Convert all values to strings for now, type will convert later
+        if not isinstance(value, dict):
+            raw_metadata[key] = {"value": str(value), "type": "str", "append": "False"}
+        elif not isinstance(value["value"], str):
+            raw_metadata[key]["value"] = str(value["value"])
+        # Set defaults if not present, convert where needed
         if "type" not in raw_metadata[key]:
             raw_metadata[key]["type"] = "str"
         raw_metadata[key]["type"] = _map_data_type(raw_metadata[key]["type"])
@@ -163,7 +202,7 @@ def read_xml_metadata(metafile):
     tree = ET.parse(metafile)
     root = tree.getroot()
     for child in root:
-        raw_metadata[child.tag] = {"value": "", "append": "False", "type": "str"}
+        raw_metadata[child.tag] = {"value": "", "append": False, "type": str}
         for subchild in child:
             if subchild.tag == "type":
                 raw_metadata[child.tag]["type"] = _map_data_type(subchild.text)
@@ -171,7 +210,7 @@ def read_xml_metadata(metafile):
                 raw_metadata[child.tag]["append"] = (
                     True if subchild.text.lower() == "true" else False
                 )
-            else:
+            elif subchild.tag == "value":
                 raw_metadata[child.tag]["value"] = subchild.text
     return raw_metadata
 
@@ -220,19 +259,17 @@ def add_metadata_to_netcdf(ncfile, metadata_file=None):
         raw_metadata = get_metadata(metadata_file)
         for attr, attr_info in raw_metadata.items():
             value = attr_info["value"]
-            # if value is int or float, use that type rather than str
-            if check_int(value):
-                value = int(value)
-            elif check_float(value):
-                value = float(value)
-            # if value is a string number, make it tidy
-            elif (
-                (isinstance(value, str))
-                and (value[0] == value[-1] == "'")
-                and (check_float(value[1:-1]))
-            ):
-                value = str(value[1:-1])
-
+            append = attr_info["append"]
+            valuetype = attr_info["type"]
+            # if value can be converted to valuetype, do so, otherwise keep as string
+            if check_type(value, valuetype):
+                value = valuetype(value)
+            else:
+                warnings.warn(
+                    f"Value '{value}' for attribute '{attr}' could not be converted to type '{valuetype}'",
+                    UserWarning,
+                    stacklevel=2,
+                )
             if attr in ncfile.ncattrs():
                 ncfile.setncattr(attr, value)
             elif attr == "latitude" or attr == "longitude":
