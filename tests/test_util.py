@@ -20,6 +20,17 @@ def test_check_float():
     assert not util.check_float("one")
 
 
+def test_check_type_convert():
+    assert util.check_type_convert("12321", int)
+    assert util.check_type_convert("12.432", float)
+    assert util.check_type_convert("1", str)
+    assert util.check_type_convert("1", int)
+    assert util.check_type_convert("1", float)
+    assert util.check_type_convert("one", str)
+    assert not util.check_type_convert("one", int)
+    assert not util.check_type_convert("one", float)
+
+
 def test_get_metadata():
     # Create a temporary CSV file
     with tempfile.NamedTemporaryFile(delete=False, mode="w", newline="") as temp:
