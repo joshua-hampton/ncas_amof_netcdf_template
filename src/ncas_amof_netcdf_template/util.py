@@ -26,7 +26,7 @@ def _map_data_type(data_type):
 
 def check_int(value):
     """
-    Returns True if value is an integer, otherwise returns False.
+    Returns True if value can be converted to integer, otherwise returns False.
 
     Args:
         value (str): string to test
@@ -45,7 +45,7 @@ def check_int(value):
 
 def check_float(value):
     """
-    Returns True if value is a float, otherwise returns False.
+    Returns True if value can be converted to float, otherwise returns False.
 
     Args:
         value (str): string to test
@@ -64,7 +64,7 @@ def check_float(value):
 
 def check_type_convert(value, dtype):
     """
-    Returns True if value is of type dtype, otherwise returns False.
+    Returns True if value can be converted to type dtype, otherwise returns False.
 
     Args:
         value (str): string to test
