@@ -62,7 +62,7 @@ def check_float(value):
         raise
 
 
-def check_type(value, dtype):
+def check_type_convert(value, dtype):
     """
     Returns True if value is of type dtype, otherwise returns False.
 
@@ -262,7 +262,7 @@ def add_metadata_to_netcdf(ncfile, metadata_file=None):
             append = attr_info["append"]
             valuetype = attr_info["type"]
             # if value can be converted to valuetype, do so, otherwise keep as string
-            if check_type(value, valuetype):
+            if check_type_convert(value, valuetype):
                 value = valuetype(value)
             else:
                 warnings.warn(
