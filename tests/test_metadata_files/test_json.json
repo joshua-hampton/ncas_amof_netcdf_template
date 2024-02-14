@@ -1,0 +1,13 @@
+{
+    "key1": "value1",
+    "key2": "value2",
+    "key3": {
+        "value": 12,
+        "type": "int"
+    },
+    "key4": 12,
+    "latitude": {
+        "value": 12.34
+    },
+    "longitude": 56.78
+}
