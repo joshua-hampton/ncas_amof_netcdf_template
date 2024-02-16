@@ -44,7 +44,7 @@ dependencies = [
 
 
 [tool.ruff]
-ignore = ["F401"]
+lint.ignore = ["F401"]
 
 [tool.black]
 extend-exclude = "docs/*"
