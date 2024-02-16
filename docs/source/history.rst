@@ -5,6 +5,10 @@ Revision History
 ----------------
 Important changes of note with each release:
 
+2.4.0
+^^^^^
+- Added options for metadata files in different file formats, including the option to specify the data type of the value of the attribute, and whether to append the given value to the current value.
+
 2.3.2
 ^^^^^
 - Corrected how microseconds were being treated by ``util.get_times``
