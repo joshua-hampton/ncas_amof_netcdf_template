@@ -9,7 +9,7 @@ CSV
 Metadata in CSV files must be formatted with one attribute per line, starting with the name of the attribute, followed by its value (which can have commas in it), optionally followed by ``type=`` and/or ``append=``, for example:
 
 .. code-block::
-  
+
    attribute_name1,attribute_value1
    attribute_name2,153,type=integer,append=True
    attribute_name3,attribute_value3, value3 continued, type=string
@@ -81,5 +81,3 @@ These metadata can also be given in an XML file:
            <type>string</value>
        </attribute_name3>
    </attributes>
-
-

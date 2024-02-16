@@ -101,7 +101,7 @@ def test_add_metadata_to_netcdf():
         ncfile.key3 = "old_value3"
         ncfile.key4 = "old_value4"
         temp_path = temp.name
-        
+
     raw_metadata = util.get_metadata("tests/test_metadata_files/test_csv.csv")
 
     assert raw_metadata.keys() == {
