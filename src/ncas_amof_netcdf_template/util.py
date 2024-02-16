@@ -101,13 +101,19 @@ def read_csv_metadata(metafile):
             if len(row) >= 2:
                 raw_metadata[row[0]] = {"value": "", "append": "False", "type": "str"}
                 n = None
-                if row[-1].startswith("type=") or row[-1].startswith("append="):
-                    raw_metadata[row[0]][row[-1].split("=")[0]] = row[-1].split("=")[1]
-                    if row[-2].startswith("type=") or row[-2].startswith("append="):
+                if row[-1].strip().startswith("type=") or row[-1].strip().startswith(
+                    "append="
+                ):
+                    raw_metadata[row[0]][row[-1].strip().split("=")[0]] = (
+                        row[-1].strip().split("=")[1]
+                    )
+                    if row[-2].strip().startswith("type=") or row[
+                        -2
+                    ].strip().startswith("append="):
                         n = -2
-                        raw_metadata[row[0]][row[-2].split("=")[0]] = row[-2].split(
-                            "="
-                        )[1]
+                        raw_metadata[row[0]][row[-2].strip().split("=")[0]] = (
+                            row[-2].strip().split("=")[1]
+                        )
                     else:
                         n = -1
                 raw_metadata[row[0]]["value"] = ",".join(row[1:n]).strip()
@@ -260,6 +266,8 @@ def add_metadata_to_netcdf(ncfile, metadata_file=None):
         for attr, attr_info in raw_metadata.items():
             value = attr_info["value"]
             append = attr_info["append"]
+            if append:
+                print("Append not implemeted yet...")
             valuetype = attr_info["type"]
             # if value can be converted to valuetype, do so, otherwise keep as string
             if check_type_convert(value, valuetype):
@@ -286,7 +294,7 @@ def get_times(dt_times):
     Returns:
         lists: unix_times, day-of-year, years, months, days, hours, minutes, seconds
         floats: unix time of first and last times (time_coverage_start and
-                 time_coverage_end)
+        time_coverage_end)
         str: date in YYYYmmdd format of first time, (file_date)
     """
     unix_times = [i.replace(tzinfo=dt.timezone.utc).timestamp() for i in dt_times]
