@@ -266,8 +266,6 @@ def add_metadata_to_netcdf(ncfile, metadata_file=None):
         for attr, attr_info in raw_metadata.items():
             value = attr_info["value"]
             append = attr_info["append"]
-            if append:
-                print("Append not implemeted yet...")
             valuetype = attr_info["type"]
             # if value can be converted to valuetype, do so, otherwise keep as string
             if check_type_convert(value, valuetype):
@@ -278,10 +276,22 @@ def add_metadata_to_netcdf(ncfile, metadata_file=None):
                     UserWarning,
                     stacklevel=2,
                 )
-            if attr in ncfile.ncattrs():
-                ncfile.setncattr(attr, value)
-            elif attr == "latitude" or attr == "longitude":
+                #ncfile.setncattr(attr, value)
+            if attr == "latitude" or attr == "longitude":
                 update_variable(ncfile, attr, value)
+            elif append and attr in ncfile.ncattrs:
+                # do the append stuff
+                current_value = ncfile.getncattr(attr)
+                if isinstance(current_value, list):
+                    new_value = current_value.append(value)
+                else:
+                    new_value = [current_value, value]
+                ncfile.setncattr(attr, new_value)
+            else:
+                ncfile.setncattr(attr, value)
+
+                
+
 
 
 def get_times(dt_times):
