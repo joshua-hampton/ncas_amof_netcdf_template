@@ -276,11 +276,9 @@ def add_metadata_to_netcdf(ncfile, metadata_file=None):
                     UserWarning,
                     stacklevel=2,
                 )
-                #ncfile.setncattr(attr, value)
             if attr == "latitude" or attr == "longitude":
                 update_variable(ncfile, attr, value)
             elif append and attr in ncfile.ncattrs:
-                # do the append stuff
                 current_value = ncfile.getncattr(attr)
                 if isinstance(current_value, list):
                     new_value = current_value.append(value)
