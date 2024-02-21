@@ -336,7 +336,7 @@ def product_dict(
             "Both platform and instrument_loc are used, using platform."
             " instrument_loc will be removed from version 2.6.0",
             DeprecationWarning,
-            stacklevel=2
+            stacklevel=2,
         )
 
     if instrument_loc != "":
@@ -344,7 +344,7 @@ def product_dict(
             "instrument_loc is deprecated, use platform instead"
             " This option will be removed from version 2.6.0",
             DeprecationWarning,
-            stacklevel=2
+            stacklevel=2,
         )
         platform = instrument_loc
 
