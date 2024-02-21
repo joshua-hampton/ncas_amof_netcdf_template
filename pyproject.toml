@@ -35,7 +35,8 @@ dependencies = [
     "netcdf4",
     "numpy",
     "requests",
-    "pandas"
+    "pandas",
+    "pyyaml"
 ]
 
 [project.urls]
