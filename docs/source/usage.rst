@@ -166,10 +166,9 @@ Metadata can be supplied in CSV, JSON, YAML or XML formats; see the `metadata fo
 
 If detection fails and ``file_format`` is not given, the function will attempt to read the file as a CSV.
 
-Two additional parameters can be supplied in the metadata file with each individual attributes:
+One additional parameters can be supplied in the metadata file with each individual attributes:
 
 - ``type`` - what data type the value of the attribute should take, e.g. ``integer`` or ``string``. Default if absent is ``string``.
-- ``append`` - whether to add the value to the attribute value currently in the netCDF file or replace it. Default if absent is ``False`` (replace value). If the attribute does not already exist, this option is ignored.
 
 
 Latitude, Longitude, and Geospatial Bounds
