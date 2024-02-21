@@ -7,7 +7,7 @@ Important changes of note with each release:
 
 2.4.0
 ^^^^^
-- Added options for metadata files in different file formats, including the option to specify the data type of the value of the attribute, and whether to append the given value to the current value.
+- Added options for metadata files in different file formats, including the option to specify the data type of the value of the attribute.
 
 2.3.2
 ^^^^^
