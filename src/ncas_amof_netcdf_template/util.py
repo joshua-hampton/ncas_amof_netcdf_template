@@ -99,30 +99,34 @@ def read_csv_metadata(metafile):
         metaread = csv.reader(meta)
         for row in metaread:
             if len(row) >= 2:
-                raw_metadata[row[0]] = {"value": "", "append": "False", "type": "str"}
+                # raw_metadata[row[0]] = {"value": "", "append": "False", "type": "str"}
+                raw_metadata[row[0]] = {"value": "", "type": "str"}
                 n = None
-                if row[-1].strip().startswith("type=") or row[-1].strip().startswith(
-                    "append="
-                ):
-                    raw_metadata[row[0]][row[-1].strip().split("=")[0]] = (
-                        row[-1].strip().split("=")[1]
-                    )
-                    if row[-2].strip().startswith("type=") or row[
-                        -2
-                    ].strip().startswith("append="):
-                        n = -2
-                        raw_metadata[row[0]][row[-2].strip().split("=")[0]] = (
-                            row[-2].strip().split("=")[1]
-                        )
-                    else:
-                        n = -1
+                # if row[-1].strip().startswith("type=") or row[-1].strip().startswith(
+                #    "append="
+                # ):
+                if row[-1].strip().startswith("type="):
+                    # raw_metadata[row[0]][row[-1].strip().split("=")[0]] = (
+                    #    row[-1].strip().split("=")[1]
+                    # )
+                    # if row[-2].strip().startswith("type=") or row[
+                    #    -2
+                    # ].strip().startswith("append="):
+                    #    n = -2
+                    #    raw_metadata[row[0]][row[-2].strip().split("=")[0]] = (
+                    #        row[-2].strip().split("=")[1]
+                    #    )
+                    # else:
+                    #    n = -1
+                    raw_metadata[row[0]]["type"] = row[-1].strip().split("=")[1]
+                    n = -1
                 raw_metadata[row[0]]["value"] = ",".join(row[1:n]).strip()
                 raw_metadata[row[0]]["type"] = _map_data_type(
                     raw_metadata[row[0]]["type"]
                 )
-                raw_metadata[row[0]]["append"] = (
-                    True if raw_metadata[row[0]]["append"].lower() == "true" else False
-                )
+                # raw_metadata[row[0]]["append"] = (
+                #    True if raw_metadata[row[0]]["append"].lower() == "true" else False
+                # )
     return raw_metadata
 
 
@@ -143,19 +147,20 @@ def read_json_metadata(metafile):
     for key, value in raw_metadata.items():
         # Convert all values to strings for now, type will convert later
         if not isinstance(value, dict):
-            raw_metadata[key] = {"value": str(value), "type": "str", "append": "False"}
+            # raw_metadata[key] = {"value": str(value), "type": "str", "append": "False"}
+            raw_metadata[key] = {"value": str(value), "type": "str"}
         elif not isinstance(value["value"], str):
             raw_metadata[key]["value"] = str(value["value"])
         # Set defaults if not present, convert where needed
         if "type" not in raw_metadata[key]:
             raw_metadata[key]["type"] = "str"
         raw_metadata[key]["type"] = _map_data_type(raw_metadata[key]["type"])
-        if "append" not in raw_metadata[key]:
-            raw_metadata[key]["append"] = False
-        else:
-            raw_metadata[key]["append"] = (
-                True if raw_metadata[key]["append"].lower() == "true" else False
-            )
+        # if "append" not in raw_metadata[key]:
+        #    raw_metadata[key]["append"] = False
+        # elif not isinstance(raw_metadata[key]["append"], bool):
+        #    raw_metadata[key]["append"] = (
+        #        True if raw_metadata[key]["append"].lower() == "true" else False
+        #    )
     return raw_metadata
 
 
@@ -176,19 +181,20 @@ def read_yaml_metadata(metafile):
     for key, value in raw_metadata.items():
         # Convert all values to strings for now, type will convert later
         if not isinstance(value, dict):
-            raw_metadata[key] = {"value": str(value), "type": "str", "append": "False"}
+            # raw_metadata[key] = {"value": str(value), "type": "str", "append": "False"}
+            raw_metadata[key] = {"value": str(value), "type": "str"}
         elif not isinstance(value["value"], str):
             raw_metadata[key]["value"] = str(value["value"])
         # Set defaults if not present, convert where needed
         if "type" not in raw_metadata[key]:
             raw_metadata[key]["type"] = "str"
         raw_metadata[key]["type"] = _map_data_type(raw_metadata[key]["type"])
-        if "append" not in raw_metadata[key]:
-            raw_metadata[key]["append"] = False
-        else:
-            raw_metadata[key]["append"] = (
-                True if raw_metadata[key]["append"].lower() == "true" else False
-            )
+        # if "append" not in raw_metadata[key]:
+        #    raw_metadata[key]["append"] = False
+        # else:
+        #    raw_metadata[key]["append"] = (
+        #        True if raw_metadata[key]["append"].lower() == "true" else False
+        #    )
     return raw_metadata
 
 
@@ -208,14 +214,15 @@ def read_xml_metadata(metafile):
     tree = ET.parse(metafile)
     root = tree.getroot()
     for child in root:
-        raw_metadata[child.tag] = {"value": "", "append": False, "type": str}
+        # raw_metadata[child.tag] = {"value": "", "append": False, "type": str}
+        raw_metadata[child.tag] = {"value": "", "type": str}
         for subchild in child:
             if subchild.tag == "type":
                 raw_metadata[child.tag]["type"] = _map_data_type(subchild.text)
-            elif subchild.tag == "append":
-                raw_metadata[child.tag]["append"] = (
-                    True if subchild.text.lower() == "true" else False
-                )
+            # elif subchild.tag == "append":
+            #    raw_metadata[child.tag]["append"] = (
+            #        True if subchild.text.lower() == "true" else False
+            #    )
             elif subchild.tag == "value":
                 raw_metadata[child.tag]["value"] = subchild.text
     return raw_metadata
@@ -265,7 +272,7 @@ def add_metadata_to_netcdf(ncfile, metadata_file=None):
         raw_metadata = get_metadata(metadata_file)
         for attr, attr_info in raw_metadata.items():
             value = attr_info["value"]
-            append = attr_info["append"]
+            # append_value = attr_info["append"]
             valuetype = attr_info["type"]
             # if value can be converted to valuetype, do so, otherwise keep as string
             if check_type_convert(value, valuetype):
@@ -278,18 +285,15 @@ def add_metadata_to_netcdf(ncfile, metadata_file=None):
                 )
             if attr == "latitude" or attr == "longitude":
                 update_variable(ncfile, attr, value)
-            elif append and attr in ncfile.ncattrs:
-                current_value = ncfile.getncattr(attr)
-                if isinstance(current_value, list):
-                    new_value = current_value.append(value)
-                else:
-                    new_value = [current_value, value]
-                ncfile.setncattr(attr, new_value)
+            # elif append_value and attr in ncfile.ncattrs():
+            #    current_value = ncfile.getncattr(attr)
+            #    if isinstance(current_value, list):
+            #        new_value = current_value.append(value)
+            #    else:
+            #        new_value = [current_value, value]
+            #    ncfile.setncattr(attr, new_value)
             else:
                 ncfile.setncattr(attr, value)
-
-                
-
 
 
 def get_times(dt_times):
