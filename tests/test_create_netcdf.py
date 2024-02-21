@@ -1,4 +1,3 @@
-from sys import platform
 import pytest
 import os
 from netCDF4 import Dataset
