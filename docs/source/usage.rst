@@ -161,29 +161,23 @@ Metadata
 --------
 While all required metadata fields are added to the global attributes of the netCDF file, and in some cases the defined values are directly inserted, it is necessary to add further metadata values to the netCDF file, for example ``creator_name``. Fields that need metadata adding to them are initially given placeholder text which starts with the word "CHANGE" - simple interrogation of the created netCDF file will reveal which attributes need specifying.
 
-Metadata that needs adding to the file can be organised into a CSV file, with one attribute-value pair on each line, for example a file called ``metadata.csv`` might look like
-
-.. code-block:: none
-
-  creator_name,Sam Jones
-  creator_email,sam.jones@ncas.ac.uk
-
-The contents of this CSV file can then be added to the netCDF file
+The contents of a CSV file containing metadata can then be added to the netCDF file
 
 .. code-block:: python
 
   nant.util.add_metadata_to_netcdf(nc, 'metadata.csv')
 
+Metadata can be supplied in CSV, JSON, YAML or XML formats; see the `metadata formats <metadata-formats.html>`_ page for more details. The ``add_metadata_to_netcdf`` function will attempt to detect the format type based on the file extension. If this detection fails, the ``file_format`` argument can be used, e.g.
 
-Numbers
-^^^^^^^
-There are places where numbers need to be stored in the netCDF file as numbers (integers or floats), and other times where they should be strings. The `add_metadata_to_netcdf` function will attempt to convert the values in the CSV file to numbers where appropriate, but if the value should be a string, then the value in the CSV file should be enclosed in single quotes, for example
+.. code-block:: python
 
-.. code-block:: none
+   nant.util.add_metadata_to_netcdf(nc, 'metadata_file', file_format = 'csv')
 
-   integer_value,123
-   float_value,123.456
-   string_value,'123.456'
+If detection fails and ``file_format`` is not given, the function will attempt to read the file as a CSV.
+
+One additional parameters can be supplied in the metadata file with each individual attributes:
+
+- ``type`` - what data type the value of the attribute should take, e.g. ``integer`` or ``string``. Default if absent is ``string``.
 
 
 Latitude, Longitude, and Geospatial Bounds

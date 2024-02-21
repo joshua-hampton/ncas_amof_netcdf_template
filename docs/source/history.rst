@@ -9,6 +9,12 @@ Important changes of note with each release:
 ^^^^^
 - Added option to overwrite platform used in file name and global attribute - ``platform`` attribute to ``create_netcdf.main`` and ``create_netcdf.make_product_netcdf``.
 - Deprecating use of ``instrument_loc`` in ``tsv2dict.product_dict`` and ``create_netcdf.make_product_netcdf`` - use ``platform`` instead. ``instrument_loc`` will be removed in version 2.6.0.
+- Added options for metadata files in different file formats, including the option to specify the data type of the value of the attribute.
+
+2.3.2
+^^^^^
+- Corrected how microseconds were being treated by ``util.get_times``
+- Numbers in metadata can be neatly added as strings to global attributes by surrounding them with single quotes, for example `'1.2'` in the metadata CSV file. Numbers not surrounded by single quotes are still treated as integers or floats.
 
 2.3.1
 ^^^^^
