@@ -45,6 +45,15 @@ If dimensions aren't given, Python asks for the dimension lengths to be given:
   Enter length for dimension layer_index: 4
 
 
+Platform
+^^^^^^^^
+The deployment platform, where the instrument was located while measuring data, is recorded in both the file name and as a global attribute. The platform names are controlled by CEDA. NCAS instruments that are primarily based at an NCAS observatory have the relevant platform associated with the instrument, but mobile instruments have the phrase "mobile" listed as the default platform, which needs to be changed. Both the ``create_netcdf.main`` and ``create_netcdf.make_product_netcdf`` functions can take a ``platform`` argument, which sets or overrides the platform name to use:
+
+.. code-block:: python
+
+   nc = nant.create_netcdf.main("ncas-ceilometer-3", platform = "cao")
+
+
 Date
 ^^^^
 The `file-naming convention <https://sites.google.com/ncas.ac.uk/ncasobservations/home/data-project/ncas-data-standards/ncas-amof/file-naming>`_ for the NCAS-GENERAL standard includes the date, and sometimes time, which the data within the file represents. By default, today's date will be used in the file name. This behaviour can be overridden by giving the date to the ``create_netcdf.main`` function:
