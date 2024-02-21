@@ -8,6 +8,7 @@ import pandas as pd
 import re
 import requests
 import os
+import warnings
 
 from . import values
 
@@ -304,6 +305,7 @@ def instrument_dict(desired_instrument, loc="land", use_local_files=None, tag="l
 
 def product_dict(
     desired_product,
+    platform="",
     instrument_loc="",
     deployment_loc="land",
     use_local_files=None,
@@ -315,7 +317,9 @@ def product_dict(
 
     Args:
         desired_product (str): name of data product
-        instrument_loc (str): location or observatory of instrument
+        platform (str): location or observatory of instrument
+        instrument_loc (str): [DEPRECATED - use platform instead] location or
+                              observatory of instrument
         deployment_loc (str): deployment mode, one of 'land', 'sea', 'air',
                               or 'trajectory'. Default 'land'.
         use_local_files (str or None): path to local directory where tsv files are
@@ -327,6 +331,23 @@ def product_dict(
         dictionary of all attributes, dimensions and variables
         associated with the named data product.
     """
+    if platform != "" and instrument_loc != "":
+        warnings.warn(
+            "Both platform and instrument_loc are used, using platform."
+            " instrument_loc will be removed from version 2.6.0",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+
+    if instrument_loc != "":
+        warnings.warn(
+            "instrument_loc is deprecated, use platform instead"
+            " This option will be removed from version 2.6.0",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        platform = instrument_loc
+
     common_dimensions_url = values.get_common_dimensions_url(
         use_local_files=use_local_files, tag=tag, loc=deployment_loc
     )
@@ -381,7 +402,7 @@ def product_dict(
 
     # Add basic info bits
     product_dict["info"] = {}
-    product_dict["info"]["Mobile/Fixed (loc)"] = instrument_loc
+    product_dict["info"]["Mobile/Fixed (loc)"] = platform
     product_dict["info"]["Manufacturer"] = (
         "CHANGE: Manufacturer of instrument and key sub components."
         " String: min 2 characters."

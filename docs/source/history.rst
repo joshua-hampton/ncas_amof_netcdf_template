@@ -7,6 +7,8 @@ Important changes of note with each release:
 
 2.4.0
 ^^^^^
+- Added option to overwrite platform used in file name and global attribute - ``platform`` attribute to ``create_netcdf.main`` and ``create_netcdf.make_product_netcdf``.
+- Deprecating use of ``instrument_loc`` in ``tsv2dict.product_dict`` and ``create_netcdf.make_product_netcdf`` - use ``platform`` instead. ``instrument_loc`` will be removed in version 2.6.0.
 - Added options for metadata files in different file formats, including the option to specify the data type of the value of the attribute.
 
 2.3.2
