@@ -282,8 +282,13 @@ def make_netcdf(
             stacklevel=2,
         )
 
-    if instrument_dict["info"]["Mobile/Fixed (loc)"].split("-")[0].strip().lower() == "fixed":
-        platform = instrument_dict["info"]["Mobile/Fixed (loc)"].split("-")[-1].strip().lower()
+    if (
+        instrument_dict["info"]["Mobile/Fixed (loc)"].split("-")[0].strip().lower()
+        == "fixed"
+    ):
+        platform = (
+            instrument_dict["info"]["Mobile/Fixed (loc)"].split("-")[-1].strip().lower()
+        )
     else:
         platform = instrument_dict["info"]["Mobile/Fixed (loc)"].strip().lower()
 
