@@ -11,7 +11,7 @@ import ncas_amof_netcdf_template as nant
 
 def test_main_process():
     nc = nant.create_netcdf.main(
-        "ncas-aws-10", date="20221117", dimension_lengths={"time": 5}, return_open=True
+        "ncas-aws-10", date="20221117", dimension_lengths={"time": 5}
     )
     assert os.path.exists("ncas-aws-10_iao_20221117_surface-met_v1.0.nc")
     assert nc["air_temperature"].size == 5
@@ -26,7 +26,6 @@ def test_main_process():
         platform="somewhere-else",
         date="20221117",
         dimension_lengths={"time": 5},
-        return_open=True,
     )
     assert os.path.exists("ncas-aws-10_somewhere-else_20221117_surface-met_v1.0.nc")
     assert nc["air_temperature"].size == 5
@@ -312,7 +311,6 @@ def test_make_netcdf():
     file_location = "."
     use_local_files = None
     tag = "v1.2.3"
-    return_open = True
 
     # Call the function
     ncfile = nant.create_netcdf.make_netcdf(
@@ -328,7 +326,6 @@ def test_make_netcdf():
         file_location,
         use_local_files,
         tag,
-        return_open,
     )
 
     # Check the returned object

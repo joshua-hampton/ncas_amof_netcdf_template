@@ -238,7 +238,7 @@ def make_netcdf(
     file_location=".",
     use_local_files=None,
     tag="latest",
-    return_open=False,
+    return_open=True,
 ):
     """
     Makes netCDF file for given instrument and arguments.
@@ -267,8 +267,8 @@ def make_netcdf(
         tag (str): tagged release version of AMF_CVs, or 'latest' to get most recent
                 release. Ignored if use_local_files is not None. Default "latest".
         return_open (bool): If True, return the netCDF file as an open object. If
-                             False, closes netCDF file. Default False (will change
-                             to True in 2.4.0).
+                             False, closes netCDF file. Default True (option will
+                             be removed in 2.5.0).
 
     Returns:
         netCDF file object or nothing.
@@ -363,7 +363,7 @@ def make_product_netcdf(
     file_location=".",
     use_local_files=None,
     tag="latest",
-    return_open=False,
+    return_open=True,
 ):
     """
     Create an AMOF-like netCDF file for a given data product. This means files can be
@@ -396,8 +396,8 @@ def make_product_netcdf(
         tag (str): tagged release of definitions, or 'latest' to get most recent
                 release. Ignored if use_local_files is not None. Default "latest".
         return_open (bool): If True, return the netCDF file as an open object. If
-                             False, closes netCDF file. Default False (will change
-                             to True in 2.4.0).
+                             False, closes netCDF file. Default True (option will be
+                             removed in 2.5.0).
 
     Returns:
         netCDF file object or nothing.
@@ -509,7 +509,7 @@ def main(
     file_location=".",
     use_local_files=None,
     tag="latest",
-    return_open=False,
+    return_open=True,
 ):
     """
     Create 'just-add-data' AMOF-compliant netCDF file
@@ -540,8 +540,8 @@ def main(
         tag (str): tagged release of definitions, or 'latest' to get most recent
                 release. Ignored if use_local_files is not None. Default "latest".
         return_open (bool): If True, return the netCDF file as an open object. If
-                             False, closes netCDF file. Default False (will change
-                             to True in 2.4.0).
+                             False, closes netCDF file. Default True (option will be
+                             removed in 2.5.0).
 
     Returns:
         netCDF file object or nothing
