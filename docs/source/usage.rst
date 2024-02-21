@@ -15,7 +15,7 @@ In its very simplest form:
 This will create a netCDF file with today's date for all data products availalbe for the given instrument. If files for multiple products are made, the returned object will be a list containing all objects; if only a single file then just that netCDF file object is returned.
 
 .. attention::
-   If the ``return_open`` argument is omitted or set to False, then the ``create_netcdf.main`` function will close the netCDF file(s), rather than returning open files. This is the only behaviour before version 2.3 and is the default in 2.3, but ``return_open=True`` will be the default in 2.4, and from 2.5 the False option will be removed.
+   If the ``return_open`` argument is set to False, then the ``create_netcdf.main`` function will close the netCDF file(s), rather than returning open files. This is the only behaviour before version 2.3 and was the default in 2.3, but ``return_open=True`` is the default from 2.4, and from 2.5 the ``return_open`` argument will be removed.
 
 A netCDF file can also be created for a specific data product, rather than by a specific instrument.
 
