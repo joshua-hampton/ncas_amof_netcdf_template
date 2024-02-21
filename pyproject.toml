@@ -35,7 +35,8 @@ dependencies = [
     "netcdf4",
     "numpy",
     "requests",
-    "pandas"
+    "pandas",
+    "pyyaml"
 ]
 
 [project.urls]
@@ -44,7 +45,7 @@ dependencies = [
 
 
 [tool.ruff]
-ignore = ["F401"]
+lint.ignore = ["F401"]
 
 [tool.black]
 extend-exclude = "docs/*"

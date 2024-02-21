@@ -20,23 +20,69 @@ def test_check_float():
     assert not util.check_float("one")
 
 
+def test_check_type_convert():
+    assert util.check_type_convert("12321", int)
+    assert util.check_type_convert("12.432", float)
+    assert util.check_type_convert("1", str)
+    assert util.check_type_convert("1", int)
+    assert util.check_type_convert("1", float)
+    assert util.check_type_convert("one", str)
+    assert not util.check_type_convert("one", int)
+    assert not util.check_type_convert("one", float)
+
+
 def test_get_metadata():
     # Create a temporary CSV file
     with tempfile.NamedTemporaryFile(delete=False, mode="w", newline="") as temp:
         writer = csv.writer(temp)
         writer.writerow(["key1", "value1"])
         writer.writerow(["key2", "value2", "extra"])
-        writer.writerow(["key3"])
+        # writer.writerow(["key3", "value3", "extra", "append=True"])
+        writer.writerow(["key3", "value3", "extra"])
+        writer.writerow(["key4", "value4", "type=int"])
+        # writer.writerow(["key5", "value5", "type=int", "append=True"])
+        writer.writerow(["key5", "value5", "type=int"])
+        writer.writerow(["key6"])
         temp_path = temp.name
 
     # Call the get_metadata function with the temporary CSV file
     result = util.get_metadata(temp_path)
 
     # Check the result
-    assert result == {"key1": "value1", "key2": "value2,extra"}
+    # appending is ignored, for now
+    # assert result == {
+    #    "key1": {"value": "value1", "append": False, "type": str},
+    #    "key2": {"value": "value2,extra", "append": False, "type": str},
+    #    "key3": {"value": "value3,extra", "append": True, "type": str},
+    #    "key4": {"value": "value4", "append": False, "type": int},
+    #    "key5": {"value": "value5", "append": True, "type": int},
+    # }
+    assert result == {
+        "key1": {"value": "value1", "type": str},
+        "key2": {"value": "value2,extra", "type": str},
+        "key3": {"value": "value3,extra", "type": str},
+        "key4": {"value": "value4", "type": int},
+        "key5": {"value": "value5", "type": int},
+    }
 
     # Delete the temporary CSV file
     os.remove(temp_path)
+
+
+def test_get_metadata_different_formats():
+    csv_file = "tests/test_metadata_files/test_csv.csv"
+    yaml_file = "tests/test_metadata_files/test_yaml.yaml"
+    json_file = "tests/test_metadata_files/test_json.json"
+    xml_file = "tests/test_metadata_files/test_xml.xml"
+
+    csv_result = util.get_metadata(csv_file)
+    yaml_result = util.get_metadata(yaml_file)
+    json_result = util.get_metadata(json_file)
+    xml_result = util.get_metadata(xml_file)
+
+    assert csv_result == yaml_result
+    assert yaml_result == json_result
+    assert json_result == xml_result
 
 
 def test_get_metadata_with_empty_file():
@@ -57,7 +103,7 @@ def test_get_metadata_with_empty_file():
 def test_add_metadata_to_netcdf():
     # Create a temporary netCDF file
     with tempfile.NamedTemporaryFile(delete=False, suffix=".nc") as temp:
-        ncfile = Dataset(temp.name, "w", format="NETCDF4")
+        ncfile = Dataset(temp.name, "w", format="NETCDF4_CLASSIC")
         ncfile.createDimension("dim", None)
         ncfile.createVariable("latitude", "f4", ("dim",))
         ncfile.createVariable("longitude", "f4", ("dim",))
@@ -66,36 +112,35 @@ def test_add_metadata_to_netcdf():
         ncfile.key4 = "old_value4"
         temp_path = temp.name
 
-    with open("tests/test_csv.csv", "rt") as meta:
-        raw_metadata = {}
-        metaread = csv.reader(meta)
-        metaread = meta.readlines()
-        for row in metaread:
-            if len(row.split(",")) >= 2:
-                raw_metadata[row.split(",")[0]] = ",".join(row.split(",")[1:]).strip()
+    raw_metadata = util.get_metadata("tests/test_metadata_files/test_csv.csv")
 
     assert raw_metadata.keys() == {
         "key1",
         "key2",
         "key3",
         "key4",
+        "key5",
         "latitude",
         "longitude",
     }
-    assert raw_metadata["key4"] == "'12'"
+    assert raw_metadata["key4"]["value"] == "12"
 
     # Call the add_metadata_to_netcdf function with the temporary netCDF file and the temporary CSV file
-    util.add_metadata_to_netcdf(ncfile, "tests/test_csv.csv")
+    util.add_metadata_to_netcdf(ncfile, "tests/test_metadata_files/test_csv.csv")
 
     # Check the result
     # overwrite existing
     assert ncfile.getncattr("key1") == "value1"
-    # non-existing ignored
-    assert "key2" not in ncfile.ncattrs()
-    # integer in csv is integer in netCDF
+    # "key2" should be added
+    assert ncfile.getncattr("key2") == "value2"
+    # appending doesnt work with netcdf4_classic
+    ## appended value will only ever be a string
+    # assert ncfile.getncattr("key3") == ["old_value3", "12"]
     assert ncfile.getncattr("key3") == 12
     # string number in csv is tidy string in netCDF
     assert ncfile.getncattr("key4") == "12"
+    # value should be integer
+    assert ncfile.getncattr("key5") == 12
     # latitude and longitude are added as variables
     assert np.allclose(ncfile.variables["latitude"][:], 12.34)
     assert np.allclose(ncfile.variables["longitude"][:], 56.78)

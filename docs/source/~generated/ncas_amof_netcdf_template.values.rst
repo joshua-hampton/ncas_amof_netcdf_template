@@ -13,6 +13,7 @@
 
    .. autosummary::
 
+      get_all_data_products_url
       get_common_attributes_url
       get_common_dimensions_url
       get_common_variables_url

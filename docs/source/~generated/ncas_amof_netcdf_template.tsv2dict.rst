@@ -17,6 +17,8 @@
       create_dimensions_tsv_url
       create_variables_tsv_url
       instrument_dict
+      list_all_products
+      product_dict
       tsv2dict_attrs
       tsv2dict_dims
       tsv2dict_instruments
