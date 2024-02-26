@@ -30,4 +30,4 @@ ncas_amof_netcdf_template is a Python module to help `NCAS <https://ncas.ac.uk/>
    Conda <https://anaconda.org/conda-forge/ncas-amof-netcdf-template>
    GitHub <https://github.com/joshua-hampton/ncas_amof_netcdf_template>
    NCAS <https://ncas.ac.uk>
-   NCAS Data Project <https://sites.google.com/ncas.ac.uk/ncasobservations/home/data-project/>
+   NCAS Data Activity <https://sites.google.com/ncas.ac.uk/ncasobservations/home/data-project/>
