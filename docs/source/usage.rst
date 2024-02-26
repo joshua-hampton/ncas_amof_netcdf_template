@@ -179,7 +179,7 @@ One additional parameters can be supplied in the metadata file with each individ
 
 Latitude, Longitude, and Geospatial Bounds
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Although latitude and longitude are variables in the netCDF file, single value latitude and longitude values, with units `degrees North` and `degrees East` respectively can be included in the metadata file, for example if using a CSV meatadata file
+Although latitude and longitude are variables in the netCDF file, single value latitude and longitude values, with units "degrees North" and "degrees East" respectively can be included in the metadata file, for example if using a CSV meatadata file
 
 .. code-block:: none
 
