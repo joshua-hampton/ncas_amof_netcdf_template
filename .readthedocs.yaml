@@ -16,6 +16,7 @@ build:
     python: "3.9"
   jobs:
     post_build:
+      - mkdir -p ${READTHEDOCS_OUTPUT}/pdf 
       - rst2pdf docs/source/manual/manual.rst -o ${READTHEDOCS_OUTPUT}/pdf/ncas-amof-netcdf-template-manual.pdf  --config=docs/source/manual/rst2pdf.conf --custom-cover=assets/cover.tmpl -s docs/source/manual/assets/manual.yaml
 
 # Build documentation in the docs/ directory with Sphinx
