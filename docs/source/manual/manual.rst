@@ -11,7 +11,7 @@
    .. oddeven::
 
       .. class:: right
-                           
+
          ###Page###
 
       .. class:: normal
@@ -22,7 +22,7 @@
 .. raw:: pdf
 
    SetPageCounter 0
-   PageBreak mainPage 
+   PageBreak mainPage
 
 
 .. include:: ../index.rst
@@ -41,4 +41,3 @@
 .. include:: ../history.rst
 
 .. include:: ../help.rst
-

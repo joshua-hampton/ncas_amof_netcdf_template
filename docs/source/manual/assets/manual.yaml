@@ -2,7 +2,7 @@ pageSetup:
   firstTemplate: coverPage
 pageTemplates:
   coverPage:
-    showFooter: false 
+    showFooter: false
   mainPage:
     showFooter: true
 styles:
