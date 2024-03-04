@@ -6,17 +6,18 @@
 version: 2
 
 # Build documents in all formats
-formats: all
+formats:
+  - html
+  - epub
 
 # Set the version of Python and other tools you might need
 build:
   os: ubuntu-20.04
   tools:
     python: "3.9"
-    # You can also specify other tool versions:
-    # nodejs: "16"
-    # rust: "1.55"
-    # golang: "1.17"
+  jobs:
+    post_build:
+      - rst2pdf docs/source/manual/manual.rst -o ${READTHEDOCS_OUTPUT}/pdf/ncas-amof-netcdf-template-manual.pdf  --config=docs/source/manual/rst2pdf.conf --custom-cover=assets/cover.tmpl -s docs/source/manual/assets/manual.yaml
 
 # Build documentation in the docs/ directory with Sphinx
 sphinx:
