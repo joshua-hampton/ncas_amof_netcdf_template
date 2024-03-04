@@ -16,13 +16,3 @@
       get_json_from_github
       get_product_variables_metadata
       main
-
-
-
-
-
-
-
-
-
-
