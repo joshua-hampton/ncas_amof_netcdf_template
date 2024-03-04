@@ -1,0 +1,11 @@
+pageSetup:
+  firstTemplate: coverPage
+pageTemplates:
+  coverPage:
+    showFooter: false 
+  mainPage:
+    showFooter: true
+styles:
+  centered: {alignment: center, parent: bodytext}
+  logoimage: {alignment: TA_CENTER}
+  right: {alignment: right, parent: bodytext}
