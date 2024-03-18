@@ -24,6 +24,7 @@ Requirements
   * [NumPy](https://numpy.org/)
   * [Requests](https://requests.readthedocs.io/en/latest/)
   * [pandas](https://pandas.pydata.org/)
+  * [PyYAML](https://pyyaml.org/)
 
 Installation
 ------------
