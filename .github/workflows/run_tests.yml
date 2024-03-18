@@ -32,7 +32,8 @@ jobs:
         pip install -e . --no-deps
     - name: Test with pytest
       run: >
-        python -m pytest --cov -v tests/test_build.py tests/test_create_netcdf.py
-        tests/test_util.py tests/test_values.py tests/test_tsv2dict.py
+        python -m pytest --cov --cov-branch -v tests/test_build.py
+        tests/test_create_netcdf.py tests/test_util.py tests/test_values.py
+        tests/test_tsv2dict.py
     - name: Upload coverage reports to Codecov with GitHub Action
       uses: codecov/codecov-action@v3
