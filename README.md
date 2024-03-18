@@ -10,6 +10,7 @@ ncas-amof-netcdf-template
 
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/charliermarsh/ruff/main/assets/badge/v1.json)](https://github.com/charliermarsh/ruff)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![codecov](https://codecov.io/gh/joshua-hampton/ncas_amof_netcdf_template/graph/badge.svg?token=F9Q4M4GKXD)](https://codecov.io/gh/joshua-hampton/ncas_amof_netcdf_template)
 
 Makes 'just-add-data' AMOF-compliant netCDF4 file for either a given NCAS instrument or one of the defined data products.
 
@@ -23,6 +24,7 @@ Requirements
   * [NumPy](https://numpy.org/)
   * [Requests](https://requests.readthedocs.io/en/latest/)
   * [pandas](https://pandas.pydata.org/)
+  * [PyYAML](https://pyyaml.org/)
 
 Installation
 ------------
