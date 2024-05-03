@@ -160,14 +160,16 @@ def add_variables(ncfile, instrument_dict, product, verbose=0):
                     if "_FillValue" in tmp_value:
                         fill_value = float(tmp_value.pop("_FillValue"))
                     else:
-                        fill_value = ""
+                        fill_value = None
 
-                    if fill_value != "":
-                        var = ncfile.createVariable(
-                            key, datatype, var_dims, fill_value=fill_value
-                        )
+                    if "chunksizes" in tmp_value:
+                        chunksizes = tmp_value.pop("chunksizes")
                     else:
-                        var = ncfile.createVariable(key, datatype, var_dims)
+                        chunksizes = None
+
+                    var = ncfile.createVariable(
+                        key, datatype, var_dims, fill_value=fill_value, chunksizes=chunksizes
+                    )
 
                     for mdatkey, mdatvalue in tmp_value.items():
                         # flag meanings in the tsv files are separated by '|',
@@ -239,6 +241,7 @@ def make_netcdf(
     use_local_files=None,
     tag="latest",
     return_open=True,
+    chunk_by_dimension=None,
 ):
     """
     Makes netCDF file for given instrument and arguments.
@@ -269,6 +272,7 @@ def make_netcdf(
         return_open (bool): If True, return the netCDF file as an open object. If
                              False, closes netCDF file. Default True (option will
                              be removed in 2.5.0).
+        chunk_by_dimension (dict): chunk sizes to use in each dimension
 
     Returns:
         netCDF file object or nothing.
@@ -281,6 +285,20 @@ def make_netcdf(
             DeprecationWarning,
             stacklevel=2,
         )
+
+    chunk_by_dimension = chunk_by_dimension or {}
+
+    # add chunks to variables with defined chunk dimensions
+    all_options = ["common", product]
+    for prod in all_options:
+        for var in (var_dict := instrument_dict[prod]["variables"]):
+            if "dimension" in var_dict[var].keys():
+                var_dims = var_dict[var]["dimension"]
+                var_dims = var_dims.replace(".", ",")
+                var_dims = [ x.strip() for x in var_dims.split(",") ]
+                if all(var_dim in chunk_by_dimension.keys() for var_dim in var_dims):
+                    chunksizes = tuple([ int(chunk_by_dimension[var_dim]) for var_dim in var_dims ])
+                    var_dict[var]["chunksizes"] = chunksizes
 
     if (
         instrument_dict["info"]["Mobile/Fixed (loc)"].split("-")[0].strip().lower()
@@ -369,6 +387,7 @@ def make_product_netcdf(
     use_local_files=None,
     tag="latest",
     return_open=True,
+    chunk_by_dimension=None,
 ):
     """
     Create an AMOF-like netCDF file for a given data product. This means files can be
@@ -403,6 +422,7 @@ def make_product_netcdf(
         return_open (bool): If True, return the netCDF file as an open object. If
                              False, closes netCDF file. Default True (option will be
                              removed in 2.5.0).
+        chunk_by_dimension (dict): chunk sizes to use in each dimension
 
     Returns:
         netCDF file object or nothing.
@@ -415,6 +435,8 @@ def make_product_netcdf(
             DeprecationWarning,
             stacklevel=2,
         )
+
+    chunk_by_dimension = chunk_by_dimension or {}
 
     if platform != "" and instrument_loc != "":
         warnings.warn(
@@ -481,6 +503,7 @@ def make_product_netcdf(
             use_local_files=use_local_files,
             tag=tag,
             return_open=return_open,
+            chunk_by_dimension=chunk_by_dimension,
         )
         return nc
     else:
@@ -498,6 +521,7 @@ def make_product_netcdf(
             use_local_files=use_local_files,
             tag=tag,
             return_open=return_open,
+            chunk_by_dimension=chunk_by_dimension,
         )
 
 
@@ -515,6 +539,7 @@ def main(
     use_local_files=None,
     tag="latest",
     return_open=True,
+    chunk_by_dimension=None,
 ):
     """
     Create 'just-add-data' AMOF-compliant netCDF file
@@ -547,6 +572,7 @@ def main(
         return_open (bool): If True, return the netCDF file as an open object. If
                              False, closes netCDF file. Default True (option will be
                              removed in 2.5.0).
+        chunk_by_dimension (dict): chunk sizes to use in each dimension
 
     Returns:
         netCDF file object or nothing
@@ -559,8 +585,11 @@ def main(
             DeprecationWarning,
             stacklevel=2,
         )
+
     if date is None:
         date = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%d")
+
+    chunk_by_dimension = chunk_by_dimension or {}
 
     instrument_dict = tsv2dict.instrument_dict(
         instrument, loc=loc, use_local_files=use_local_files, tag=tag
@@ -640,6 +669,7 @@ def main(
                     use_local_files=use_local_files,
                     tag=tag,
                     return_open=return_open,
+                    chunk_by_dimension=chunk_by_dimension,
                 )
             )
         if len(ncfiles) == 1:
@@ -662,6 +692,7 @@ def main(
                 use_local_files=use_local_files,
                 tag=tag,
                 return_open=return_open,
+                chunk_by_dimension=chunk_by_dimension,
             )
 
 

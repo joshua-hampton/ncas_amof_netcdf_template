@@ -124,11 +124,20 @@ def main(infile, outfile=None, overwrite=True, verbose=0, **kwargs):
             in_ncfile_name_attrs = in_ncfile[name].__dict__
             if "_FillValue" in in_ncfile_name_attrs:
                 fill_value = in_ncfile_name_attrs.pop("_FillValue")
-                dst.createVariable(
-                    name, variable.datatype, variable.dimensions, fill_value=fill_value
-                )
             else:
-                dst.createVariable(name, variable.datatype, variable.dimensions)
+                fill_value = None
+            if in_ncfile[name].chunking() != "contiguous":
+                chunksizes = in_ncfile[name].chunking()
+            else:
+                chunksizes=None
+
+            dst.createVariable(
+                name,
+                variable.datatype,
+                variable.dimensions,
+                fill_value=fill_value,
+                chunksizes=chunksizes,
+            )
             # copy variable attributes all at once via dictionary
             dst[name].setncatts(in_ncfile_name_attrs)
             dst[name][:] = in_ncfile[name][:]
