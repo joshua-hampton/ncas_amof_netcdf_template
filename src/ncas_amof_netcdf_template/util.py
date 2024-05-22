@@ -10,7 +10,6 @@ import warnings
 import json
 import yaml
 import xml.etree.ElementTree as ET
-import warnings
 
 
 def _map_data_type(data_type):
