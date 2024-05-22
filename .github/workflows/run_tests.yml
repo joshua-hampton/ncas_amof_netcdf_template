@@ -42,4 +42,4 @@ jobs:
       if: ${{ matrix.python-version == '3.12' && matrix.os == 'ubuntu-latest' }}
       uses: codecov/codecov-action@v4.2.0
       env:
-        CODECOV_TOKEN: ${{ secrects.CODECOV_TOKEN }}
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
