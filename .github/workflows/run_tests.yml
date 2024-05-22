@@ -39,4 +39,6 @@ jobs:
         tests/test_create_netcdf.py tests/test_util.py tests/test_values.py
         tests/test_tsv2dict.py
     - name: Upload coverage reports to Codecov with GitHub Action
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4.2.0
+      env:
+        CODECOV_TOKEN: ${{ secrects.CODECOV_TOKEN }}
