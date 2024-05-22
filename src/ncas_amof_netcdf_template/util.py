@@ -355,6 +355,62 @@ def get_times(dt_times):
     )
 
 
+def change_qc_flags(ncfile, ncfile_varname, flag_meanings=[], flag_values=None):
+    """
+    Change the flag meanings and flag values in a quality control variable from
+    the default options. The first two flag meanings must be "not_used" and
+    "good_data", and all spaces in flag meanings will be replaced with underscores.
+    If given, the first two flag values must be 0 and 1. If not given, flag values
+    will be worked out based on the number of flag meanings and will be sequential
+    values.
+
+    Args:
+        ncfile (netCDF Dataset): Dataset object of netCDF file.
+        ncfile_varname (str): Name of variable in netCDF file.
+        flag_meanings (list): List of flag meanings to be used in variable.
+        flag_values (list): List of integer flag values to be used in variable. Will
+                            be automatically worked out if not provided.
+    """
+    if ncfile_varname not in ncfile.variables.keys():
+        msg = f"Variable {ncfile_varname} not in netCDF file"
+        raise ValueError(msg)
+
+    for i, meaning in enumerate(flag_meanings):
+        if " " in meaning:
+            msg = f"Space found in flag meaning '{meaning}', changing to underscore."
+            warnings.warn(msg)
+            flag_meanings[i] = meaning.replace(" ", "_")
+
+    if flag_meanings[0] != "not_used" or flag_meanings[1] != "good_data":
+        msg = (
+            "Invalid flag meanings - first two flag meanings must be 'not_used' "
+            f"and 'good_data', not '{flag_meanings[0]}' and '{flag_meanings[1]}'."
+        )
+        raise ValueError(msg)
+
+    if flag_values:
+        if flag_values[0] != 0 or flag_values[1] != 1:
+            msg = (
+                "Invalid flag values - first two flag values must be 0 and 1, "
+                f"not {flag_values[0]} and {flag_values[1]}."
+            )
+            raise ValueError(msg)
+        if len(flag_values) != len(flag_meanings):
+            msg = (
+                f"Different number of flag_values ({len(flag_values)}) "
+                f"and flag_meanings ({len(flag_meanings)})."
+            )
+            raise ValueError(msg)
+    else:
+        flag_values = list(range(len(flag_meanings)))
+
+    var_type = ncfile[ncfile_varname].dtype
+    flag_value_array = np.array(flag_values, dtype=var_type)
+
+    ncfile[ncfile_varname].setncattr("flag_values", flag_value_array)
+    ncfile[ncfile_varname].setncattr("flag_meanings", " ".join(flag_meanings))
+
+
 def update_variable(ncfile, ncfile_varname, data, qc_data_error=True):
     """
     Adds data to variable, and updates valid_min and valid_max

@@ -219,6 +219,110 @@ def test_get_times_with_incompatible_dates():
         util.get_times(dt_times)
 
 
+def test_change_qc_flags():
+    # Create a temporary netCDF file
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".nc") as temp:
+        ncfile = Dataset(temp.name, "w", format="NETCDF4")
+        ncfile.createDimension("dim", 3)
+        var = ncfile.createVariable("qc_var", "i4", ("dim",))
+        var.flag_values = [0, 1, 2]
+        var.flag_meanings = "not_used good_data suspect_data"
+
+    # test error raised when invalid variable name given
+    with pytest.raises(
+        ValueError,
+        match=r"Variable qc_flag not in netCDF file",
+    ):
+        util.change_qc_flags(ncfile, "qc_flag")
+
+    # test warning on space in flag_meanings but then correctly converted
+    flag_meanings = ["not used", "good_data", "strange_data"]
+    with pytest.warns(
+        UserWarning,
+        match=r"Space found in flag meaning 'not used', changing to underscore.",
+    ):
+        util.change_qc_flags(ncfile, "qc_var", flag_meanings=flag_meanings)
+    assert (
+        ncfile["qc_var"].getncattr("flag_meanings") == "not_used good_data strange_data"
+    )
+
+    # test error raised when not_used is not first meaning
+    flag_meanings = ["wrong_meaning", "good_data", "suspect_data"]
+    with pytest.raises(
+        ValueError,
+        match=r"Invalid flag meanings - first two flag meanings must be 'not_used' and 'good_data', not 'wrong_meaning' and 'good_data'.",
+    ):
+        util.change_qc_flags(ncfile, "qc_var", flag_meanings=flag_meanings)
+
+    # test error raised when good_data is not second meaning
+    flag_meanings = ["not_used", "wrong_meaning", "suspect_data"]
+    with pytest.raises(
+        ValueError,
+        match=r"Invalid flag meanings - first two flag meanings must be 'not_used' and 'good_data', not 'not_used' and 'wrong_meaning'.",
+    ):
+        util.change_qc_flags(ncfile, "qc_var", flag_meanings=flag_meanings)
+
+    # test error raised when 0 is not first value
+    flag_meanings = ["not_used", "good_data", "suspect_data"]
+    flag_values = [3, 1, 2]
+    with pytest.raises(
+        ValueError,
+        match=r"Invalid flag values - first two flag values must be 0 and 1, not 3 and 1.",
+    ):
+        util.change_qc_flags(
+            ncfile, "qc_var", flag_meanings=flag_meanings, flag_values=flag_values
+        )
+
+    # test error raised when 1 is not second value
+    flag_meanings = ["not_used", "good_data", "suspect_data"]
+    flag_values = [0, 3, 2]
+    with pytest.raises(
+        ValueError,
+        match=r"Invalid flag values - first two flag values must be 0 and 1, not 0 and 3.",
+    ):
+        util.change_qc_flags(
+            ncfile, "qc_var", flag_meanings=flag_meanings, flag_values=flag_values
+        )
+
+    # test error raised when different number of meanings and values
+    flag_meanings = ["not_used", "good_data", "suspect_data"]
+    flag_values = [0, 1, 2, 3]
+    with pytest.raises(
+        ValueError,
+        match=r"Different number of flag_values \(4\) and flag_meanings \(3\).",
+    ):
+        util.change_qc_flags(
+            ncfile, "qc_var", flag_meanings=flag_meanings, flag_values=flag_values
+        )
+
+    # test works with values made when not defined
+    flag_meanings = ["not_used", "good_data", "suspect_data", "more_suspect_data"]
+    util.change_qc_flags(ncfile, "qc_var", flag_meanings=flag_meanings)
+    assert (
+        ncfile["qc_var"].getncattr("flag_meanings")
+        == "not_used good_data suspect_data more_suspect_data"
+    )
+    assert all(ncfile["qc_var"].getncattr("flag_values") == [0, 1, 2, 3])
+
+    # test works with correct meanings and values given
+    flag_meanings = [
+        "not_used",
+        "good_data",
+        "suspect_data",
+        "more_suspect_data",
+        "very_unlikely_data",
+    ]
+    flag_values = [0, 1, 2, 3, 4]
+    util.change_qc_flags(
+        ncfile, "qc_var", flag_meanings=flag_meanings, flag_values=flag_values
+    )
+    assert (
+        ncfile["qc_var"].getncattr("flag_meanings")
+        == "not_used good_data suspect_data more_suspect_data very_unlikely_data"
+    )
+    assert all(ncfile["qc_var"].getncattr("flag_values") == [0, 1, 2, 3, 4])
+
+
 def test_update_variable():
     # Create a temporary netCDF file
     with tempfile.NamedTemporaryFile(delete=False, suffix=".nc") as temp:

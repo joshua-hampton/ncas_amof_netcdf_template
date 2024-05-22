@@ -134,6 +134,8 @@ Quality Control Flag Data
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 Quality control flags in the NCAS-GENERAL standard use flag_values and flag_meanings to convey the quality of the data. When adding data to a quality control variable, an error is raised if that data includes values not in the flag_values attribute.
 
+The flag_values and flag_meanings used in the quality control variables by default are those defined in the data product spreadsheets, but the NCAS-General standard allows any flag meanings and values to be used, provided the first two meanings are "not_used" and "good_data", and the first two values are 0 and 1. The `change_qc_flags <util.html#ncas_amof_netcdf_template.util.change_qc_flags>`_ function provides a way to change the default values.
+
 Time
 ----
 netCDF files that follow the NCAS-GENERAL metadata standard require a number of variables that correspond to time, or a portion of it, including (but not limited to) UNIX time, year, month and day.
