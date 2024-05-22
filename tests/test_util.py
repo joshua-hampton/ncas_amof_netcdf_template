@@ -227,7 +227,6 @@ def test_change_qc_flags():
         var = ncfile.createVariable("qc_var", "i4", ("dim",))
         var.flag_values = [0, 1, 2]
         var.flag_meanings = "not_used good_data suspect_data"
-        temp_path = temp.name
 
     # test error raised when invalid variable name given
     with pytest.raises(
