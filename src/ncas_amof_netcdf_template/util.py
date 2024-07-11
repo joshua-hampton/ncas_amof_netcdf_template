@@ -436,7 +436,7 @@ def update_variable(ncfile, ncfile_varname, data, qc_data_error=True):
         and "flag_values" in ncfile.variables[ncfile_varname].ncattrs()
     ):
         if not np.in1d(data, ncfile.variables[ncfile_varname].flag_values).all():
-            valid_values = list(ncfile.variables[ncfile_varname].flag_values)
+            valid_values = ncfile.variables[ncfile_varname].flag_values.tolist()
             msg = (
                 "Invalid data being added to QC variable, "
                 f"only {valid_values} are allowed."
