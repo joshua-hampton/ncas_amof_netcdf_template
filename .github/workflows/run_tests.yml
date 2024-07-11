@@ -19,6 +19,8 @@ jobs:
         exclude:
           - os: macos-latest
             python-version: '3.8'
+          - os: windows-latest
+            python-version: '3.8'
       fail-fast: false
 
     steps:
