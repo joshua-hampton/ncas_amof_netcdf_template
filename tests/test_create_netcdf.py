@@ -239,8 +239,8 @@ def test_add_variables():
     assert ncfile.variables["variable1"].standard_name == "air_temperature"
     assert ncfile.variables["variable1"].units == "K"
     assert ncfile.variables["variable1"]._FillValue == -9999.0
-    assert ncfile.variables["variable1"].filters()["zlib"] == False
-    assert ncfile.variables["variable1"].filters()["shuffle"] == False
+    assert not ncfile.variables["variable1"].filters()["zlib"]
+    assert not ncfile.variables["variable1"].filters()["shuffle"]
     assert ncfile.variables["variable1"].filters()["complevel"] == 0
     assert ncfile.variables["variable1"].chunking() == "contiguous"
     assert "dimension" not in ncfile.variables["variable1"].ncattrs()
@@ -250,8 +250,8 @@ def test_add_variables():
     assert ncfile.variables["variable2"].standard_name == "air_pressure_at_sea_level"
     assert ncfile.variables["variable2"].units == "Pa"
     assert ncfile.variables["variable2"]._FillValue == -9999.0
-    assert ncfile.variables["variable2"].filters()["zlib"] == True
-    assert ncfile.variables["variable2"].filters()["shuffle"] == True
+    assert ncfile.variables["variable2"].filters()["zlib"]
+    assert ncfile.variables["variable2"].filters()["shuffle"]
     assert ncfile.variables["variable2"].filters()["complevel"] == 4
     assert ncfile.variables["variable2"].chunking() == [10, 50, 5, 5]
     assert "dimension" not in ncfile.variables["variable2"].ncattrs()
@@ -261,8 +261,8 @@ def test_add_variables():
     assert "standard_name" not in ncfile.variables["variable3"].ncattrs()
     assert ncfile.variables["variable3"].units == "K"
     assert "_FillValue" not in ncfile.variables["variable3"].ncattrs()
-    assert ncfile.variables["variable3"].filters()["zlib"] == True
-    assert ncfile.variables["variable3"].filters()["shuffle"] == False
+    assert ncfile.variables["variable3"].filters()["zlib"]
+    assert not ncfile.variables["variable3"].filters()["shuffle"]
     assert ncfile.variables["variable3"].filters()["complevel"] == 8
     assert ncfile.variables["variable3"].chunking() == [2,10,5,5]
     assert "dimension" not in ncfile.variables["variable3"].ncattrs()
@@ -338,7 +338,7 @@ def test_make_netcdf(compression, complevel, shuffle):
                     "_FillValue": "-9999.0",
                     "standard_name": "air_pressure_at_sea_level",
                     "units": "Pa",
-                }
+                },
             },
         },
     }
@@ -415,21 +415,21 @@ def test_make_netcdf(compression, complevel, shuffle):
     if compression == "zlib":
         assert ncfile.variables["variable1"].chunking() == [5, 1, 1]
         assert ncfile.variables["variable1"].filters()["complevel"] == 5
-        assert ncfile.variables["variable1"].filters()["zlib"] == True
-        if shuffle == False:
-            assert ncfile.variables["variable1"].filters()["shuffle"] == False
+        assert ncfile.variables["variable1"].filters()["zlib"]
+        if isinstance(shuffle, bool) and not shuffle:
+            assert not ncfile.variables["variable1"].filters()["shuffle"]
         else:
-            assert ncfile.variables["variable1"].filters()["shuffle"] == True
+            assert ncfile.variables["variable1"].filters()["shuffle"]
     else:
         assert ncfile.variables["variable1"].chunking() == "contiguous"
         assert ncfile.variables["variable1"].filters()["complevel"] == 0
-        assert ncfile.variables["variable1"].filters()["zlib"] == False
-        assert ncfile.variables["variable1"].filters()["shuffle"] == False
+        assert not ncfile.variables["variable1"].filters()["zlib"]
+        assert not ncfile.variables["variable1"].filters()["shuffle"]
 
-    if (isinstance(shuffle, bool) and shuffle) or (compression != None and shuffle is None):
-        assert ncfile.variables["variable2"].filters()["shuffle"] == True
+    if (isinstance(shuffle, bool) and shuffle) or (compression is not None and shuffle is None):
+        assert ncfile.variables["variable2"].filters()["shuffle"]
     else:
-        assert ncfile.variables["variable2"].filters()["shuffle"] == False
+        assert not ncfile.variables["variable2"].filters()["shuffle"]
     assert ncfile.variables["variable2"].chunking() == [2]
 
     # Close the file
