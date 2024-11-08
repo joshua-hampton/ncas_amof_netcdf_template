@@ -160,14 +160,38 @@ def add_variables(ncfile, instrument_dict, product, verbose=0):
                     if "_FillValue" in tmp_value:
                         fill_value = float(tmp_value.pop("_FillValue"))
                     else:
-                        fill_value = ""
+                        fill_value = None
 
-                    if fill_value != "":
-                        var = ncfile.createVariable(
-                            key, datatype, var_dims, fill_value=fill_value
-                        )
+                    if "chunksizes" in tmp_value:
+                        chunksizes = tmp_value.pop("chunksizes")
                     else:
-                        var = ncfile.createVariable(key, datatype, var_dims)
+                        chunksizes = None
+
+                    if "compression" in tmp_value:
+                        compression = tmp_value.pop("compression")
+                    else:
+                        compression = None
+
+                    if "complevel" in tmp_value:
+                        complevel = tmp_value.pop("complevel")
+                    else:
+                        complevel = 4
+
+                    if "shuffle" in tmp_value:
+                        shuffle = tmp_value.pop("shuffle")
+                    else:
+                        shuffle = True
+
+                    var = ncfile.createVariable(
+                        key,
+                        datatype,
+                        var_dims,
+                        fill_value=fill_value,
+                        chunksizes=chunksizes,
+                        compression=compression,
+                        complevel=complevel,
+                        shuffle=shuffle,
+                    )
 
                     for mdatkey, mdatvalue in tmp_value.items():
                         # flag meanings in the tsv files are separated by '|',
@@ -239,6 +263,10 @@ def make_netcdf(
     use_local_files=None,
     tag="latest",
     return_open=True,
+    chunk_by_dimension=None,
+    compression=None,
+    complevel=4,
+    shuffle=True,
 ):
     """
     Makes netCDF file for given instrument and arguments.
@@ -269,6 +297,21 @@ def make_netcdf(
         return_open (bool): If True, return the netCDF file as an open object. If
                              False, closes netCDF file. Default True (option will
                              be removed in 2.5.0).
+        chunk_by_dimension (dict): chunk sizes to use in each dimension.
+                                   Default None (no chunking).
+        compression (str or dict): compression algorithm to be used to store data. If
+                                   string, then compression option passed to all
+                                   variables. If dictionary, should be variable:compression
+                                   pairs, and compression option passed to just the specified
+                                   variables. Should be one of the options available in
+                                   the netCDF4 python module. Default is None (no compression).
+        complevel (int or dict): level of compression to be used, between 0 (no compression)
+                                 and 9 (most compression). Either integer value or dictionary
+                                 with variable:integer pairs. Default is 4. Ignored if no
+                                 compression used.
+        shuffle (bool or dict): whether to use the HDF5 shuffle filter before compressing with
+                                zlib, significantly improving compression. Default is True.
+                                Ignored if compression is not zlib.
 
     Returns:
         netCDF file object or nothing.
@@ -281,6 +324,42 @@ def make_netcdf(
             DeprecationWarning,
             stacklevel=2,
         )
+
+    chunk_by_dimension = chunk_by_dimension or {}
+
+    # add chunks to variables with defined chunk dimensions
+    all_options = ["common", product]
+    for prod in all_options:
+        for var in (var_dict := instrument_dict[prod]["variables"]):
+            if "dimension" in var_dict[var].keys():
+                var_dims = var_dict[var]["dimension"]
+                var_dims = var_dims.replace(".", ",")
+                var_dims = [x.strip() for x in var_dims.split(",")]
+                if all(var_dim in chunk_by_dimension.keys() for var_dim in var_dims):
+                    chunksizes = tuple(
+                        [int(chunk_by_dimension[var_dim]) for var_dim in var_dims]
+                    )
+                    var_dict[var]["chunksizes"] = chunksizes
+            if isinstance(compression, str):
+                var_dict[var]["compression"] = compression
+            elif isinstance(compression, dict) and var in compression.keys():
+                var_dict[var]["compression"] = compression[var]
+            else:
+                var_dict[var]["compression"] = None
+
+            if isinstance(complevel, int):
+                var_dict[var]["complevel"] = complevel
+            elif isinstance(complevel, dict) and var in complevel.keys():
+                var_dict[var]["complevel"] = complevel[var]
+            else:
+                var_dict[var]["complevel"] = 4
+
+            if isinstance(shuffle, bool):
+                var_dict[var]["shuffle"] = shuffle
+            elif isinstance(shuffle, dict) and var in shuffle.keys():
+                var_dict[var]["shuffle"] = shuffle[var]
+            else:
+                var_dict[var]["shuffle"] = True
 
     if (
         instrument_dict["info"]["Mobile/Fixed (loc)"].split("-")[0].strip().lower()
@@ -369,6 +448,10 @@ def make_product_netcdf(
     use_local_files=None,
     tag="latest",
     return_open=True,
+    chunk_by_dimension=None,
+    compression=None,
+    complevel=4,
+    shuffle=True,
 ):
     """
     Create an AMOF-like netCDF file for a given data product. This means files can be
@@ -403,6 +486,21 @@ def make_product_netcdf(
         return_open (bool): If True, return the netCDF file as an open object. If
                              False, closes netCDF file. Default True (option will be
                              removed in 2.5.0).
+        chunk_by_dimension (dict): chunk sizes to use in each dimension
+                                   Default None (no chunking).
+        compression (str or dict): compression algorithm to be used to store data. If
+                                   string, then compression option passed to all
+                                   variables. If dictionary, should be variable:compression
+                                   pairs, and compression option passed to just the specified
+                                   variables. Should be one of the options available in
+                                   the netCDF4 python module. Default is None (no compression).
+        complevel (int or dict): level of compression to be used, between 0 (no compression)
+                                 and 9 (most compression). Either integer value or dictionary
+                                 with variable:integer pairs. Default is 4. Ignored if no
+                                 compression used.
+        shuffle (bool or dict): whether to use the HDF5 shuffle filter before compressing with
+                                zlib, significantly improving compression. Default is True.
+                                Ignored if compression is not zlib.
 
     Returns:
         netCDF file object or nothing.
@@ -415,6 +513,8 @@ def make_product_netcdf(
             DeprecationWarning,
             stacklevel=2,
         )
+
+    chunk_by_dimension = chunk_by_dimension or {}
 
     if platform != "" and instrument_loc != "":
         warnings.warn(
@@ -481,6 +581,10 @@ def make_product_netcdf(
             use_local_files=use_local_files,
             tag=tag,
             return_open=return_open,
+            chunk_by_dimension=chunk_by_dimension,
+            compression=compression,
+            complevel=complevel,
+            shuffle=shuffle,
         )
         return nc
     else:
@@ -498,6 +602,10 @@ def make_product_netcdf(
             use_local_files=use_local_files,
             tag=tag,
             return_open=return_open,
+            chunk_by_dimension=chunk_by_dimension,
+            compression=compression,
+            complevel=complevel,
+            shuffle=shuffle,
         )
 
 
@@ -515,6 +623,10 @@ def main(
     use_local_files=None,
     tag="latest",
     return_open=True,
+    chunk_by_dimension=None,
+    compression=None,
+    complevel=4,
+    shuffle=True,
 ):
     """
     Create 'just-add-data' AMOF-compliant netCDF file
@@ -547,6 +659,21 @@ def main(
         return_open (bool): If True, return the netCDF file as an open object. If
                              False, closes netCDF file. Default True (option will be
                              removed in 2.5.0).
+        chunk_by_dimension (dict): chunk sizes to use in each dimension
+                                   Default None (no chunking).
+        compression (str or dict): compression algorithm to be used to store data. If
+                                   string, then compression option passed to all
+                                   variables. If dictionary, should be variable:compression
+                                   pairs, and compression option passed to just the specified
+                                   variables. Should be one of the options available in
+        complevel (int or dict): level of compression to be used, between 0 (no compression)
+                                 and 9 (most compression). Either integer value or dictionary
+                                 with variable:integer pairs. Default is 4. Ignored if no
+                                 compression used.
+        shuffle (bool or dict): whether to use the HDF5 shuffle filter before compressing with
+                                zlib, significantly improving compression. Default is True.
+                                Ignored if compression is not zlib.
+                                   the netCDF4 python module. Default is None (no compression).
 
     Returns:
         netCDF file object or nothing
@@ -559,8 +686,11 @@ def main(
             DeprecationWarning,
             stacklevel=2,
         )
+
     if date is None:
         date = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%d")
+
+    chunk_by_dimension = chunk_by_dimension or {}
 
     instrument_dict = tsv2dict.instrument_dict(
         instrument, loc=loc, use_local_files=use_local_files, tag=tag
@@ -640,6 +770,10 @@ def main(
                     use_local_files=use_local_files,
                     tag=tag,
                     return_open=return_open,
+                    chunk_by_dimension=chunk_by_dimension,
+                    compression=compression,
+                    complevel=complevel,
+                    shuffle=shuffle,
                 )
             )
         if len(ncfiles) == 1:
@@ -662,6 +796,10 @@ def main(
                 use_local_files=use_local_files,
                 tag=tag,
                 return_open=return_open,
+                chunk_by_dimension=chunk_by_dimension,
+                compression=compression,
+                complevel=complevel,
+                shuffle=shuffle,
             )
 
 

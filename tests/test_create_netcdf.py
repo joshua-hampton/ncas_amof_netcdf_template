@@ -210,7 +210,17 @@ def test_add_variables():
                     "_FillValue": "-9999.0",
                     "standard_name": "air_pressure_at_sea_level",
                     "units": "Pa",
-                }
+                    "compression": "zlib",
+                },
+                "variable3": {
+                    "dimension": "time, height, latitude, longitude",
+                    "type": "float32",
+                    "units": "K",
+                    "chunksizes": [2, 10, 5, 5],
+                    "compression": "zlib",
+                    "complevel": 8,
+                    "shuffle": False,
+                },
             }
         },
     }
@@ -229,6 +239,10 @@ def test_add_variables():
     assert ncfile.variables["variable1"].standard_name == "air_temperature"
     assert ncfile.variables["variable1"].units == "K"
     assert ncfile.variables["variable1"]._FillValue == -9999.0
+    assert not ncfile.variables["variable1"].filters()["zlib"]
+    assert not ncfile.variables["variable1"].filters()["shuffle"]
+    assert ncfile.variables["variable1"].filters()["complevel"] == 0
+    assert ncfile.variables["variable1"].chunking() == "contiguous"
     assert "dimension" not in ncfile.variables["variable1"].ncattrs()
     assert "type" not in ncfile.variables["variable1"].ncattrs()
 
@@ -236,15 +250,40 @@ def test_add_variables():
     assert ncfile.variables["variable2"].standard_name == "air_pressure_at_sea_level"
     assert ncfile.variables["variable2"].units == "Pa"
     assert ncfile.variables["variable2"]._FillValue == -9999.0
+    assert ncfile.variables["variable2"].filters()["zlib"]
+    assert ncfile.variables["variable2"].filters()["shuffle"]
+    assert ncfile.variables["variable2"].filters()["complevel"] == 4
+    assert ncfile.variables["variable2"].chunking() == [10, 50, 5, 5]
     assert "dimension" not in ncfile.variables["variable2"].ncattrs()
     assert "type" not in ncfile.variables["variable2"].ncattrs()
+
+    assert "variable3" in ncfile.variables
+    assert "standard_name" not in ncfile.variables["variable3"].ncattrs()
+    assert ncfile.variables["variable3"].units == "K"
+    assert "_FillValue" not in ncfile.variables["variable3"].ncattrs()
+    assert ncfile.variables["variable3"].filters()["zlib"]
+    assert not ncfile.variables["variable3"].filters()["shuffle"]
+    assert ncfile.variables["variable3"].filters()["complevel"] == 8
+    assert ncfile.variables["variable3"].chunking() == [2, 10, 5, 5]
+    assert "dimension" not in ncfile.variables["variable3"].ncattrs()
+    assert "type" not in ncfile.variables["variable3"].ncattrs()
 
     # Close and delete the temporary file
     ncfile.close()
     os.remove(temp_file.name)
 
 
-def test_make_netcdf():
+@pytest.mark.parametrize(
+    "compression, complevel, shuffle",
+    [
+        (None, None, None),
+        ("zlib", 5, True),
+        ("zlib", 5, False),
+        ("zlib", 5, None),
+        ({"variable2": "zlib"}, {"variable2": 5}, {"variable2": False}),
+    ],
+)
+def test_make_netcdf(compression, complevel, shuffle):
     # Test parameters
     instrument = "ncas-aws-10"
     platform = "iao"
@@ -294,12 +333,12 @@ def test_make_netcdf():
             },
             "variables": {
                 "variable2": {
-                    "dimension": "time, latitude, longitude",
+                    "dimension": "time",
                     "type": "float32",
                     "_FillValue": "-9999.0",
                     "standard_name": "air_pressure_at_sea_level",
                     "units": "Pa",
-                }
+                },
             },
         },
     }
@@ -311,6 +350,7 @@ def test_make_netcdf():
     file_location = "."
     use_local_files = None
     tag = "v1.2.3"
+    chunk_by_dimension = {"time": 2}
 
     # Call the function
     ncfile = nant.create_netcdf.make_netcdf(
@@ -326,6 +366,10 @@ def test_make_netcdf():
         file_location,
         use_local_files,
         tag,
+        chunk_by_dimension=chunk_by_dimension,
+        compression=compression,
+        complevel=complevel,
+        shuffle=shuffle,
     )
 
     # Check the returned object
@@ -366,6 +410,29 @@ def test_make_netcdf():
     # Check the dimensions
     assert "time" in ncfile.dimensions
     assert ncfile.dimensions["time"].size == dimension_lengths["time"]
+
+    # Check chunking
+    if compression == "zlib":
+        assert ncfile.variables["variable1"].chunking() == [5, 1, 1]
+        assert ncfile.variables["variable1"].filters()["complevel"] == 5
+        assert ncfile.variables["variable1"].filters()["zlib"]
+        if isinstance(shuffle, bool) and not shuffle:
+            assert not ncfile.variables["variable1"].filters()["shuffle"]
+        else:
+            assert ncfile.variables["variable1"].filters()["shuffle"]
+    else:
+        assert ncfile.variables["variable1"].chunking() == "contiguous"
+        assert ncfile.variables["variable1"].filters()["complevel"] == 0
+        assert not ncfile.variables["variable1"].filters()["zlib"]
+        assert not ncfile.variables["variable1"].filters()["shuffle"]
+
+    if (isinstance(shuffle, bool) and shuffle) or (
+        compression is not None and shuffle is None
+    ):
+        assert ncfile.variables["variable2"].filters()["shuffle"]
+    else:
+        assert not ncfile.variables["variable2"].filters()["shuffle"]
+    assert ncfile.variables["variable2"].chunking() == [2]
 
     # Close the file
     ncfile.close()
