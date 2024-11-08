@@ -216,11 +216,11 @@ def test_add_variables():
                     "dimension": "time, height, latitude, longitude",
                     "type": "float32",
                     "units": "K",
-                    "chunksizes": [2,10,5,5],
+                    "chunksizes": [2, 10, 5, 5],
                     "compression": "zlib",
                     "complevel": 8,
                     "shuffle": False,
-                }
+                },
             }
         },
     }
@@ -264,7 +264,7 @@ def test_add_variables():
     assert ncfile.variables["variable3"].filters()["zlib"]
     assert not ncfile.variables["variable3"].filters()["shuffle"]
     assert ncfile.variables["variable3"].filters()["complevel"] == 8
-    assert ncfile.variables["variable3"].chunking() == [2,10,5,5]
+    assert ncfile.variables["variable3"].chunking() == [2, 10, 5, 5]
     assert "dimension" not in ncfile.variables["variable3"].ncattrs()
     assert "type" not in ncfile.variables["variable3"].ncattrs()
 
@@ -426,7 +426,9 @@ def test_make_netcdf(compression, complevel, shuffle):
         assert not ncfile.variables["variable1"].filters()["zlib"]
         assert not ncfile.variables["variable1"].filters()["shuffle"]
 
-    if (isinstance(shuffle, bool) and shuffle) or (compression is not None and shuffle is None):
+    if (isinstance(shuffle, bool) and shuffle) or (
+        compression is not None and shuffle is None
+    ):
         assert ncfile.variables["variable2"].filters()["shuffle"]
     else:
         assert not ncfile.variables["variable2"].filters()["shuffle"]

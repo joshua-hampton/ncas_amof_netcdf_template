@@ -129,7 +129,7 @@ def main(infile, outfile=None, overwrite=True, verbose=0, **kwargs):
             if in_ncfile[name].chunking() != "contiguous":
                 chunksizes = in_ncfile[name].chunking()
             else:
-                chunksizes=None
+                chunksizes = None
 
             dst.createVariable(
                 name,
