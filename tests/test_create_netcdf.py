@@ -274,14 +274,16 @@ def test_add_variables():
 
 
 @pytest.mark.parametrize(
-    "compression, complevel",
+    "compression, complevel, shuffle",
     [
-        (None, None),
-        ("zlib", 5),
-        ({"variable2": "zlib"}, {"variable2": 5}),
+        (None, None, None),
+        ("zlib", 5, True),
+        ("zlib", 5, False),
+        ("zlib", 5, None),
+        ({"variable2": "zlib"}, {"variable2": 5}, {"variable2": False}),
     ],
 )
-def test_make_netcdf(compression, complevel):
+def test_make_netcdf(compression, complevel, shuffle):
     # Test parameters
     instrument = "ncas-aws-10"
     platform = "iao"
@@ -367,6 +369,7 @@ def test_make_netcdf(compression, complevel):
         chunk_by_dimension=chunk_by_dimension,
         compression=compression,
         complevel=complevel,
+        shuffle=shuffle,
     )
 
     # Check the returned object
@@ -413,10 +416,20 @@ def test_make_netcdf(compression, complevel):
         assert ncfile.variables["variable1"].chunking() == [5, 1, 1]
         assert ncfile.variables["variable1"].filters()["complevel"] == 5
         assert ncfile.variables["variable1"].filters()["zlib"] == True
+        if shuffle == False:
+            assert ncfile.variables["variable1"].filters()["shuffle"] == False
+        else:
+            assert ncfile.variables["variable1"].filters()["shuffle"] == True
     else:
         assert ncfile.variables["variable1"].chunking() == "contiguous"
         assert ncfile.variables["variable1"].filters()["complevel"] == 0
         assert ncfile.variables["variable1"].filters()["zlib"] == False
+        assert ncfile.variables["variable1"].filters()["shuffle"] == False
+
+    if (isinstance(shuffle, bool) and shuffle) or (compression != None and shuffle is None):
+        assert ncfile.variables["variable2"].filters()["shuffle"] == True
+    else:
+        assert ncfile.variables["variable2"].filters()["shuffle"] == False
     assert ncfile.variables["variable2"].chunking() == [2]
 
     # Close the file
