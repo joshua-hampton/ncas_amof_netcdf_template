@@ -25,9 +25,9 @@ def get_latest_instrument_CVs_version():
     Returns:
         string of latest tagged version release
     """
-    return requests.get("https://github.com/ncasuk/ncas-data-instrument-vocabs/releases/latest").url.split(
-        "/"
-    )[-1]
+    return requests.get(
+        "https://github.com/ncasuk/ncas-data-instrument-vocabs/releases/latest"
+    ).url.split("/")[-1]
 
 
 def get_common_attributes_url(use_local_files=None, tag="latest"):
@@ -166,7 +166,9 @@ def get_community_instruments_url(use_local_files=None, tag="latest"):
             f"https://raw.githubusercontent.com/ncasuk/ncas-data-instrument-vocabs/{tag}"
             "/product-definitions/tsv"
         )
-    return f"{file_loc}/_instrument_vocabs/community-instrument-name-and-descriptors.tsv"
+    return (
+        f"{file_loc}/_instrument_vocabs/community-instrument-name-and-descriptors.tsv"
+    )
 
 
 def get_all_data_products_url(use_local_files=None, tag="latest"):

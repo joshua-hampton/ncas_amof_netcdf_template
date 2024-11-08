@@ -41,7 +41,8 @@ def test_get_latest_instrument_CVs_version():
             },
         )
         m.get(
-            "https://github.com/ncasuk/ncas-data-instrument-vocabs/releases/tag/v1.2.3", text="dummy text"
+            "https://github.com/ncasuk/ncas-data-instrument-vocabs/releases/tag/v1.2.3",
+            text="dummy text",
         )
         result = values.get_latest_instrument_CVs_version()
         assert result == "v1.2.3"
@@ -52,9 +53,14 @@ def test_get_latest_instrument_CVs_version_with_no_version():
         m.get(
             "https://github.com/ncasuk/ncas-data-instrument-vocabs/releases/latest",
             status_code=302,
-            headers={"Location": "https://github.com/ncasuk/ncas-data-instrument-vocabs/releases/latest/"},
+            headers={
+                "Location": "https://github.com/ncasuk/ncas-data-instrument-vocabs/releases/latest/"
+            },
         )
-        m.get("https://github.com/ncasuk/ncas-data-instrument-vocabs/releases/latest/", text="dummy text")
+        m.get(
+            "https://github.com/ncasuk/ncas-data-instrument-vocabs/releases/latest/",
+            text="dummy text",
+        )
         result = values.get_latest_instrument_CVs_version()
         assert result == ""
 
@@ -176,7 +182,8 @@ def test_get_common_dimensions_url_with_specific_tag():
 def test_get_instruments_url_with_local_files():
     result = values.get_instruments_url(use_local_files="/local/path")
     assert (
-        result == "/local/path/_instrument_vocabs/ncas-instrument-name-and-descriptors.tsv"
+        result
+        == "/local/path/_instrument_vocabs/ncas-instrument-name-and-descriptors.tsv"
     )
 
 
@@ -190,7 +197,8 @@ def test_get_instruments_url_with_latest_tag():
             },
         )
         m.get(
-            "https://github.com/ncasuk/ncas-data-instrument-vocabs/releases/tag/v1.2.3", text="dummy text"
+            "https://github.com/ncasuk/ncas-data-instrument-vocabs/releases/tag/v1.2.3",
+            text="dummy text",
         )
         result = values.get_instruments_url()
         assert (
@@ -225,7 +233,8 @@ def test_get_community_instruments_url_with_latest_tag():
             },
         )
         m.get(
-            "https://github.com/ncasuk/ncas-data-instrument-vocabs/releases/tag/v1.2.3", text="dummy text"
+            "https://github.com/ncasuk/ncas-data-instrument-vocabs/releases/tag/v1.2.3",
+            text="dummy text",
         )
         result = values.get_community_instruments_url()
         assert (
