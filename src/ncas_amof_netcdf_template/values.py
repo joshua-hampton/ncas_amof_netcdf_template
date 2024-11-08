@@ -18,6 +18,18 @@ def get_latest_CVs_version():
     )[-1]
 
 
+def get_latest_instrument_CVs_version():
+    """
+    Get latest release version of ncas-data-instrument-vocabs
+
+    Returns:
+        string of latest tagged version release
+    """
+    return requests.get(
+        "https://github.com/ncasuk/ncas-data-instrument-vocabs/releases/latest"
+    ).url.split("/")[-1]
+
+
 def get_common_attributes_url(use_local_files=None, tag="latest"):
     """
     Return URL to TSV file of common global attributes.
@@ -124,12 +136,12 @@ def get_instruments_url(use_local_files=None, tag="latest"):
         file_loc = use_local_files
     else:
         if tag == "latest":
-            tag = get_latest_CVs_version()
+            tag = get_latest_instrument_CVs_version()
         file_loc = (
-            f"https://raw.githubusercontent.com/ncasuk/AMF_CVs/{tag}"
+            f"https://raw.githubusercontent.com/ncasuk/ncas-data-instrument-vocabs/{tag}"
             "/product-definitions/tsv"
         )
-    return f"{file_loc}/_vocabularies/ncas-instrument-name-and-descriptors.tsv"
+    return f"{file_loc}/_instrument_vocabs/ncas-instrument-name-and-descriptors.tsv"
 
 
 def get_community_instruments_url(use_local_files=None, tag="latest"):
@@ -149,12 +161,14 @@ def get_community_instruments_url(use_local_files=None, tag="latest"):
         file_loc = use_local_files
     else:
         if tag == "latest":
-            tag = get_latest_CVs_version()
+            tag = get_latest_instrument_CVs_version()
         file_loc = (
-            f"https://raw.githubusercontent.com/ncasuk/AMF_CVs/{tag}"
+            f"https://raw.githubusercontent.com/ncasuk/ncas-data-instrument-vocabs/{tag}"
             "/product-definitions/tsv"
         )
-    return f"{file_loc}/_vocabularies/community-instrument-name-and-descriptors.tsv"
+    return (
+        f"{file_loc}/_instrument_vocabs/community-instrument-name-and-descriptors.tsv"
+    )
 
 
 def get_all_data_products_url(use_local_files=None, tag="latest"):
