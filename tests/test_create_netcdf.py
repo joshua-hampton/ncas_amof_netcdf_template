@@ -273,7 +273,15 @@ def test_add_variables():
     os.remove(temp_file.name)
 
 
-def test_make_netcdf():
+@pytest.mark.parametrize(
+    "compression, complevel",
+    [
+        (None, None),
+        ("zlib", 5),
+        ({"variable2": "zlib"}, {"variable2": 5}),
+    ],
+)
+def test_make_netcdf(compression, complevel):
     # Test parameters
     instrument = "ncas-aws-10"
     platform = "iao"
@@ -323,7 +331,7 @@ def test_make_netcdf():
             },
             "variables": {
                 "variable2": {
-                    "dimension": "time, latitude, longitude",
+                    "dimension": "time",
                     "type": "float32",
                     "_FillValue": "-9999.0",
                     "standard_name": "air_pressure_at_sea_level",
@@ -340,6 +348,7 @@ def test_make_netcdf():
     file_location = "."
     use_local_files = None
     tag = "v1.2.3"
+    chunk_by_dimension = {"time": 2}
 
     # Call the function
     ncfile = nant.create_netcdf.make_netcdf(
@@ -355,6 +364,9 @@ def test_make_netcdf():
         file_location,
         use_local_files,
         tag,
+        chunk_by_dimension=chunk_by_dimension,
+        compression=compression,
+        complevel=complevel,
     )
 
     # Check the returned object
@@ -395,6 +407,17 @@ def test_make_netcdf():
     # Check the dimensions
     assert "time" in ncfile.dimensions
     assert ncfile.dimensions["time"].size == dimension_lengths["time"]
+
+    # Check chunking
+    if compression == "zlib":
+        assert ncfile.variables["variable1"].chunking() == [5, 1, 1]
+        assert ncfile.variables["variable1"].filters()["complevel"] == 5
+        assert ncfile.variables["variable1"].filters()["zlib"] == True
+    else:
+        assert ncfile.variables["variable1"].chunking() == "contiguous"
+        assert ncfile.variables["variable1"].filters()["complevel"] == 0
+        assert ncfile.variables["variable1"].filters()["zlib"] == False
+    assert ncfile.variables["variable2"].chunking() == [2]
 
     # Close the file
     ncfile.close()
