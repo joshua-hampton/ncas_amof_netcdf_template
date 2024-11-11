@@ -144,9 +144,7 @@ def add_variables(ncfile, instrument_dict, product, verbose=0):
                 # if we encounter one, we're going to print out an error
                 # and forget about that variable
                 if "dimension" not in tmp_value.keys():
-                    print(
-                        f"WARN: No dimensions for variable {key} in product {obj}"
-                    )
+                    print(f"WARN: No dimensions for variable {key} in product {obj}")
                     print("Variable not added file")
                     var_dims = ()
                 else:
@@ -198,21 +196,13 @@ def add_variables(ncfile, instrument_dict, product, verbose=0):
                     # flag meanings in the tsv files are separated by '|',
                     # should be space separated
                     if "|" in mdatvalue and "flag_meaning" in mdatkey:
-                        mdatvalue = " ".join(
-                            [i.strip() for i in mdatvalue.split("|")]
-                        )
+                        mdatvalue = " ".join([i.strip() for i in mdatvalue.split("|")])
                     # flag values are bytes, can't add byte array
                     # into NETCDF4_CLASSIC so have to muddle a bit
-                    if (
-                        "flag_value" in mdatkey
-                        and "qc" in key
-                        and var.dtype == np.int8
-                    ):
+                    if "flag_value" in mdatkey and "qc" in key and var.dtype == np.int8:
                         # turn string "0b,1b..." into list of ints [0,1...]
                         mdatvalue = mdatvalue.strip(",")
-                        newmdatvalue = [
-                            int(i.strip("b")) for i in mdatvalue.split(",")
-                        ]
+                        newmdatvalue = [int(i.strip("b")) for i in mdatvalue.split(",")]
                         # turn list into array with int8 type
                         mdatvalue = np.array(newmdatvalue, dtype=np.int8)
                     # print warning for example values,
