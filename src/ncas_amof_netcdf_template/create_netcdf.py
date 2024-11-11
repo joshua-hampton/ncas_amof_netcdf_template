@@ -145,9 +145,10 @@ def add_variables(ncfile, instrument_dict, product, verbose=0):
                 # and forget about that variable
                 if "dimension" not in tmp_value.keys():
                     print(
-                        f"ERROR: Missing dimensions for variable {key} in product {obj}"
+                        f"WARN: No dimensions for variable {key} in product {obj}"
                     )
                     print("Variable not added file")
+                    var_dims = ()
                 else:
                     var_dims = tmp_value.pop("dimension")
                     # there was an error somewhere meaning 2 dimensions
@@ -155,98 +156,98 @@ def add_variables(ncfile, instrument_dict, product, verbose=0):
                     var_dims = var_dims.replace(".", ",")
                     var_dims = tuple(x.strip() for x in var_dims.split(","))
 
-                    datatype = tmp_value.pop("type")
+                datatype = tmp_value.pop("type")
 
-                    if "_FillValue" in tmp_value:
-                        fill_value = float(tmp_value.pop("_FillValue"))
-                    else:
-                        fill_value = None
+                if "_FillValue" in tmp_value:
+                    fill_value = float(tmp_value.pop("_FillValue"))
+                else:
+                    fill_value = None
 
-                    if "chunksizes" in tmp_value:
-                        chunksizes = tmp_value.pop("chunksizes")
-                    else:
-                        chunksizes = None
+                if "chunksizes" in tmp_value:
+                    chunksizes = tmp_value.pop("chunksizes")
+                else:
+                    chunksizes = None
 
-                    if "compression" in tmp_value:
-                        compression = tmp_value.pop("compression")
-                    else:
-                        compression = None
+                if "compression" in tmp_value:
+                    compression = tmp_value.pop("compression")
+                else:
+                    compression = None
 
-                    if "complevel" in tmp_value:
-                        complevel = tmp_value.pop("complevel")
-                    else:
-                        complevel = 4
+                if "complevel" in tmp_value:
+                    complevel = tmp_value.pop("complevel")
+                else:
+                    complevel = 4
 
-                    if "shuffle" in tmp_value:
-                        shuffle = tmp_value.pop("shuffle")
-                    else:
-                        shuffle = True
+                if "shuffle" in tmp_value:
+                    shuffle = tmp_value.pop("shuffle")
+                else:
+                    shuffle = True
 
-                    var = ncfile.createVariable(
-                        key,
-                        datatype,
-                        var_dims,
-                        fill_value=fill_value,
-                        chunksizes=chunksizes,
-                        compression=compression,
-                        complevel=complevel,
-                        shuffle=shuffle,
-                    )
+                var = ncfile.createVariable(
+                    key,
+                    datatype,
+                    var_dims,
+                    fill_value=fill_value,
+                    chunksizes=chunksizes,
+                    compression=compression,
+                    complevel=complevel,
+                    shuffle=shuffle,
+                )
 
-                    for mdatkey, mdatvalue in tmp_value.items():
-                        # flag meanings in the tsv files are separated by '|',
-                        # should be space separated
-                        if "|" in mdatvalue and "flag_meaning" in mdatkey:
-                            mdatvalue = " ".join(
-                                [i.strip() for i in mdatvalue.split("|")]
-                            )
-                        # flag values are bytes, can't add byte array
-                        # into NETCDF4_CLASSIC so have to muddle a bit
+                for mdatkey, mdatvalue in tmp_value.items():
+                    # flag meanings in the tsv files are separated by '|',
+                    # should be space separated
+                    if "|" in mdatvalue and "flag_meaning" in mdatkey:
+                        mdatvalue = " ".join(
+                            [i.strip() for i in mdatvalue.split("|")]
+                        )
+                    # flag values are bytes, can't add byte array
+                    # into NETCDF4_CLASSIC so have to muddle a bit
+                    if (
+                        "flag_value" in mdatkey
+                        and "qc" in key
+                        and var.dtype == np.int8
+                    ):
+                        # turn string "0b,1b..." into list of ints [0,1...]
+                        mdatvalue = mdatvalue.strip(",")
+                        newmdatvalue = [
+                            int(i.strip("b")) for i in mdatvalue.split(",")
+                        ]
+                        # turn list into array with int8 type
+                        mdatvalue = np.array(newmdatvalue, dtype=np.int8)
+                    # print warning for example values,
+                    # and don't add example values for standard_name
+                    if (
+                        mdatkey == "standard_name"
+                        and ("EXAMPLE" in mdatvalue or mdatvalue == "")
+                        and verbose >= 1
+                    ):
+                        print(
+                            f"WARN: No standard name for variable {key}, "
+                            "standard_name attribute not added"
+                        )
+                    elif "EXAMPLE" in mdatvalue and verbose >= 1:
+                        print(
+                            "WARN: example value for attribute "
+                            f"{mdatkey} for variable {key}"
+                        )
+                    # don't add EXAMPLE standard name
+                    if not (
+                        mdatkey == "standard_name"
+                        and ("EXAMPLE" in mdatvalue or mdatvalue == "")
+                    ):
+                        # don't add empty attributes
                         if (
-                            "flag_value" in mdatkey
-                            and "qc" in key
-                            and var.dtype == np.int8
-                        ):
-                            # turn string "0b,1b..." into list of ints [0,1...]
-                            mdatvalue = mdatvalue.strip(",")
-                            newmdatvalue = [
-                                int(i.strip("b")) for i in mdatvalue.split(",")
-                            ]
-                            # turn list into array with int8 type
-                            mdatvalue = np.array(newmdatvalue, dtype=np.int8)
-                        # print warning for example values,
-                        # and don't add example values for standard_name
-                        if (
-                            mdatkey == "standard_name"
-                            and ("EXAMPLE" in mdatvalue or mdatvalue == "")
+                            isinstance(mdatvalue, str)
+                            and mdatvalue == ""
                             and verbose >= 1
                         ):
                             print(
-                                f"WARN: No standard name for variable {key}, "
-                                "standard_name attribute not added"
+                                f"WARN: No value for attribute {mdatkey} "
+                                "for variable {key}, attribute not added"
                             )
-                        elif "EXAMPLE" in mdatvalue and verbose >= 1:
-                            print(
-                                "WARN: example value for attribute "
-                                f"{mdatkey} for variable {key}"
-                            )
-                        # don't add EXAMPLE standard name
-                        if not (
-                            mdatkey == "standard_name"
-                            and ("EXAMPLE" in mdatvalue or mdatvalue == "")
-                        ):
-                            # don't add empty attributes
-                            if (
-                                isinstance(mdatvalue, str)
-                                and mdatvalue == ""
-                                and verbose >= 1
-                            ):
-                                print(
-                                    f"WARN: No value for attribute {mdatkey} "
-                                    "for variable {key}, attribute not added"
-                                )
-                            else:
-                                var.setncattr(mdatkey, mdatvalue)
+                        else:
+                            var.setncattr(mdatkey, mdatvalue)
 
 
 def make_netcdf(
