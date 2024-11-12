@@ -4,9 +4,10 @@ Get various URLs from AMF_CVs GitHub repo for vocab releases.
 """
 
 import requests
+from typing import Optional
 
 
-def get_latest_CVs_version():
+def get_latest_CVs_version() -> str:
     """
     Get latest release version of AMF_CVs
 
@@ -18,7 +19,7 @@ def get_latest_CVs_version():
     )[-1]
 
 
-def get_latest_instrument_CVs_version():
+def get_latest_instrument_CVs_version() -> str:
     """
     Get latest release version of ncas-data-instrument-vocabs
 
@@ -30,7 +31,9 @@ def get_latest_instrument_CVs_version():
     ).url.split("/")[-1]
 
 
-def get_common_attributes_url(use_local_files=None, tag="latest"):
+def get_common_attributes_url(
+    use_local_files: Optional[str] = None, tag: str = "latest"
+) -> str:
     """
     Return URL to TSV file of common global attributes.
 
@@ -55,7 +58,9 @@ def get_common_attributes_url(use_local_files=None, tag="latest"):
     return f"{file_loc}/_common/global-attributes.tsv"
 
 
-def get_common_variables_url(loc="land", use_local_files=None, tag="latest"):
+def get_common_variables_url(
+    loc: str = "land", use_local_files: Optional[str] = None, tag: str = "latest"
+) -> str:
     """
     Return URL to TSV file of common variables.
 
@@ -87,7 +92,9 @@ def get_common_variables_url(loc="land", use_local_files=None, tag="latest"):
     return f"{file_loc}/_common/variables-{loc}.tsv"
 
 
-def get_common_dimensions_url(loc="land", use_local_files=None, tag="latest"):
+def get_common_dimensions_url(
+    loc: str = "land", use_local_files: Optional[str] = None, tag: str = "latest"
+) -> str:
     """
     Return URL to TSV file of common dimensions.
 
@@ -119,7 +126,9 @@ def get_common_dimensions_url(loc="land", use_local_files=None, tag="latest"):
     return f"{file_loc}/_common/dimensions-{loc}.tsv"
 
 
-def get_instruments_url(use_local_files=None, tag="latest"):
+def get_instruments_url(
+    use_local_files: Optional[str] = None, tag: str = "latest"
+) -> str:
     """
     Return URL to TSV file of AMOF instruments.
 
@@ -144,7 +153,9 @@ def get_instruments_url(use_local_files=None, tag="latest"):
     return f"{file_loc}/_instrument_vocabs/ncas-instrument-name-and-descriptors.tsv"
 
 
-def get_community_instruments_url(use_local_files=None, tag="latest"):
+def get_community_instruments_url(
+    use_local_files: Optional[str] = None, tag: str = "latest"
+) -> str:
     """
     Return URL to TSV file of community instruments.
 
@@ -171,7 +182,9 @@ def get_community_instruments_url(use_local_files=None, tag="latest"):
     )
 
 
-def get_all_data_products_url(use_local_files=None, tag="latest"):
+def get_all_data_products_url(
+    use_local_files: Optional[str] = None, tag: str = "latest"
+) -> str:
     """
     Return URL to TSV file of data products.
 

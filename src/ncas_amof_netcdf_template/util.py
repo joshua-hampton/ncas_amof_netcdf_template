@@ -5,14 +5,16 @@ Reasonably helpful functions that can be often used.
 
 import csv
 import datetime as dt
+from netCDF4 import Dataset
 import numpy as np
 import warnings
 import json
 import yaml
 import xml.etree.ElementTree as ET
+from typing import Any, Union, Optional
 
 
-def _map_data_type(data_type):
+def _map_data_type(data_type: str) -> type:
     types_dict = {
         "str": str,
         "string": str,
@@ -24,7 +26,7 @@ def _map_data_type(data_type):
     return types_dict[data_type]
 
 
-def check_int(value):
+def check_int(value: Any) -> bool:
     """
     Returns True if value can be converted to integer, otherwise returns False.
 
@@ -43,7 +45,7 @@ def check_int(value):
         raise
 
 
-def check_float(value):
+def check_float(value: Any) -> bool:
     """
     Returns True if value can be converted to float, otherwise returns False.
 
@@ -62,7 +64,7 @@ def check_float(value):
         raise
 
 
-def check_type_convert(value, dtype):
+def check_type_convert(value: Any, dtype: type) -> bool:
     """
     Returns True if value can be converted to type dtype, otherwise returns False.
 
@@ -82,7 +84,7 @@ def check_type_convert(value, dtype):
         raise
 
 
-def read_csv_metadata(metafile):
+def read_csv_metadata(metafile: str) -> dict[str, dict[str, Union[str, type]]]:
     """
     Returns a dict from a csv with metadata.
     Can also include latitude and longitude variables if
@@ -130,7 +132,7 @@ def read_csv_metadata(metafile):
     return raw_metadata
 
 
-def read_json_metadata(metafile):
+def read_json_metadata(metafile: str) -> dict[str, dict[str, Union[str, type]]]:
     """
     Returns a dict from a JSON with metadata.
     Can also include latitude and longitude variables if
@@ -164,7 +166,7 @@ def read_json_metadata(metafile):
     return raw_metadata
 
 
-def read_yaml_metadata(metafile):
+def read_yaml_metadata(metafile: str) -> dict[str, dict[str, Union[str, type]]]:
     """
     Returns a dict from a YAML with metadata.
     Can also include latitude and longitude variables if
@@ -198,7 +200,7 @@ def read_yaml_metadata(metafile):
     return raw_metadata
 
 
-def read_xml_metadata(metafile):
+def read_xml_metadata(metafile: str) -> dict[str, dict[str, Union[str, type]]]:
     """
     Returns a dict from a XML with metadata.
     Can also include latitude and longitude variables if
@@ -228,7 +230,7 @@ def read_xml_metadata(metafile):
     return raw_metadata
 
 
-def get_metadata(metafile):
+def get_metadata(metafile: str) -> dict[str, dict[str, Union[str, type]]]:
     """
     Returns a dict from of metadata from file. Metadata can be in a CSV, JSON, YAML, or XML file.
     Can also include latitude and longitude variables if
@@ -255,7 +257,9 @@ def get_metadata(metafile):
         return read_csv_metadata(metafile)
 
 
-def add_metadata_to_netcdf(ncfile, metadata_file=None):
+def add_metadata_to_netcdf(
+    ncfile: Dataset, metadata_file: Optional[str] = None
+) -> None:
     """
     Reads metadata from csv file using get_metadata, adds values to
     global attributes in netCDF file.
@@ -296,7 +300,21 @@ def add_metadata_to_netcdf(ncfile, metadata_file=None):
                 ncfile.setncattr(attr, value)
 
 
-def get_times(dt_times):
+def get_times(
+    dt_times: list[dt.datetime],
+) -> tuple[
+    list[float],
+    list[float],
+    list[int],
+    list[int],
+    list[int],
+    list[int],
+    list[int],
+    list[float],
+    float,
+    float,
+    str,
+]:
     """
     Returns all time units for AMOF netCDF files from series of datetime objects.
 
@@ -355,7 +373,12 @@ def get_times(dt_times):
     )
 
 
-def change_qc_flags(ncfile, ncfile_varname, flag_meanings=[], flag_values=None):
+def change_qc_flags(
+    ncfile: Dataset,
+    ncfile_varname: str,
+    flag_meanings: list[str] = [],
+    flag_values: Optional[list[int]] = None,
+) -> None:
     """
     Change the flag meanings and flag values in a quality control variable from
     the default options. The first two flag meanings must be "not_used" and
@@ -411,7 +434,12 @@ def change_qc_flags(ncfile, ncfile_varname, flag_meanings=[], flag_values=None):
     ncfile[ncfile_varname].setncattr("flag_meanings", " ".join(flag_meanings))
 
 
-def update_variable(ncfile, ncfile_varname, data, qc_data_error=True):
+def update_variable(
+    ncfile: Dataset,
+    ncfile_varname: str,
+    data: Union[np.ndarray[Any, Any], list[Any]],
+    qc_data_error: bool = True,
+) -> None:
     """
     Adds data to variable, and updates valid_min and valid_max
      variable attrs if they exist.
@@ -448,7 +476,7 @@ def update_variable(ncfile, ncfile_varname, data, qc_data_error=True):
     ncfile.variables[ncfile_varname][:] = data
 
 
-def zero_pad_number(n):
+def zero_pad_number(n: int) -> str:
     """
     Returns single digit number n as '0n'
     Returns multiple digit number n as 'n'

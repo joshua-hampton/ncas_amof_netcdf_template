@@ -9,11 +9,12 @@ import re
 import requests
 import os
 import warnings
+from typing import Union, Optional
 
 from . import values
 
 
-def tsv2dict_vars(tsv_file):
+def tsv2dict_vars(tsv_file: str) -> dict[str, dict[str, Union[str, float]]]:
     """
     For a given tsv file from
     https://github.com/ncasuk/AMF_CVs/tree/main/product-definitions/tsv
@@ -59,7 +60,7 @@ def tsv2dict_vars(tsv_file):
     return all_vars_dict
 
 
-def tsv2dict_dims(tsv_file):
+def tsv2dict_dims(tsv_file: str) -> dict[str, dict[str, str]]:
     """
     For a given tsv file from
     https://github.com/ncasuk/AMF_CVs/tree/main/product-definitions/tsv
@@ -84,7 +85,7 @@ def tsv2dict_dims(tsv_file):
     return all_dims_dict
 
 
-def tsv2dict_attrs(tsv_file):
+def tsv2dict_attrs(tsv_file: str) -> dict[str, dict[str, str]]:
     """
     For a given tsv file from
     https://github.com/ncasuk/AMF_CVs/tree/main/product-definitions/tsv for data
@@ -109,7 +110,7 @@ def tsv2dict_attrs(tsv_file):
     return all_attrs_dict
 
 
-def tsv2dict_instruments(tsv_file):
+def tsv2dict_instruments(tsv_file: str) -> dict[str, dict[str, str]]:
     """
     For a given tsv file from
     https://github.com/ncasuk/AMF_CVs/tree/main/product-definitions/tsv for ncas- or
@@ -137,7 +138,9 @@ def tsv2dict_instruments(tsv_file):
     return all_instruments
 
 
-def create_variables_tsv_url(product, use_local_files=None, tag="latest"):
+def create_variables_tsv_url(
+    product: str, use_local_files: Optional[str] = None, tag: str = "latest"
+) -> str:
     """
     Returns URL for tsv file of variables specific to  a given product and tag
     release or branch.
@@ -164,7 +167,9 @@ def create_variables_tsv_url(product, use_local_files=None, tag="latest"):
     return f"{file_loc}/{product}/variables-specific.tsv"
 
 
-def create_dimensions_tsv_url(product, use_local_files=None, tag="latest"):
+def create_dimensions_tsv_url(
+    product: str, use_local_files: Optional[str] = None, tag: str = "latest"
+) -> str:
     """
     Returns URL for tsv file of dimensions specific to a given product and tag
     release or branch.
@@ -191,7 +196,9 @@ def create_dimensions_tsv_url(product, use_local_files=None, tag="latest"):
     return f"{file_loc}/{product}/dimensions-specific.tsv"
 
 
-def create_attributes_tsv_url(product, use_local_files=None, tag="latest"):
+def create_attributes_tsv_url(
+    product: str, use_local_files: Optional[str] = None, tag: str = "latest"
+) -> str:
     """
     Returns URL for tsv file of global attributes specific to a given product and tag
     release or branch.
@@ -218,7 +225,12 @@ def create_attributes_tsv_url(product, use_local_files=None, tag="latest"):
     return f"{file_loc}/{product}/global-attributes-specific.tsv"
 
 
-def instrument_dict(desired_instrument, loc="land", use_local_files=None, tag="latest"):
+def instrument_dict(
+    desired_instrument: str,
+    loc: str = "land",
+    use_local_files: Optional[str] = None,
+    tag: str = "latest",
+) -> dict[str, Union[str, list[str], dict[str, dict[str, str]]]]:
     """
     Collect all variables, dimensions and attributes required for all data products
     associated with an instrument and deployment mode.
@@ -304,13 +316,13 @@ def instrument_dict(desired_instrument, loc="land", use_local_files=None, tag="l
 
 
 def product_dict(
-    desired_product,
-    platform="",
-    instrument_loc="",
-    deployment_loc="land",
-    use_local_files=None,
-    tag="latest",
-):
+    desired_product: str,
+    platform: str = "",
+    instrument_loc: str = "",
+    deployment_loc: str = "land",
+    use_local_files: Optional[str] = None,
+    tag: str = "latest",
+) -> dict[str, dict[str, Union[str, dict[str, dict[str, Union[str, float]]]]]]:
     """
     Collect all variables, dimensions and attributes required for a data products
     and deployment mode.
@@ -420,7 +432,7 @@ def product_dict(
     return product_dict
 
 
-def list_all_products(use_local_files=None, tag="latest"):
+def list_all_products(use_local_files: Optional[str] = None, tag: str = "latest"):
     """
     Return list of all available data products.
 
