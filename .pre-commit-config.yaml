@@ -3,16 +3,16 @@ ci:
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v5.0.0
     hooks:
     - id: check-toml
     - id: end-of-file-fixer
     - id: trailing-whitespace
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: 'v0.4.1'
+    rev: 'v0.7.3'
     hooks:
       - id: ruff
   - repo: https://github.com/psf/black
-    rev: 24.4.0
+    rev: 24.10.0
     hooks:
       - id: black
