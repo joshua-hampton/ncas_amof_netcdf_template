@@ -11,6 +11,7 @@ import numpy as np
 import getpass
 import socket
 import warnings
+from typing import Optional, Union
 
 from . import tsv2dict
 from . import values
@@ -18,15 +19,17 @@ from .__init__ import __version__
 
 
 def add_attributes(
-    ncfile,
-    instrument_dict,
-    product,
-    created_time,
-    location,
-    loc,
-    use_local_files=None,
-    tag="latest",
-):
+    ncfile: Dataset,
+    instrument_dict: dict[
+        str, dict[str, Union[str, list[str], dict[str, dict[str, Union[str, float]]]]]
+    ],
+    product: str,
+    created_time: str,
+    location: str,
+    loc: str,
+    use_local_files: Optional[str] = None,
+    tag: str = "latest",
+) -> None:
     """
     Adds all global attributes for a given product to the netCDF file.
 
@@ -98,7 +101,14 @@ def add_attributes(
             )
 
 
-def add_dimensions(ncfile, instrument_dict, product, dimension_lengths):
+def add_dimensions(
+    ncfile: Dataset,
+    instrument_dict: dict[
+        str, dict[str, Union[str, list[str], dict[str, dict[str, Union[str, float]]]]]
+    ],
+    product: str,
+    dimension_lengths: dict[str, int],
+) -> None:
     """
     Adds all dimensions for a given product to the netCDF file.
 
@@ -117,7 +127,14 @@ def add_dimensions(ncfile, instrument_dict, product, dimension_lengths):
             ncfile.createDimension(key, length)
 
 
-def add_variables(ncfile, instrument_dict, product, verbose=0):
+def add_variables(
+    ncfile: Dataset,
+    instrument_dict: dict[
+        str, dict[str, Union[str, list[str], dict[str, dict[str, Union[str, float]]]]]
+    ],
+    product: str,
+    verbose: int = 0,
+) -> None:
     """
     Adds all variables and their attributes for a given product to the netCDF file.
 
@@ -241,24 +258,26 @@ def add_variables(ncfile, instrument_dict, product, verbose=0):
 
 
 def make_netcdf(
-    instrument,
-    product,
-    time,
-    instrument_dict,
-    loc="land",
-    dimension_lengths={},
-    verbose=0,
-    options="",
-    product_version="1.0",
-    file_location=".",
-    use_local_files=None,
-    tag="latest",
-    return_open=True,
-    chunk_by_dimension=None,
-    compression=None,
-    complevel=4,
-    shuffle=True,
-):
+    instrument: str,
+    product: str,
+    time: str,
+    instrument_dict: dict[
+        str, dict[str, Union[str, list[str], dict[str, dict[str, Union[str, float]]]]]
+    ],
+    loc: str = "land",
+    dimension_lengths: dict[str, int] = {},
+    verbose: int = 0,
+    options: str = "",
+    product_version: str = "1.0",
+    file_location: str = ".",
+    use_local_files: Optional[str] = None,
+    tag: str = "latest",
+    return_open: bool = True,
+    chunk_by_dimension: Optional[dict[str, int]] = None,
+    compression: Union[str, dict[str, str], None] = None,
+    complevel: Union[int, dict[str, int]] = 4,
+    shuffle: Union[bool, dict[str, bool]] = True,
+) -> Union[None, Dataset]:
     """
     Makes netCDF file for given instrument and arguments.
 
@@ -396,7 +415,11 @@ def make_netcdf(
         ncfile.close()
 
 
-def list_products(instrument="all", use_local_files=None, tag="latest"):
+def list_products(
+    instrument: str = "all",
+    use_local_files: Optional[str] = None,
+    tag: str = "latest",
+) -> list[str]:
     """
     Lists available products, either for a specific instrument or all data products.
 
@@ -425,25 +448,25 @@ def list_products(instrument="all", use_local_files=None, tag="latest"):
 
 
 def make_product_netcdf(
-    product,
-    instrument_name,
-    date=None,
-    dimension_lengths={},
-    platform="",
-    instrument_loc="",
-    deployment_loc="land",
-    verbose=0,
-    options="",
-    product_version="1.0",
-    file_location=".",
-    use_local_files=None,
-    tag="latest",
-    return_open=True,
-    chunk_by_dimension=None,
-    compression=None,
-    complevel=4,
-    shuffle=True,
-):
+    product: str,
+    instrument_name: str,
+    date: Optional[str] = None,
+    dimension_lengths: dict[str, int] = {},
+    platform: str = "",
+    instrument_loc: str = "",
+    deployment_loc: str = "land",
+    verbose: int = 0,
+    options: str = "",
+    product_version: str = "1.0",
+    file_location: str = ".",
+    use_local_files: Optional[str] = None,
+    tag: str = "latest",
+    return_open: bool = True,
+    chunk_by_dimension: Optional[dict[str, int]] = None,
+    compression: Union[str, dict[str, str], None] = None,
+    complevel: Union[int, dict[str, int]] = 4,
+    shuffle: Union[bool, dict[str, bool]] = True,
+) -> Union[Dataset, None]:
     """
     Create an AMOF-like netCDF file for a given data product. This means files can be
     made to the NCAS-GENERAL standard for instruments that aren't part of the AMOF
@@ -456,9 +479,7 @@ def make_product_netcdf(
         dimension_lengths (dict): dictionary of dimension:length. If length not given
                                   for needed dimension, user will be asked to type
                                   in dimension length
-        platform (str): observatory or location of the instrument. If not given or is
-                        None, will use default platform for instrument from instrument
-                        vocabularies. Default "".
+        platform (str): observatory or location of the instrument. Default "".
         instrument_loc (str): [DEPRECATED - use "platform" instead] observatory or
                               location of the instrument. Default "".
         deployment_loc (str): one of 'land', 'sea', 'air', 'trajectory'.
@@ -601,24 +622,24 @@ def make_product_netcdf(
 
 
 def main(
-    instrument,
-    date=None,
-    dimension_lengths={},
-    platform=None,
-    loc="land",
-    products=None,
-    verbose=0,
-    options="",
-    product_version="1.0",
-    file_location=".",
-    use_local_files=None,
-    tag="latest",
-    return_open=True,
-    chunk_by_dimension=None,
-    compression=None,
-    complevel=4,
-    shuffle=True,
-):
+    instrument: str,
+    date: Optional[str] = None,
+    dimension_lengths: dict[str, int] = {},
+    platform: Optional[str] = None,
+    loc: str = "land",
+    products: Union[str, list[str], None] = None,
+    verbose: int = 0,
+    options: str = "",
+    product_version: str = "1.0",
+    file_location: str = ".",
+    use_local_files: Optional[str] = None,
+    tag: str = "latest",
+    return_open: bool = True,
+    chunk_by_dimension: Optional[dict[str, int]] = None,
+    compression: Union[str, dict[str, str], None] = None,
+    complevel: Union[int, dict[str, int]] = 4,
+    shuffle: Union[bool, dict[str, bool]] = True,
+) -> Union[Dataset, list[Dataset], None]:
     """
     Create 'just-add-data' AMOF-compliant netCDF file
 

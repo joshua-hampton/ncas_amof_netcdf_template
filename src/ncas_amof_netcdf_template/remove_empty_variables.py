@@ -8,9 +8,12 @@ import os
 from netCDF4 import Dataset
 import requests
 import numpy as np
+from typing import Union, Optional
 
 
-def get_product_variables_metadata(product, skip_check=False):
+def get_product_variables_metadata(
+    product: str, skip_check: bool = False
+) -> tuple[list[str], dict[str, dict[str, Union[str, float]]]]:
     """
     Get variables and their metadata associated with a product.
     `product` should be in
@@ -44,12 +47,14 @@ def get_product_variables_metadata(product, skip_check=False):
     var_dict = get_json_from_github(
         f"https://raw.githubusercontent.com/ncasuk/AMF_CVs/main/AMF_CVs/AMF_product_{product}_variable.json"
     )[f"product_{product}_variable"]
-    variables = var_dict.keys()
+    variables = list(var_dict.keys())
 
     return variables, var_dict
 
 
-def get_json_from_github(url):
+def get_json_from_github(
+    url: str,
+) -> dict[str, dict[str, dict[str, Union[str, float]]]]:
     """
     Returns desired json file from https://github.com/ncasuk/AMF_CVs/tree/main/AMF_CVs
     URL should be in form
@@ -67,7 +72,13 @@ def get_json_from_github(url):
     return r.json()
 
 
-def main(infile, outfile=None, overwrite=True, verbose=0, **kwargs):
+def main(
+    infile: str,
+    outfile: Optional[str] = None,
+    overwrite: bool = True,
+    verbose: int = 0,
+    **kwargs,
+) -> None:
     """
     If a product-specific variable is empty, we want to remove it.
     However, removing a variable from a netcdf file is not possible,
