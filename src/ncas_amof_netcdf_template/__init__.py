@@ -4,5 +4,6 @@ from . import remove_empty_variables
 from . import tsv2dict
 from . import util
 from . import values
+from . import instrument_info
 
 __version__="2.4.0"
