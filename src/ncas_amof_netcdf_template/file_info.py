@@ -5,7 +5,7 @@ Take tsv files a return a class with all the data needed for creating the netCDF
 import requests
 import pandas as pd
 import re
-from typing import Optional
+from typing import Optional, Union
 
 from .util import check_int
 
@@ -311,6 +311,49 @@ class FileInfo:
         vocab_version = self._get_github_latest_version("https://github.com/ncasuk/ncas-data-instrument-vocabs")
         file_loc = f"https://raw.githubusercontent.com/ncasuk/ncas-data-instrument-vocabs"
         return f"{file_loc}/{vocab_version}/product-definitions/tsv/_instrument_vocabs/community-instrument-name-and-descriptors.tsv"
+
+
+def convert_instrument_dict_to_file_info(
+    instrument_dict: dict[
+        str, dict[str, Union[str, list[str], dict[str, dict[str, Union[str, float]]]]]
+    ],
+    instrument_name: str,
+    data_product: str,
+    deployment_mode: str,
+    tag: str,
+) -> FileInfo:
+    """
+    Convert instrument_dict from tsv2dict.instrument_dict to a FileInfo class variable
+
+    Args:
+        instrument_dict (dict): Dictionary made by tsv2dict.instrument_dict
+        instrument_name (str): Name of the instrument
+        data_product (str): Data product of data for netCDF file
+        deployment_mode (str): Deployment mode of instrument. One of "land", "sea", 
+                               "air", "trajectory"
+        tag (str): Tag release of AMF_CVs being used
+
+    Returns:
+        FileInfo object with all instrument data from the dictionary
+    """
+    instrument_file_info = FileInfo(instrument_name, data_product, deployment_mode, tag)
+    for prod in ["common", data_product]:
+        if "attributes" in instrument_dict[prod].keys():
+            for attr_name, attr_dict in instrument_dict[prod]["attributes"].items():
+                instrument_file_info.attributes[attr_name] = attr_dict
+        if "dimensions" in instrument_dict[prod].keys():
+            for dim_name, dim_dict in instrument_dict[prod]["dimensions"].items():
+                instrument_file_info.dimensions[dim_name] = dim_dict
+        if "variables" in instrument_dict[prod].keys():
+            for var_name, var_dict in instrument_dict[prod]["variables"].items():
+                instrument_file_info.variables[var_name] = var_dict
+    if "info" in instrument_dict.keys():
+        for key, value in instrument_dict["info"].items():
+            if key == "Mobile/Fixed (loc)" and value.split("-")[0].strip().lower() == "fixed":
+                value = value.split("-")[1].strip()
+            instrument_file_info.instrument_data[key] = value
+
+    return instrument_file_info
 
         
 
