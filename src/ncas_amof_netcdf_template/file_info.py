@@ -5,6 +5,9 @@ Take tsv files a return a class with all the data needed for creating the netCDF
 import requests
 import pandas as pd
 import re
+from typing import Optional
+
+from .util import check_int
 
 
 class FileInfo:
@@ -40,7 +43,7 @@ class FileInfo:
         self.tag = tag
         if self.tag == "latest":
             self.ncas_gen_version = self._get_github_latest_version("https://github.com/ncasuk/AMF_CVs")
-        elif self._check_github_cvs_version_exists():
+        elif self._check_github_cvs_version_exists(release_tag=tag):
             self.ncas_gen_version = tag
         else:
             msg = f"Cannot find release version {tag} in https://github.com/ncasuk/AMF_CVs"
@@ -48,6 +51,7 @@ class FileInfo:
         self.attributes = {}
         self.dimensions = {}
         self.variables = {}
+        self.instrument_data = {}
 
 
     def __repr__(self) -> str:
@@ -56,8 +60,7 @@ class FileInfo:
 
 
     def __str__(self) -> str:
-        return f"Class with information for {self.instrument_name} instrument and {self.data_product} product"
-
+        return f"Class with information for '{self.instrument_name}' instrument and '{self.data_product}' data product"
 
 
     def get_common_info(self) -> None:
@@ -152,6 +155,8 @@ class FileInfo:
             for dim in df_dims.iloc:
                 dim_dict = dim.to_dict()
                 dim_name = dim_dict.pop("Name")
+                if check_int(dim_dict["Length"]):
+                    dim_dict["Length"] = int(dim_dict["Length"])
                 self.dimensions[dim_name] = dim_dict
 
 
@@ -192,28 +197,20 @@ class FileInfo:
                     data_products = re.split(r",| |\|", instrument_dict["Data Product(s)"])
                     data_products = list(filter(None, data_products))
                     instrument_dict["Data Product(s)"] = data_products
-
                     for i in ["Manufacturer", "Model No.", "Serial Number", "Data Product(s)", "Mobile/Fixed (loc)", "Descriptor"]:
-                        self.attributes[i] = {"Fixed Value": instrument_dict[i]}
+                        self.instrument_data[i] = instrument_dict[i]
 
 
-    def _check_instrument_has_product(self, product: str) -> bool:
+    def _check_instrument_has_product(self) -> bool:
         """
         Check instrument has defined data product associated with it
-
-        Args:
-            product (str): data product to check
 
         Returns:
             bool: does the instrument have the given data product associated with it
         """
-        if "Data Product(s)" not in self.attributes.keys():
-            if self.instrument_name.startswith("ncas"):
-                inst_tsv = self._get_ncas_instrument_tsv_url()
-            else:
-                inst_tsv = self._get_community_instrument_tsv_url()
-            self._tsv2dict_instruments(inst_tsv)
-        return product in self.attributes["Data Product(s)"]
+        if "Data Product(s)" not in self.instrument_data.keys():
+            self.get_instrument_info()
+        return self.data_product in self.instrument_data["Data Product(s)"]
 
 
     def _get_github_latest_version(self, url: str) -> str:
@@ -243,11 +240,13 @@ class FileInfo:
         return status == 200
 
 
-    def _check_github_cvs_version_exists(self) -> bool:
+    def _check_github_cvs_version_exists(self, release_tag: Optional[str] = None) -> bool:
         """
         Check the requested tagged version of AMF_CVs exists on GitHub
         """
-        url = f"https://github.com/ncasuk/AMF_CVs/releases/{self.ncas_gen_version}"
+        if release_tag is None:
+            release_tag = self.ncas_gen_version
+        url = f"https://github.com/ncasuk/AMF_CVs/releases/{release_tag}"
         return self._check_website_exists(url)
         
 
