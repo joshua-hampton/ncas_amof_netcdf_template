@@ -49,6 +49,8 @@ def test_add_attributes():
             "Manufacturer": "Manufacturer",
             "Model No.": "Model Number",
             "Serial Number": "Serial Number",
+            "instrument_name": "instrument-name",
+            "Mobile/Fixed (loc)": "location1"
         },
         "common": {
             "attributes": {
@@ -78,7 +80,7 @@ def test_add_attributes():
     location = "location1"
     loc = "land"
     use_local_files = None
-    tag = "v1.2.3"
+    tag = "v2.0.0"
     user = getpass.getuser()
     machine = socket.gethostname()
 
@@ -115,7 +117,7 @@ def test_add_attributes():
     )
     assert (
         ncfile.getncattr("amf_vocabularies_release")
-        == "https://github.com/ncasuk/AMF_CVs/releases/tag/v1.2.3"
+        == "https://github.com/ncasuk/AMF_CVs/releases/tag/v2.0.0"
     )
     assert ncfile.getncattr("history") == history_text
     assert ncfile.getncattr("last_revised_date") == created_time
@@ -223,6 +225,9 @@ def test_add_variables():
                 },
             }
         },
+        "info": {
+            "instrument_name": "instrument-name",
+        }
     }
 
     product = "product1"
@@ -296,12 +301,13 @@ def test_make_netcdf(compression, complevel, shuffle):
             "Manufacturer": "Manufacturer",
             "Model No.": "Model Number",
             "Serial Number": "Serial Number",
+            "instrument_name": instrument,
         },
         "common": {
             "dimensions": {
-                "time": None,
-                "latitude": None,
-                "longitude": None,
+                "time": {"Length": 5},
+                "latitude": {"Length": 1},
+                "longitude": {"Length": 1},
             },
             "variables": {
                 "variable1": {
@@ -349,7 +355,7 @@ def test_make_netcdf(compression, complevel, shuffle):
     product_version = "1.0"
     file_location = "."
     use_local_files = None
-    tag = "v1.2.3"
+    tag = "v2.0.0"
     chunk_by_dimension = {"time": 2}
 
     # Call the function
@@ -397,7 +403,7 @@ def test_make_netcdf(compression, complevel, shuffle):
     )
     assert (
         ncfile.getncattr("amf_vocabularies_release")
-        == "https://github.com/ncasuk/AMF_CVs/releases/tag/v1.2.3"
+        == "https://github.com/ncasuk/AMF_CVs/releases/tag/v2.0.0"
     )
     assert ncfile.getncattr("deployment_mode") == loc
     assert (
