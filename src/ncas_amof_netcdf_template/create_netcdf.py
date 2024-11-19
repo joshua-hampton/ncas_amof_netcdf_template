@@ -21,9 +21,12 @@ from .file_info import FileInfo, convert_instrument_dict_to_file_info
 
 def add_attributes(
     ncfile: Dataset,
-    instrument_dict: Optional[dict[
-        str, dict[str, Union[str, list[str], dict[str, dict[str, Union[str, float]]]]]
-    ]] = None,
+    instrument_dict: Optional[
+        dict[
+            str,
+            dict[str, Union[str, list[str], dict[str, dict[str, Union[str, float]]]]],
+        ]
+    ] = None,
     product: Optional[str] = None,
     created_time: Optional[str] = None,
     location: Optional[str] = None,
@@ -81,7 +84,7 @@ def add_attributes(
                 instrument_dict["info"]["instrument_name"],
                 product,
                 loc,
-                tag
+                tag,
             )
         else:
             warnings.warn(
@@ -114,19 +117,25 @@ def add_attributes(
             ncfile.setncattr(key, value["Fixed Value"])
         elif key == "source":
             if "Descriptor" in instrument_file_info.instrument_data.keys():
-                ncfile.setncattr(key, instrument_file_info.instrument_data["Descriptor"])
+                ncfile.setncattr(
+                    key, instrument_file_info.instrument_data["Descriptor"]
+                )
             else:
                 ncfile.setncattr(key, "n/a")
         elif key == "institution":
             ncfile.setncattr(key, "National Centre for Atmospheric Science (NCAS)")
         elif key == "platform":
             if "Mobile/Fixed (loc)" in instrument_file_info.instrument_data.keys():
-                ncfile.setncattr(key, instrument_file_info.instrument_data["Mobile/Fixed (loc)"])
+                ncfile.setncattr(
+                    key, instrument_file_info.instrument_data["Mobile/Fixed (loc)"]
+                )
             else:
                 ncfile.setncattr(key, "n/a")
         elif key == "instrument_manufacturer":
             if "Manufacturer" in instrument_file_info.instrument_data.keys():
-                ncfile.setncattr(key, instrument_file_info.instrument_data["Manufacturer"])
+                ncfile.setncattr(
+                    key, instrument_file_info.instrument_data["Manufacturer"]
+                )
             else:
                 ncfile.setncattr(key, "n/a")
         elif key == "instrument_model":
@@ -136,7 +145,9 @@ def add_attributes(
                 ncfile.setncattr(key, "n/a")
         elif key == "instrument_serial_number":
             if "Serial Number" in instrument_file_info.instrument_data.keys():
-                ncfile.setncattr(key, instrument_file_info.instrument_data["Serial Number"])
+                ncfile.setncattr(
+                    key, instrument_file_info.instrument_data["Serial Number"]
+                )
             else:
                 ncfile.setncattr(key, "n/a")
         elif key == "amf_vocabularies_release":
@@ -169,9 +180,12 @@ def add_attributes(
 
 def add_dimensions(
     ncfile: Dataset,
-    instrument_dict: Optional[dict[
-        str, dict[str, Union[str, list[str], dict[str, dict[str, Union[str, float]]]]]
-    ]] = None,
+    instrument_dict: Optional[
+        dict[
+            str,
+            dict[str, Union[str, list[str], dict[str, dict[str, Union[str, float]]]]],
+        ]
+    ] = None,
     product: Optional[str] = None,
     dimension_lengths: Optional[dict[str, int]] = None,
     instrument_file_info: Optional[FileInfo] = None,
@@ -205,7 +219,7 @@ def add_dimensions(
             )
             if product is None or dimension_lengths is None:
                 msg = (
-                    "If instrument_dict is still being used, 'product' and" 
+                    "If instrument_dict is still being used, 'product' and"
                     " 'dimension_lengths' must be given. Preferred option is to switch"
                     " to using instrument_file_info instead."
                 )
@@ -221,7 +235,9 @@ def add_dimensions(
 
     if instrument_file_info is not None:
         for dim_name in instrument_file_info.dimensions.keys():
-            ncfile.createDimension(dim_name, instrument_file_info.dimensions[dim_name]["Length"])
+            ncfile.createDimension(
+                dim_name, instrument_file_info.dimensions[dim_name]["Length"]
+            )
 
     elif dimension_lengths is not None:
         for key, length in dimension_lengths.items():
@@ -229,14 +245,17 @@ def add_dimensions(
                 key in instrument_dict["common"]["dimensions"].keys()
                 or key in instrument_dict[product]["dimensions"].keys()
             ):
-               ncfile.createDimension(key, length)
+                ncfile.createDimension(key, length)
 
 
 def add_variables(
     ncfile: Dataset,
-    instrument_dict: Optional[dict[
-        str, dict[str, Union[str, list[str], dict[str, dict[str, Union[str, float]]]]]
-    ]] = None,
+    instrument_dict: Optional[
+        dict[
+            str,
+            dict[str, Union[str, list[str], dict[str, dict[str, Union[str, float]]]]],
+        ]
+    ] = None,
     product: Optional[str] = None,
     instrument_file_info: Optional[FileInfo] = None,
     verbose: int = 0,
@@ -390,11 +409,7 @@ def add_variables(
                     and ("EXAMPLE" in mdatvalue or mdatvalue == "")
                 ):
                     # don't add empty attributes
-                    if (
-                        isinstance(mdatvalue, str)
-                        and mdatvalue == ""
-                        and verbose >= 1
-                    ):
+                    if isinstance(mdatvalue, str) and mdatvalue == "" and verbose >= 1:
                         print(
                             f"WARN: No value for attribute {mdatkey} "
                             "for variable {key}, attribute not added"
@@ -407,9 +422,12 @@ def make_netcdf(
     instrument: str,
     product: str,
     time: str,
-    instrument_dict: Optional[dict[
-        str, dict[str, Union[str, list[str], dict[str, dict[str, Union[str, float]]]]]
-    ]] = None,
+    instrument_dict: Optional[
+        dict[
+            str,
+            dict[str, Union[str, list[str], dict[str, dict[str, Union[str, float]]]]],
+        ]
+    ] = None,
     loc: str = "land",
     dimension_lengths: dict[str, int] = {},
     verbose: int = 0,
@@ -434,8 +452,8 @@ def make_netcdf(
         time (str): time that the data represents, in YYYYmmdd-HHMMSS format or
                     as much of as required.
         instrument_dict (dict or None): -DEPRECATED- information about the instrument
-                                        from tsv2dict.instrument_dict. Use 
-                                        instrument_file_info argument instead. Will be 
+                                        from tsv2dict.instrument_dict. Use
+                                        instrument_file_info argument instead. Will be
                                         remved in version 2.7.0.
         instrument_file_info (FileInfo or None): information about the instrument,
                                                  from file_info.FileInfo.
@@ -500,7 +518,7 @@ def make_netcdf(
                 instrument_dict["info"]["instrument_name"],
                 product,
                 loc,
-                tag
+                tag,
             )
         else:
             warnings.warn(
@@ -550,14 +568,22 @@ def make_netcdf(
             var_dict[var]["shuffle"] = True
 
     if (
-        instrument_file_info.instrument_data["Mobile/Fixed (loc)"].split("-")[0].strip().lower()
+        instrument_file_info.instrument_data["Mobile/Fixed (loc)"]
+        .split("-")[0]
+        .strip()
+        .lower()
         == "fixed"
     ):
         platform = (
-            instrument_file_info.instrument_data["Mobile/Fixed (loc)"].split("-")[-1].strip().lower()
+            instrument_file_info.instrument_data["Mobile/Fixed (loc)"]
+            .split("-")[-1]
+            .strip()
+            .lower()
         )
     else:
-        platform = instrument_file_info.instrument_data["Mobile/Fixed (loc)"].strip().lower()
+        platform = (
+            instrument_file_info.instrument_data["Mobile/Fixed (loc)"].strip().lower()
+        )
 
     if options != "":
         no_options = len(options.split("_"))
@@ -722,7 +748,9 @@ def make_product_netcdf(
     if date is None:
         date = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%d")
 
-    product_file_info = FileInfo(instrument_name, product, deployment_mode=deployment_loc, tag=tag)
+    product_file_info = FileInfo(
+        instrument_name, product, deployment_mode=deployment_loc, tag=tag
+    )
     product_file_info.get_common_info()
     product_file_info.get_deployment_info()
     product_file_info.get_product_info()
@@ -867,7 +895,7 @@ def main(
 
     if isinstance(products, str):
         products = [products]
-    elif products == None:
+    elif products is None:
         products = list_products(instrument=instrument, tag=tag)
         warnings.warn(
             "Passing 'None' as argument for 'products' is being deprecated. Use single"
@@ -875,7 +903,7 @@ def main(
             f"{instrument} are {products}. The option to use 'None' will be removed"
             " from version 2.7.0.",
             DeprecationWarning,
-            stacklevel=2
+            stacklevel=2,
         )
     elif isinstance(products, list):
         warnings.warn(
@@ -886,11 +914,12 @@ def main(
             stacklevel=2,
         )
 
-
     ncfiles = []
-        
+
     for product in products:
-        instrument_file_info = FileInfo(instrument, product, deployment_mode = loc, tag = tag)
+        instrument_file_info = FileInfo(
+            instrument, product, deployment_mode=loc, tag=tag
+        )
         instrument_file_info.get_product_info()
         instrument_file_info.get_deployment_info()
         instrument_file_info.get_instrument_info()
@@ -898,7 +927,12 @@ def main(
 
         # check if platform needs changing
         if platform is not None:
-            if "mobile" not in instrument_file_info.instrument_data["Mobile/Fixed (loc)"].lower():
+            if (
+                "mobile"
+                not in instrument_file_info.instrument_data[
+                    "Mobile/Fixed (loc)"
+                ].lower()
+            ):
                 print(
                     "[WARNING]: Changing platform for an "
                     f"observatory instrument {instrument}."
@@ -921,7 +955,7 @@ def main(
                     instrument,
                     product,
                     date,
-                    instrument_file_info = instrument_file_info,
+                    instrument_file_info=instrument_file_info,
                     verbose=verbose,
                     options=options,
                     product_version=product_version,
@@ -934,13 +968,13 @@ def main(
                     complevel=complevel,
                     shuffle=shuffle,
                 )
-            )            
+            )
         else:
             make_netcdf(
                 instrument,
                 product,
                 date,
-                instrument_file_info = instrument_file_info,
+                instrument_file_info=instrument_file_info,
                 verbose=verbose,
                 options=options,
                 product_version=product_version,

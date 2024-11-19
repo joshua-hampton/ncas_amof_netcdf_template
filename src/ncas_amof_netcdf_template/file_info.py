@@ -14,6 +14,7 @@ class FileInfo:
     """
     Class that will gather and hold all the data to create netCDF file with
     """
+
     def __init__(
         self,
         instrument_name: str,
@@ -28,9 +29,9 @@ class FileInfo:
             instrument_name (str): name of the instrument
             data_product (str): name of data product to use
             deployment_mode (str): value of the 'deployment_mode' global attribute, and
-                                   different variables may be required depending on 
+                                   different variables may be required depending on
                                    value. One of "land", "sea", "air", or "trajectory".
-            tag (str): tagged release version of AMF_CVs, or "latest" to get most 
+            tag (str): tagged release version of AMF_CVs, or "latest" to get most
                        recent version. Default is "latest".
         """
         if deployment_mode not in ["land", "sea", "air", "trajectory"]:
@@ -42,7 +43,9 @@ class FileInfo:
         self.deployment_mode = deployment_mode
         self.tag = tag
         if self.tag == "latest":
-            self.ncas_gen_version = self._get_github_latest_version("https://github.com/ncasuk/AMF_CVs")
+            self.ncas_gen_version = self._get_github_latest_version(
+                "https://github.com/ncasuk/AMF_CVs"
+            )
         elif self._check_github_cvs_version_exists(release_tag=tag):
             self.ncas_gen_version = tag
         else:
@@ -53,15 +56,12 @@ class FileInfo:
         self.variables = {}
         self.instrument_data = {}
 
-
     def __repr__(self) -> str:
         class_name = type(self).__name__
         return f"{class_name}(instrument_name='{self.instrument_name}', data_product='{self.data_product}', deployment_mode='{self.deployment_mode}', tag='{self.tag}') - ncas_gen_version = '{self.ncas_gen_version}"
 
-
     def __str__(self) -> str:
         return f"Class with information for '{self.instrument_name}' instrument and '{self.data_product}' data product"
-
 
     def get_common_info(self) -> None:
         """
@@ -70,7 +70,6 @@ class FileInfo:
         """
         self._tsv2dict_attrs(self._attributes_tsv_url(self.deployment_mode))
 
-
     def get_deployment_info(self) -> None:
         """
         Get all the variables, dimensions and attributes related to the deployment
@@ -78,7 +77,6 @@ class FileInfo:
         """
         self._tsv2dict_dims(self._dimensions_tsv_url(self.deployment_mode))
         self._tsv2dict_vars(self._variables_tsv_url(self.deployment_mode))
-
 
     def get_product_info(self) -> None:
         """
@@ -89,7 +87,6 @@ class FileInfo:
         self._tsv2dict_dims(self._dimensions_tsv_url(self.data_product))
         self._tsv2dict_vars(self._variables_tsv_url(self.data_product))
 
-
     def get_instrument_info(self) -> None:
         """
         Get all the attribute data related to a defined instrument in the
@@ -99,7 +96,6 @@ class FileInfo:
             self._tsv2dict_instruments(self._get_ncas_instrument_tsv_url())
         else:
             self._tsv2dict_instruments(self._get_community_instrument_tsv_url())
-
 
     def _tsv2dict_vars(self, tsv_file: str) -> None:
         """
@@ -135,10 +131,11 @@ class FileInfo:
                             f"EXAMPLE: {current_line['example value']}"
                         )
                     else:
-                        current_var_dict[current_line["Attribute"]] = current_line["Value"]
+                        current_var_dict[current_line["Attribute"]] = current_line[
+                            "Value"
+                        ]
 
             self.variables[current_var] = current_var_dict
-
 
     def _tsv2dict_dims(self, tsv_file: str) -> None:
         """
@@ -159,7 +156,6 @@ class FileInfo:
                     dim_dict["Length"] = int(dim_dict["Length"])
                 self.dimensions[dim_name] = dim_dict
 
-
     def _tsv2dict_attrs(self, tsv_file: str) -> None:
         """
         For a given tsv file from the AMF_CVs GitHub repo, add dictionary of attributes
@@ -177,7 +173,6 @@ class FileInfo:
                 attr_name = attr_dict.pop("Name")
                 self.attributes[attr_name] = attr_dict
 
-
     def _tsv2dict_instruments(self, tsv_file: str) -> None:
         """
         For a given tsv file from the ncas-data-instrument-vocabs repo, add dictionary
@@ -188,18 +183,30 @@ class FileInfo:
         """
         if self._check_website_exists(tsv_file):
             df_instruments = pd.read_csv(tsv_file, sep="\t")
-            df_instrument = df_instruments.where(df_instruments["New Instrument Name"] == self.instrument_name).dropna(subset=["New Instrument Name"])
+            df_instrument = df_instruments.where(
+                df_instruments["New Instrument Name"] == self.instrument_name
+            ).dropna(subset=["New Instrument Name"])
             if len(df_instrument) == 0:
-                print(f"[WARNING] No details found for instrument {self.instrument_name}...")
+                print(
+                    f"[WARNING] No details found for instrument {self.instrument_name}..."
+                )
             else:
                 for inst in df_instrument.iloc:
                     instrument_dict = inst.to_dict()
-                    data_products = re.split(r",| |\|", instrument_dict["Data Product(s)"])
+                    data_products = re.split(
+                        r",| |\|", instrument_dict["Data Product(s)"]
+                    )
                     data_products = list(filter(None, data_products))
                     instrument_dict["Data Product(s)"] = data_products
-                    for i in ["Manufacturer", "Model No.", "Serial Number", "Data Product(s)", "Mobile/Fixed (loc)", "Descriptor"]:
+                    for i in [
+                        "Manufacturer",
+                        "Model No.",
+                        "Serial Number",
+                        "Data Product(s)",
+                        "Mobile/Fixed (loc)",
+                        "Descriptor",
+                    ]:
                         self.instrument_data[i] = instrument_dict[i]
-
 
     def _check_instrument_has_product(self) -> bool:
         """
@@ -212,7 +219,6 @@ class FileInfo:
             self.get_instrument_info()
         return self.data_product in self.instrument_data["Data Product(s)"]
 
-
     def _get_github_latest_version(self, url: str) -> str:
         """
         Get the tag of the latest release version
@@ -224,7 +230,6 @@ class FileInfo:
             str: tag name of latest version release
         """
         return requests.get(f"{url}/releases/latest").url.split("/")[-1]
-
 
     def _check_website_exists(self, url: str) -> bool:
         """
@@ -239,8 +244,9 @@ class FileInfo:
         status = requests.get(url).status_code
         return status == 200
 
-
-    def _check_github_cvs_version_exists(self, release_tag: Optional[str] = None) -> bool:
+    def _check_github_cvs_version_exists(
+        self, release_tag: Optional[str] = None
+    ) -> bool:
         """
         Check the requested tagged version of AMF_CVs exists on GitHub
         """
@@ -248,7 +254,6 @@ class FileInfo:
             release_tag = self.ncas_gen_version
         url = f"https://github.com/ncasuk/AMF_CVs/releases/{release_tag}"
         return self._check_website_exists(url)
-        
 
     def _dimensions_tsv_url(self, obj: str) -> str:
         """
@@ -261,9 +266,12 @@ class FileInfo:
             str: URL location of dimension tsv file
         """
         file_loc = f"https://raw.githubusercontent.com/ncasuk/AMF_CVs/{self.ncas_gen_version}/product-definitions/tsv"
-        path, option = (obj, "specific") if obj not in ["land", "sea", "air", "trajectory"] else ("_common", obj)
+        path, option = (
+            (obj, "specific")
+            if obj not in ["land", "sea", "air", "trajectory"]
+            else ("_common", obj)
+        )
         return f"{file_loc}/{path}/dimensions-{option}.tsv"
-
 
     def _variables_tsv_url(self, obj: str) -> str:
         """
@@ -276,9 +284,12 @@ class FileInfo:
             str: URL location of variable tsv file
         """
         file_loc = f"https://raw.githubusercontent.com/ncasuk/AMF_CVs/{self.ncas_gen_version}/product-definitions/tsv"
-        path, option = (obj, "specific") if obj not in ["land", "sea", "air", "trajectory"] else ("_common", obj)
+        path, option = (
+            (obj, "specific")
+            if obj not in ["land", "sea", "air", "trajectory"]
+            else ("_common", obj)
+        )
         return f"{file_loc}/{path}/variables-{option}.tsv"
-
 
     def _attributes_tsv_url(self, obj: str) -> str:
         """
@@ -291,25 +302,35 @@ class FileInfo:
             str: URL location of attribute tsv file
         """
         file_loc = f"https://raw.githubusercontent.com/ncasuk/AMF_CVs/{self.ncas_gen_version}/product-definitions/tsv"
-        path, option = (obj, "-specific") if obj not in ["land", "sea", "air", "trajectory"] else ("_common", "")
+        path, option = (
+            (obj, "-specific")
+            if obj not in ["land", "sea", "air", "trajectory"]
+            else ("_common", "")
+        )
         return f"{file_loc}/{path}/global-attributes{option}.tsv"
 
-    
     def _get_ncas_instrument_tsv_url(self) -> str:
         """
         Get the URL for the tsv file of NCAS instruments
         """
-        vocab_version = self._get_github_latest_version("https://github.com/ncasuk/ncas-data-instrument-vocabs")
-        file_loc = f"https://raw.githubusercontent.com/ncasuk/ncas-data-instrument-vocabs"
+        vocab_version = self._get_github_latest_version(
+            "https://github.com/ncasuk/ncas-data-instrument-vocabs"
+        )
+        file_loc = (
+            "https://raw.githubusercontent.com/ncasuk/ncas-data-instrument-vocabs"
+        )
         return f"{file_loc}/{vocab_version}/product-definitions/tsv/_instrument_vocabs/ncas-instrument-name-and-descriptors.tsv"
 
-    
     def _get_community_instrument_tsv_url(self) -> str:
         """
         Get the URL for the tsv file of NCAS instruments
         """
-        vocab_version = self._get_github_latest_version("https://github.com/ncasuk/ncas-data-instrument-vocabs")
-        file_loc = f"https://raw.githubusercontent.com/ncasuk/ncas-data-instrument-vocabs"
+        vocab_version = self._get_github_latest_version(
+            "https://github.com/ncasuk/ncas-data-instrument-vocabs"
+        )
+        file_loc = (
+            "https://raw.githubusercontent.com/ncasuk/ncas-data-instrument-vocabs"
+        )
         return f"{file_loc}/{vocab_version}/product-definitions/tsv/_instrument_vocabs/community-instrument-name-and-descriptors.tsv"
 
 
@@ -329,7 +350,7 @@ def convert_instrument_dict_to_file_info(
         instrument_dict (dict): Dictionary made by tsv2dict.instrument_dict
         instrument_name (str): Name of the instrument
         data_product (str): Data product of data for netCDF file
-        deployment_mode (str): Deployment mode of instrument. One of "land", "sea", 
+        deployment_mode (str): Deployment mode of instrument. One of "land", "sea",
                                "air", "trajectory"
         tag (str): Tag release of AMF_CVs being used
 
@@ -349,12 +370,11 @@ def convert_instrument_dict_to_file_info(
                 instrument_file_info.variables[var_name] = var_dict
     if "info" in instrument_dict.keys():
         for key, value in instrument_dict["info"].items():
-            if key == "Mobile/Fixed (loc)" and value.split("-")[0].strip().lower() == "fixed":
+            if (
+                key == "Mobile/Fixed (loc)"
+                and value.split("-")[0].strip().lower() == "fixed"
+            ):
                 value = value.split("-")[1].strip()
             instrument_file_info.instrument_data[key] = value
 
     return instrument_file_info
-
-        
-
-
