@@ -50,7 +50,7 @@ def test_add_attributes():
             "Model No.": "Model Number",
             "Serial Number": "Serial Number",
             "instrument_name": "instrument-name",
-            "Mobile/Fixed (loc)": "location1"
+            "Mobile/Fixed (loc)": "location1",
         },
         "common": {
             "attributes": {
@@ -227,7 +227,7 @@ def test_add_variables():
         },
         "info": {
             "instrument_name": "instrument-name",
-        }
+        },
     }
 
     product = "product1"
