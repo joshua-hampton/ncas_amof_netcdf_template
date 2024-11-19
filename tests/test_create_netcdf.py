@@ -5,6 +5,7 @@ import numpy as np
 import tempfile
 import getpass
 import socket
+import datetime as dt
 
 import ncas_amof_netcdf_template as nant
 
@@ -35,7 +36,14 @@ def test_main_process():
     os.remove("ncas-aws-10_somewhere-else_20221117_surface-met_v1.0.nc")
 
 
-def test_add_attributes():
+@pytest.mark.parametrize(
+    "created_time",
+    [
+        "2022-01-01T00:00:00Z",
+        None,
+    ],
+)
+def test_add_attributes(created_time):
     # Create a temporary file for testing
     temp_file = tempfile.NamedTemporaryFile(delete=False)
     temp_file.close()
@@ -49,6 +57,8 @@ def test_add_attributes():
             "Manufacturer": "Manufacturer",
             "Model No.": "Model Number",
             "Serial Number": "Serial Number",
+            "instrument_name": "instrument-name",
+            "Mobile/Fixed (loc)": "location1",
         },
         "common": {
             "attributes": {
@@ -74,11 +84,10 @@ def test_add_attributes():
     }
 
     product = "product1"
-    created_time = "2022-01-01T00:00:00Z"
     location = "location1"
     loc = "land"
     use_local_files = None
-    tag = "v1.2.3"
+    tag = "v2.0.0"
     user = getpass.getuser()
     machine = socket.gethostname()
 
@@ -115,10 +124,17 @@ def test_add_attributes():
     )
     assert (
         ncfile.getncattr("amf_vocabularies_release")
-        == "https://github.com/ncasuk/AMF_CVs/releases/tag/v1.2.3"
+        == "https://github.com/ncasuk/AMF_CVs/releases/tag/v2.0.0"
     )
-    assert ncfile.getncattr("history") == history_text
-    assert ncfile.getncattr("last_revised_date") == created_time
+    if created_time is not None:
+        assert ncfile.getncattr("history") == history_text
+        assert ncfile.getncattr("last_revised_date") == created_time
+    else:
+        # account for possibility of running test more than one second after making
+        # file, hoping not to be unlucky enough to run just before midnight
+        assert ncfile.getncattr("last_revised_date").startswith(
+            dt.datetime.now(tz=dt.timezone.utc).strftime("%Y%m%dT")
+        )
     assert ncfile.getncattr("deployment_mode") == loc
     assert (
         ncfile.getncattr("defined_attribute")
@@ -130,6 +146,34 @@ def test_add_attributes():
     # Close and delete the temporary file
     ncfile.close()
     os.remove(temp_file.name)
+
+    with pytest.raises(ValueError, match=r".+'product' must be given.+"):
+        # Create a temporary file for testing
+        temp_file = tempfile.NamedTemporaryFile(delete=False)
+        temp_file.close()
+
+        # Create a netCDF file for testing
+        ncfile = Dataset(temp_file.name, "w", format="NETCDF4")
+        nant.create_netcdf.add_attributes(
+            ncfile,
+            instrument_dict=instrument_dict,
+            created_time=created_time,
+            location=location,
+            loc=loc,
+            use_local_files=use_local_files,
+            tag=tag,
+        )
+
+    with pytest.raises(ValueError, match="No instrument file info given"):
+        # Create a temporary file for testing
+        temp_file = tempfile.NamedTemporaryFile(delete=False)
+        temp_file.close()
+
+        # Create a netCDF file for testing
+        ncfile = Dataset(temp_file.name, "w", format="NETCDF4")
+        nant.create_netcdf.add_attributes(
+            ncfile,
+        )
 
 
 def test_add_dimensions():
@@ -223,6 +267,9 @@ def test_add_variables():
                 },
             }
         },
+        "info": {
+            "instrument_name": "instrument-name",
+        },
     }
 
     product = "product1"
@@ -296,12 +343,13 @@ def test_make_netcdf(compression, complevel, shuffle):
             "Manufacturer": "Manufacturer",
             "Model No.": "Model Number",
             "Serial Number": "Serial Number",
+            "instrument_name": instrument,
         },
         "common": {
             "dimensions": {
-                "time": None,
-                "latitude": None,
-                "longitude": None,
+                "time": {"Length": 5},
+                "latitude": {"Length": 1},
+                "longitude": {"Length": 1},
             },
             "variables": {
                 "variable1": {
@@ -349,7 +397,7 @@ def test_make_netcdf(compression, complevel, shuffle):
     product_version = "1.0"
     file_location = "."
     use_local_files = None
-    tag = "v1.2.3"
+    tag = "v2.0.0"
     chunk_by_dimension = {"time": 2}
 
     # Call the function
@@ -397,7 +445,7 @@ def test_make_netcdf(compression, complevel, shuffle):
     )
     assert (
         ncfile.getncattr("amf_vocabularies_release")
-        == "https://github.com/ncasuk/AMF_CVs/releases/tag/v1.2.3"
+        == "https://github.com/ncasuk/AMF_CVs/releases/tag/v2.0.0"
     )
     assert ncfile.getncattr("deployment_mode") == loc
     assert (

@@ -20,3 +20,4 @@
       get_community_instruments_url
       get_instruments_url
       get_latest_CVs_version
+      get_latest_instrument_CVs_version
