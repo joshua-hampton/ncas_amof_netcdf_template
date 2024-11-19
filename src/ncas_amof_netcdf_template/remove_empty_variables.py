@@ -9,10 +9,11 @@ from netCDF4 import Dataset
 import requests
 import numpy as np
 from typing import Union, Optional
+from . import values
 
 
 def get_product_variables_metadata(
-    product: str, skip_check: bool = False
+    product: str, skip_check: bool = False, tag: str = "latest"
 ) -> tuple[list[str], dict[str, dict[str, Union[str, float]]]]:
     """
     Get variables and their metadata associated with a product.
@@ -24,28 +25,32 @@ def get_product_variables_metadata(
                        instrument for the netCDF file.
         skip_check (bool): Skips checking if product in the
                            product json file. Default False.
+        tag (str): Tagged release version of AMF_CVs to check
 
     Returns:
         list: All product-specific variables.
         dict: Dictionary of variables and their attributes.
 
     """
+    if tag == "latest":
+        tag = values.get_latest_CVs_version()
+
     if not skip_check:
         product_list = get_json_from_github(
-            "https://raw.githubusercontent.com/ncasuk/AMF_CVs/main/AMF_CVs/AMF_product.json"
+            f"https://raw.githubusercontent.com/ncasuk/AMF_CVs/{tag}/AMF_CVs/AMF_product.json"
         )["product"]
 
         # Check for valid product
         if product not in product_list:
             msg = (
                 f"product {product} is not in "
-                "https://github.com/ncasuk/AMF_CVs/blob/main/AMF_CVs/AMF_product.json"
+                f"https://github.com/ncasuk/AMF_CVs/blob/{tag}/AMF_CVs/AMF_product.json"
             )
             raise ValueError(msg)
 
     # Get the stuff
     var_dict = get_json_from_github(
-        f"https://raw.githubusercontent.com/ncasuk/AMF_CVs/main/AMF_CVs/AMF_product_{product}_variable.json"
+        f"https://raw.githubusercontent.com/ncasuk/AMF_CVs/{tag}/AMF_CVs/AMF_product_{product}_variable.json"
     )[f"product_{product}_variable"]
     variables = list(var_dict.keys())
 
