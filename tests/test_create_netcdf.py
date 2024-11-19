@@ -133,7 +133,7 @@ def test_add_attributes(created_time):
         # account for possibility of running test more than one second after making
         # file, hoping not to be unlucky enough to run just before midnight
         assert ncfile.getncattr("last_revised_date").startswith(
-            dt.datetime.now(tz=dt.UTC).strftime("%Y%m%dT")
+            dt.datetime.now(tz=dt.timezone.utc).strftime("%Y%m%dT")
         )
     assert ncfile.getncattr("deployment_mode") == loc
     assert (

@@ -110,7 +110,7 @@ def add_attributes(
         raise ValueError(msg)
 
     if created_time is None:
-        created_time = dt.datetime.now(tz=dt.UTC).strftime("%Y%m%dT%H%M%S")
+        created_time = dt.datetime.now(tz=dt.timezone.utc).strftime("%Y%m%dT%H%M%S")
 
     for key, value in instrument_file_info.attributes.items():
         if value["Fixed Value"] != "":
