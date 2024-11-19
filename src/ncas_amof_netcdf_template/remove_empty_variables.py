@@ -82,6 +82,7 @@ def main(
     outfile: Optional[str] = None,
     overwrite: bool = True,
     verbose: int = 0,
+    tag: str = "latest",
     **kwargs,
 ) -> None:
     """
@@ -99,6 +100,8 @@ def main(
                          both outfile and infile remain. Default True.
         verbose (any): Optional. If truthy, prints variables that are
                        being removed from infile. Default 0.
+        tag (str): Optional. Tag release version of AMF_CVs being used. Default
+                   "latest".
         kwargs: Additional keyword arguments (e.g. skip_check
                 for get_product_variables_metadata function).
 
@@ -113,7 +116,7 @@ def main(
         outfile = f"{infile_dir}/tmp_{infile_name}"
 
     toexclude = []
-    product_vars, _ = get_product_variables_metadata(product, **kwargs)
+    product_vars, _ = get_product_variables_metadata(product, tag=tag, **kwargs)
 
     for var in in_ncfile.variables.keys():
         if var in product_vars:
