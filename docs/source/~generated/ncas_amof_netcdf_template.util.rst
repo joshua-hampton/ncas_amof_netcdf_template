@@ -14,6 +14,7 @@
    .. autosummary::
 
       add_metadata_to_netcdf
+      change_qc_flags
       check_float
       check_int
       check_type_convert
