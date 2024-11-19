@@ -83,7 +83,7 @@ def main(
     overwrite: bool = True,
     verbose: int = 0,
     tag: str = "latest",
-    **kwargs,
+    skip_check: bool = False,
 ) -> None:
     """
     If a product-specific variable is empty, we want to remove it.
@@ -100,10 +100,11 @@ def main(
                          both outfile and infile remain. Default True.
         verbose (any): Optional. If truthy, prints variables that are
                        being removed from infile. Default 0.
-        tag (str): Optional. Tag release version of AMF_CVs being used. Default
-                   "latest".
-        kwargs: Additional keyword arguments (e.g. skip_check
-                for get_product_variables_metadata function).
+        tag (str): Optional. Tag release version of AMF_CVs being used. Passed to
+                   get_product_variables_metadata function. Default "latest".
+        skip_check (bool): Optional. Skip checking for product in AMF_CVs product json
+                           file. Passed to get_product_variables_metadata function.
+                           Default False.
 
     """
 
@@ -116,7 +117,9 @@ def main(
         outfile = f"{infile_dir}/tmp_{infile_name}"
 
     toexclude = []
-    product_vars, _ = get_product_variables_metadata(product, tag=tag, **kwargs)
+    product_vars, _ = get_product_variables_metadata(
+        product, tag=tag, skip_check=skip_check
+    )
 
     for var in in_ncfile.variables.keys():
         if var in product_vars:
