@@ -142,9 +142,9 @@ def test_tsv2dict_instruments():
 
     # Check the result
     assert result == {
-        "instrument1": {"Data Product(s)": ["product1", "product2"]},
-        "instrument2": {"Data Product(s)": ["product3", "product4"]},
-        "instrument3": {"Data Product(s)": ["product5", "product6"]},
+        "instrument1": {"Data Product(s)": ["product1", "product2"], "instrument_name": "instrument1"},
+        "instrument2": {"Data Product(s)": ["product3", "product4"], "instrument_name": "instrument2"},
+        "instrument3": {"Data Product(s)": ["product5", "product6"], "instrument_name": "instrument3"},
     }
 
     # Delete the temporary file
