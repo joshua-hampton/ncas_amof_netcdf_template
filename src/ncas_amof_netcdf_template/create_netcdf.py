@@ -327,7 +327,6 @@ def add_variables(
             # and forget about that variable
             if "dimension" not in tmp_value.keys():
                 print(f"WARN: No dimensions for variable {key}")
-                print("Variable not added file")
                 var_dims = ()
             else:
                 var_dims = tmp_value.pop("dimension")
