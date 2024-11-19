@@ -113,17 +113,32 @@ def add_attributes(
         if value["Fixed Value"] != "":
             ncfile.setncattr(key, value["Fixed Value"])
         elif key == "source":
-            ncfile.setncattr(key, instrument_file_info.instrument_data["Descriptor"])
+            if "Descriptor" in instrument_file_info.instrument_data.keys():
+                ncfile.setncattr(key, instrument_file_info.instrument_data["Descriptor"])
+            else:
+                ncfile.setncattr(key, "n/a")
         elif key == "institution":
             ncfile.setncattr(key, "National Centre for Atmospheric Science (NCAS)")
         elif key == "platform":
-            ncfile.setncattr(key, instrument_file_info.instrument_data["Mobile/Fixed (loc)"])
+            if "Mobile/Fixed (loc)" in instrument_file_info.instrument_data.keys():
+                ncfile.setncattr(key, instrument_file_info.instrument_data["Mobile/Fixed (loc)"])
+            else:
+                ncfile.setncattr(key, "n/a")
         elif key == "instrument_manufacturer":
-            ncfile.setncattr(key, instrument_file_info.instrument_data["Manufacturer"])
+            if "Manufacturer" in instrument_file_info.instrument_data.keys():
+                ncfile.setncattr(key, instrument_file_info.instrument_data["Manufacturer"])
+            else:
+                ncfile.setncattr(key, "n/a")
         elif key == "instrument_model":
-            ncfile.setncattr(key, instrument_file_info.instrument_data["Model No."])
+            if "Model No." in instrument_file_info.instrument_data.keys():
+                ncfile.setncattr(key, instrument_file_info.instrument_data["Model No."])
+            else:
+                ncfile.setncattr(key, "n/a")
         elif key == "instrument_serial_number":
-            ncfile.setncattr(key, instrument_file_info.instrument_data["Serial Number"])
+            if "Serial Number" in instrument_file_info.instrument_data.keys():
+                ncfile.setncattr(key, instrument_file_info.instrument_data["Serial Number"])
+            else:
+                ncfile.setncattr(key, "n/a")
         elif key == "amf_vocabularies_release":
             if use_local_files:
                 attrsdict = tsv2dict.tsv2dict_attrs(
@@ -707,34 +722,21 @@ def make_product_netcdf(
     if date is None:
         date = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%d")
 
-    product_dict = tsv2dict.product_dict(
-        product,
-        platform=platform,
-        deployment_loc=deployment_loc,
-        use_local_files=use_local_files,
-        tag=tag,
-    )
+    product_file_info = FileInfo(instrument_name, product, deployment_mode=deployment_loc, tag=tag)
+    product_file_info.get_common_info()
+    product_file_info.get_deployment_info()
+    product_file_info.get_product_info()
+
+    product_file_info.instrument_data["Mobile/Fixed (loc)"] = platform
 
     # make sure we have dimension lengths for all expected dimensions
-    all_dimensions = []
-    dimlengths = {}
-    for key, val in product_dict.items():
-        if "dimensions" in val.keys() and (key == product or key == "common"):
-            for dim in list(val["dimensions"].keys()):
-                if dim not in all_dimensions:
-                    all_dimensions.append(dim)
-                    if (
-                        isinstance(val["dimensions"][dim]["Length"], int)
-                        or "<" not in val["dimensions"][dim]["Length"]
-                    ):
-                        dimlengths[dim] = int(val["dimensions"][dim]["Length"])
-    for key, value in dimension_lengths.items():
-        if key not in dimlengths.keys():
-            dimlengths[key] = value
-    for dim in all_dimensions:
-        if dim not in dimlengths.keys():
-            length = input(f"Enter length for dimension {dim}: ")
-            dimlengths[dim] = int(length)
+    for key, val in product_file_info.dimensions.items():
+        if not isinstance(val["Length"], int):
+            if key in dimension_lengths.keys():
+                val["Length"] = int(dimension_lengths[key])
+            else:
+                length = input(f"Enter length for dimension {key}: ")
+                val["Length"] = int(length)
 
     # make the files
     if return_open:
@@ -742,9 +744,8 @@ def make_product_netcdf(
             instrument_name,
             product,
             date,
-            product_dict,
+            instrument_file_info=product_file_info,
             loc=deployment_loc,
-            dimension_lengths=dimlengths,
             verbose=verbose,
             options=options,
             product_version=product_version,
@@ -763,9 +764,8 @@ def make_product_netcdf(
             instrument_name,
             product,
             date,
-            product_dict,
+            instrument_file_info=product_file_info,
             loc=deployment_loc,
-            dimension_lengths=dimlengths,
             verbose=verbose,
             options=options,
             product_version=product_version,
