@@ -870,7 +870,11 @@ def make_product_netcdf(
         date = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%d")
 
     product_file_info = FileInfo(
-        instrument_name, product, deployment_mode=deployment_loc, tag=tag
+        instrument_name,
+        product,
+        deployment_mode=deployment_loc,
+        tag=tag,
+        use_local_files=use_local_files,
     )
     product_file_info.get_common_info()
     product_file_info.get_deployment_info()
@@ -1004,7 +1008,11 @@ def main(
 
     for product in products:
         instrument_file_info = FileInfo(
-            instrument, product, deployment_mode=loc, tag=tag
+            instrument,
+            product,
+            deployment_mode=loc,
+            tag=tag,
+            use_local_files=use_local_files,
         )
         instrument_file_info.get_product_info()
         instrument_file_info.get_deployment_info()
