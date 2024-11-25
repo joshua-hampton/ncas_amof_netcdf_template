@@ -14,7 +14,6 @@ import warnings
 from typing import Optional, Union
 
 from . import tsv2dict
-from . import values
 from .__init__ import __version__
 from .file_info import FileInfo, convert_instrument_dict_to_file_info
 
@@ -95,19 +94,52 @@ def add_attributes(
                 stacklevel=2,
             )
 
-    if product is not None or location is not None or tag != "latest":
+    if instrument_file_info is None:
+        msg = "No instrument file info given"
+        raise ValueError(msg)
+
+    if product is not None or location is not None or tag != "latest" or loc != "land":
         warnings.warn(
-            "Defining any of 'product', 'location' or 'tag' arguments is being"
+            "Defining any of 'product', 'location', 'loc' or 'tag' arguments is being"
             " deprecated, as this information will be pulled from"
             " instrument_file_info argument. These options will be removed from"
             " version 2.7.0.",
             DeprecationWarning,
             stacklevel=2,
         )
-
-    if instrument_file_info is None:
-        msg = "No instrument file info given"
-        raise ValueError(msg)
+        if product is not None and product != instrument_file_info.data_product:
+            msg = (
+                f"Value of deprecated argument 'product' {product} does not match"
+                " value of product in instrument_file_info"
+                f" {instrument_file_info.data_product}"
+                " (possibly converted from instrument_dict)."
+            )
+            raise ValueError(msg)
+        elif (
+            location is not None
+            and location != instrument_file_info.instrument_data["Mobile/Fixed (loc)"]
+        ):
+            msg = (
+                f"Value of deprecated argument 'location' {location} does not match"
+                " value of location in instrument_file_info"
+                f" {instrument_file_info.instrument_data['Mobile/Fixed (loc)']}."
+                " (possibly converted from instrument_dict)."
+            )
+            raise ValueError(msg)
+        elif tag != "latest" and tag != instrument_file_info.tag:
+            msg = (
+                f"Value of deprecated argument 'tag' {tag} does not macth value of"
+                f" tag in instrument_file_info {instrument_file_info.tag}."
+                " (possibly converted from instrument_dict)."
+            )
+            raise ValueError(msg)
+        elif loc != "land" and loc != instrument_file_info.deployment_mode:
+            msg = (
+                f"Value of deprecated argument 'loc' {loc} does not match value of"
+                f" loc in instrument_file_info {instrument_file_info.deployment_mode}"
+                " (possibly converted from instrument_dict)."
+            )
+            raise ValueError(msg)
 
     if created_time is None:
         created_time = dt.datetime.now(tz=dt.timezone.utc).strftime("%Y%m%dT%H%M%S")
@@ -233,6 +265,34 @@ def add_dimensions(
                 stacklevel=2,
             )
 
+    if product is not None or dimension_lengths is not None:
+        warnings.warn(
+            "Options 'product' and 'dimension_lengths' are being deprecated, data will"
+            " be retrieved from 'instrument_file_info' instead. These options will be"
+            " removed in version 2.7.0.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        if instrument_file_info is not None:
+            if product is not None and product != instrument_file_info.data_product:
+                msg = (
+                    f"Value of deprecated argument 'product' {product} does not match"
+                    " value of product in instrument_file_info"
+                    f" {instrument_file_info.data_product}."
+                )
+                raise ValueError(msg)
+            elif dimension_lengths is not None:
+                for key, length in dimension_lengths.items():
+                    if length != (
+                        ifo_dim_len := instrument_file_info.dimensions[key]["Length"]
+                    ):
+                        msg = (
+                            f"Value of dimension {key} ({length}) given in deprecated"
+                            " argument 'dimension_lengths' does not match the value in"
+                            f" instrument_file_info ({ifo_dim_len})."
+                        )
+                        raise ValueError(msg)
+
     if instrument_file_info is not None:
         for dim_name in instrument_file_info.dimensions.keys():
             ncfile.createDimension(
@@ -311,6 +371,22 @@ def add_variables(
     if instrument_file_info is None:
         msg = "No instrument file info given"
         raise ValueError(msg)
+
+    if product is not None:
+        warnings.warn(
+            "Option 'product' is being deprecated, data will be retrieved from"
+            " instrument_file_info option. Option will be removed from version 2.7.0.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        if product != instrument_file_info.data_product:
+            msg = (
+                f"Value of deprecated argument 'product' {product} does not match"
+                " value of product in instrument_file_info"
+                f" {instrument_file_info.data_product}"
+                " (possibly converted from instrument_dict)."
+            )
+            raise ValueError(msg)
 
     for key, value in instrument_file_info.variables.items():
         # make sure variable doesn't already exist, warn if it does
@@ -418,9 +494,9 @@ def add_variables(
 
 
 def make_netcdf(
-    instrument: str,
-    product: str,
-    time: str,
+    instrument: Optional[str] = None,
+    product: Optional[str] = None,
+    time: str = dt.datetime.now(tz=dt.timezone.utc).strftime("%Y%m%d"),
     instrument_dict: Optional[
         dict[
             str,
@@ -435,32 +511,38 @@ def make_netcdf(
     file_location: str = ".",
     use_local_files: Optional[str] = None,
     tag: str = "latest",
-    return_open: bool = True,
     chunk_by_dimension: Optional[dict[str, int]] = None,
     compression: Union[str, dict[str, str], None] = None,
     complevel: Union[int, dict[str, int]] = 4,
     shuffle: Union[bool, dict[str, bool]] = True,
     instrument_file_info: Optional[FileInfo] = None,
-) -> Union[None, Dataset]:
+) -> Dataset:
     """
     Makes netCDF file for given instrument and arguments.
 
     Args:
-        instrument (str): ncas instrument name.
-        product (str): name of data product.
+        instrument (str or None): -DEPRECATED- ncas instrument name. Value will be
+                                  retrived from instrument_file_info. Option will be
+                                  removed in version 2.7.0. Default None.
+        product (str or None): -DEPRECATED- name of data product. Value will be
+                               retrieved from instrument_file_info. Option will be
+                               removed in version 2.7.0. Default None.
         time (str): time that the data represents, in YYYYmmdd-HHMMSS format or
-                    as much of as required.
+                    as much of as required. Default is now in YYYYmmdd format.
         instrument_dict (dict or None): -DEPRECATED- information about the instrument
                                         from tsv2dict.instrument_dict. Use
                                         instrument_file_info argument instead. Will be
-                                        remved in version 2.7.0.
+                                        removed in version 2.7.0.
         instrument_file_info (FileInfo or None): information about the instrument,
                                                  from file_info.FileInfo.
-        loc (str): location of instrument, one of 'land', 'sea', 'air' or 'trajectory'.
-                   Default 'land'.
-        dimension_lengths (dict): lengths of dimensions in file. If not given,
-                                  python will prompt the user to enter lengths
-                                  for each dimension. Default {}.
+        loc (str): -DEPRECATED- location of instrument, one of 'land', 'sea', 'air' or
+                   'trajectory'. Value will be retrieved from instrument_file_info.
+                   Option will be removed in version 2.7.0. Default 'land'.
+        dimension_lengths (dict): -DEPRECATED- lengths of dimensions in file. If not
+                                  given, python will prompt the user to enter lengths
+                                  for each dimension. Values will be retrieved from
+                                  instrument_file_info. Option will be removed in
+                                  version 2.7.0. Default {}.
         verbose (int): level of additional info to print. At the moment, there is
                        only 1 additional level. Default 0.
         options (str): options to be included in file name. All options should be in
@@ -470,11 +552,10 @@ def make_netcdf(
         file_location (str): where to write the netCDF file. Default '.'.
         use_local_files (str or None): path to local directory where tsv files are
                                     stored. If "None", read from online. Default None.
-        tag (str): tagged release version of AMF_CVs, or 'latest' to get most recent
-                release. Ignored if use_local_files is not None. Default "latest".
-        return_open (bool): If True, return the netCDF file as an open object. If
-                             False, closes netCDF file. Default True (option will
-                             be removed in 2.5.0).
+        tag (str): -DEPRECATED- tagged release version of AMF_CVs, or 'latest' to get
+                   most recent release. Ignored if use_local_files is not None. Value
+                   will be retrieved from instrument_file_info. Option will be removed
+                   in verison 2.7.0. Default "latest".
         chunk_by_dimension (dict): chunk sizes to use in each dimension.
                                    Default None (no chunking).
         compression (str or dict): compression algorithm to be used to store data. If
@@ -494,15 +575,6 @@ def make_netcdf(
     Returns:
         netCDF file object or nothing.
     """
-    if not return_open:
-        warnings.warn(
-            "Closing netCDF file immediately after creation is being deprecated."
-            " This option will be removed from version 2.5.0, use return_open=True"
-            " (default from 2.4.0) to return open netCDF object.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-
     if instrument_dict is not None:
         if instrument_file_info is None:
             warnings.warn(
@@ -512,6 +584,13 @@ def make_netcdf(
                 DeprecationWarning,
                 stacklevel=2,
             )
+            if product is None:
+                msg = (
+                    "If instrument_dict is still being used, 'product' must be given."
+                    " Preferred option is to switch to using instrument_file_info"
+                    " instead."
+                )
+                raise ValueError(msg)
             instrument_file_info = convert_instrument_dict_to_file_info(
                 instrument_dict,
                 instrument_dict["info"]["instrument_name"],
@@ -531,6 +610,65 @@ def make_netcdf(
     if instrument_file_info is None:
         msg = "No instrument file info given"
         raise ValueError(msg)
+
+    if (
+        instrument is not None
+        or product is not None
+        or loc != "land"
+        or dimension_lengths != {}
+        or tag != "latest"
+    ):
+        warnings.warn(
+            "Options 'instrument', 'product', 'loc', 'dimension_lengths', and 'tag'"
+            " are being deprecated, data will be retrieved from instrument_file_info"
+            " option. Option will be removed from version 2.7.0.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        if (
+            instrument is not None
+            and instrument != instrument_file_info.instrument_name
+        ):
+            msg = (
+                f"Value of deprecated argument 'instrument' {instrument} does not"
+                " match value of instrument name in instrument_file_info"
+                f" {instrument_file_info.instrument_name}"
+                " (possibly converted from instrument_dict)."
+            )
+            raise ValueError(msg)
+        elif product is not None and product != instrument_file_info.data_product:
+            msg = (
+                f"Value of deprecated argument 'product' {product} does not match"
+                " value of product in instrument_file_info"
+                f" {instrument_file_info.data_product}"
+                " (possibly converted from instrument_dict)."
+            )
+            raise ValueError(msg)
+        elif tag != "latest" and tag != instrument_file_info.tag:
+            msg = (
+                f"Value of deprecated argument 'tag' {tag} does not macth value of"
+                f" tag in instrument_file_info {instrument_file_info.tag}."
+                " (possibly converted from instrument_dict)."
+            )
+            raise ValueError(msg)
+        elif loc != "land" and loc != instrument_file_info.deployment_mode:
+            msg = (
+                f"Value of deprecated argument 'loc' {loc} does not match value of"
+                f" loc in instrument_file_info {instrument_file_info.deployment_mode}"
+                " (possibly converted from instrument_dict)."
+            )
+            raise ValueError(msg)
+        elif dimension_lengths is not None:
+            for key, length in dimension_lengths.items():
+                if length != (
+                    ifo_dim_len := instrument_file_info.dimensions[key]["Length"]
+                ):
+                    msg = (
+                        f"Value of dimension {key} ({length}) given in deprecated"
+                        " argument 'dimension_lengths' does not match the value in"
+                        f" instrument_file_info ({ifo_dim_len})."
+                    )
+                    raise ValueError(msg)
 
     chunk_by_dimension = chunk_by_dimension or {}
 
@@ -593,7 +731,7 @@ def make_netcdf(
 
     filename = (
         f"{instrument_file_info.instrument_name}_{f'{platform}_' if platform != '' else ''}"
-        f"{time}_{product}{options}_v{product_version}.nc"
+        f"{time}_{instrument_file_info.data_product}{options}_v{product_version}.nc"
     )
 
     ncfile = Dataset(f"{file_location}/{filename}", "w", format="NETCDF4_CLASSIC")
@@ -608,10 +746,7 @@ def make_netcdf(
     add_dimensions(ncfile, instrument_file_info=instrument_file_info)
     add_variables(ncfile, instrument_file_info=instrument_file_info, verbose=verbose)
 
-    if return_open:
-        return ncfile
-    else:
-        ncfile.close()
+    return ncfile
 
 
 def list_products(
@@ -660,12 +795,11 @@ def make_product_netcdf(
     file_location: str = ".",
     use_local_files: Optional[str] = None,
     tag: str = "latest",
-    return_open: bool = True,
     chunk_by_dimension: Optional[dict[str, int]] = None,
     compression: Union[str, dict[str, str], None] = None,
     complevel: Union[int, dict[str, int]] = 4,
     shuffle: Union[bool, dict[str, bool]] = True,
-) -> Union[Dataset, None]:
+) -> Dataset:
     """
     Create an AMOF-like netCDF file for a given data product. This means files can be
     made to the NCAS-GENERAL standard for instruments that aren't part of the AMOF
@@ -694,9 +828,6 @@ def make_product_netcdf(
                                     stored. If "None", read from online. Default None.
         tag (str): tagged release of definitions, or 'latest' to get most recent
                 release. Ignored if use_local_files is not None. Default "latest".
-        return_open (bool): If True, return the netCDF file as an open object. If
-                             False, closes netCDF file. Default True (option will be
-                             removed in 2.5.0).
         chunk_by_dimension (dict): chunk sizes to use in each dimension
                                    Default None (no chunking).
         compression (str or dict): compression algorithm to be used to store data. If
@@ -716,15 +847,6 @@ def make_product_netcdf(
     Returns:
         netCDF file object or nothing.
     """
-    if not return_open:
-        warnings.warn(
-            "Closing netCDF file immediately after creation is being deprecated."
-            " This option will be removed from version 2.5.0, use return_open=True"
-            " (default from 2.4.0) to return open netCDF object.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-
     chunk_by_dimension = chunk_by_dimension or {}
 
     if platform != "" and instrument_loc != "":
@@ -766,45 +888,19 @@ def make_product_netcdf(
                 val["Length"] = int(length)
 
     # make the files
-    if return_open:
-        nc = make_netcdf(
-            instrument_name,
-            product,
-            date,
-            instrument_file_info=product_file_info,
-            loc=deployment_loc,
-            verbose=verbose,
-            options=options,
-            product_version=product_version,
-            file_location=file_location,
-            use_local_files=use_local_files,
-            tag=tag,
-            return_open=return_open,
-            chunk_by_dimension=chunk_by_dimension,
-            compression=compression,
-            complevel=complevel,
-            shuffle=shuffle,
-        )
-        return nc
-    else:
-        make_netcdf(
-            instrument_name,
-            product,
-            date,
-            instrument_file_info=product_file_info,
-            loc=deployment_loc,
-            verbose=verbose,
-            options=options,
-            product_version=product_version,
-            file_location=file_location,
-            use_local_files=use_local_files,
-            tag=tag,
-            return_open=return_open,
-            chunk_by_dimension=chunk_by_dimension,
-            compression=compression,
-            complevel=complevel,
-            shuffle=shuffle,
-        )
+    nc = make_netcdf(
+        time=date,
+        instrument_file_info=product_file_info,
+        verbose=verbose,
+        options=options,
+        product_version=product_version,
+        file_location=file_location,
+        chunk_by_dimension=chunk_by_dimension,
+        compression=compression,
+        complevel=complevel,
+        shuffle=shuffle,
+    )
+    return nc
 
 
 def main(
@@ -820,12 +916,11 @@ def main(
     file_location: str = ".",
     use_local_files: Optional[str] = None,
     tag: str = "latest",
-    return_open: bool = True,
     chunk_by_dimension: Optional[dict[str, int]] = None,
     compression: Union[str, dict[str, str], None] = None,
     complevel: Union[int, dict[str, int]] = 4,
     shuffle: Union[bool, dict[str, bool]] = True,
-) -> Union[Dataset, list[Dataset], None]:
+) -> Union[Dataset, list[Dataset]]:
     """
     Create 'just-add-data' AMOF-compliant netCDF file
 
@@ -856,9 +951,6 @@ def main(
                                     stored. If "None", read from online. Default None.
         tag (str): tagged release of definitions, or 'latest' to get most recent
                 release. Ignored if use_local_files is not None. Default "latest".
-        return_open (bool): If True, return the netCDF file as an open object. If
-                             False, closes netCDF file. Default True (option will be
-                             removed in 2.5.0).
         chunk_by_dimension (dict): chunk sizes to use in each dimension
                                    Default None (no chunking).
         compression (str or dict): compression algorithm to be used to store data. If
@@ -878,15 +970,6 @@ def main(
     Returns:
         netCDF file object or nothing
     """
-    if not return_open:
-        warnings.warn(
-            "Closing netCDF file immediately after creation is being deprecated."
-            " This option will be removed from version 2.5.0, use return_open=True"
-            " (default from 2.4.0) to return open netCDF object.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-
     if date is None:
         date = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%d")
 
@@ -914,6 +997,10 @@ def main(
         )
 
     ncfiles = []
+
+    if len(products) == 0:
+        msg = "No products specified"
+        raise ValueError(msg)
 
     for product in products:
         instrument_file_info = FileInfo(
@@ -948,47 +1035,23 @@ def main(
                     val["Length"] = int(length)
 
         # make the files
-        if return_open:
-            ncfiles.append(
-                make_netcdf(
-                    instrument,
-                    product,
-                    date,
-                    instrument_file_info=instrument_file_info,
-                    verbose=verbose,
-                    options=options,
-                    product_version=product_version,
-                    file_location=file_location,
-                    use_local_files=use_local_files,
-                    tag=tag,
-                    return_open=return_open,
-                    chunk_by_dimension=chunk_by_dimension,
-                    compression=compression,
-                    complevel=complevel,
-                    shuffle=shuffle,
-                )
-            )
-        else:
+        ncfiles.append(
             make_netcdf(
-                instrument,
-                product,
-                date,
+                time=date,
                 instrument_file_info=instrument_file_info,
                 verbose=verbose,
                 options=options,
                 product_version=product_version,
                 file_location=file_location,
-                use_local_files=use_local_files,
-                tag=tag,
-                return_open=return_open,
                 chunk_by_dimension=chunk_by_dimension,
                 compression=compression,
                 complevel=complevel,
                 shuffle=shuffle,
             )
+        )
     if len(ncfiles) == 1:
         return ncfiles[0]
-    elif len(ncfiles) >= 2:
+    else:
         return ncfiles
 
 
