@@ -10,9 +10,9 @@ In its very simplest form:
 .. code-block:: python
 
   import ncas_amof_netcdf_template as nant
-  ncs = nant.create_netcdf.main('ncas-ceilometer-3')
+  nc = nant.create_netcdf.main('ncas-ceilometer-3', products = 'aerosol-backscatter')
 
-This will create a netCDF file with today's date for all data products availalbe for the given instrument. If files for multiple products are made, the returned object will be a list containing all objects; if only a single file then just that netCDF file object is returned.
+This will create a netCDF file with today's date for the ``ncas-ceilomter-3`` instrument using the ``aerosol-backscatter`` data product.
 
 A netCDF file can also be created for a specific data product, rather than by a specific instrument.
 
@@ -29,7 +29,7 @@ Dimension sizes need to be defined when creating a netCDF file. Dimension length
 
 .. code-block:: python
 
-  ncs = nant.create_netcdf.main('ncas-ceilometer-3', dimension_lengths = {'time':96, 'altitude':45, 'layer_index':4})
+  ncs = nant.create_netcdf.main('ncas-ceilometer-3', products = 'aerosol-backscatter', dimension_lengths = {'time':96, 'altitude':45})
 
 
 If dimensions aren't given, Python asks for the dimension lengths to be given:
@@ -39,7 +39,6 @@ If dimensions aren't given, Python asks for the dimension lengths to be given:
   ncs = nant.create_netcdf.main('ncas-ceilometer-3')
   Enter length for dimension time: 96
   Enter length for dimension altitude: 45
-  Enter length for dimension layer_index: 4
 
 
 Platform
@@ -48,7 +47,7 @@ The deployment platform, where the instrument was located while measuring data, 
 
 .. code-block:: python
 
-   nc = nant.create_netcdf.main("ncas-ceilometer-3", platform = "cao")
+   nc = nant.create_netcdf.main("ncas-ceilometer-3", products = 'aerosol-backscatter', platform = "cao")
 
 
 Date
@@ -57,7 +56,7 @@ The `file-naming convention <https://sites.google.com/ncas.ac.uk/ncasobservation
 
 .. code-block:: python
 
-  ncs = nant.create_netcdf.main('ncas-ceilometer-3', date='20220214')
+  ncs = nant.create_netcdf.main('ncas-ceilometer-3', products = 'aerosol-backscatter', date='20220214')
 
 
 Data Products
@@ -76,12 +75,6 @@ A data product can be defined in the call to create the netCDF file:
 
   nc = nant.create_netcdf.main('ncas-ceilometer-3', products = 'aerosol-backscatter')
 
-Or multiple products can be defined by using a list:
-
-.. code-block:: python
-
-  ncs = nant.create_netcdf.main('ncas-ceilometer-3', products = ['cloud-base','cloud-coverage'])
-
 
 Deployment Modes
 ^^^^^^^^^^^^^^^^
@@ -89,7 +82,7 @@ NCAS instruments can be deployed in one of four deployment modes - land, sea, ai
 
 .. code-block:: python
 
-  ncs = nant.create_netcdf.main('ncas-ceilometer-3', loc = 'sea')
+  ncs = nant.create_netcdf.main('ncas-ceilometer-3', products = 'aerosol-backscatter', loc = 'sea')
 
 
 Output Location
@@ -98,7 +91,7 @@ The netCDF file will be written to the current working directory by default. To 
 
 .. code-block:: python
 
-  ncs = nant.create_netcdf.main('ncas-ceilometer-3', file_location = '/path/to/save/location')
+  ncs = nant.create_netcdf.main('ncas-ceilometer-3', products = 'aerosol-backscatter', file_location = '/path/to/save/location')
 
 
 Offline Use
@@ -123,7 +116,7 @@ After the netCDF file is created, the file then needs to be opened in append mod
   # ...
   # backscatter_data = ...
 
-  nc = nant.create_netcdf.main('ncas-ceilometer-3', date='20221117', product = 'aerosol-backscatter')
+  nc = nant.create_netcdf.main('ncas-ceilometer-3', date='20221117', products = 'aerosol-backscatter')
 
   nant.util.update_variable(nc, 'attenuated_aerosol_backscatter_coefficient', backscatter_data)
 
