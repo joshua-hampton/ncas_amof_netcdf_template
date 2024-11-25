@@ -13,6 +13,20 @@ from .util import check_int
 class FileInfo:
     """
     Class that will gather and hold all the data to create netCDF file with
+
+    Args:
+        instrument_name (str): name of the instrument
+        data_product (str): name of data product to use
+        deployment_mode (str): value of the 'deployment_mode' global attribute, and
+                               different variables may be required depending on
+                               value. One of "land", "sea", "air", or "trajectory".
+                               Default is "land".
+        tag (str): tagged release version of AMF_CVs, or "latest" to get most
+                   recent version. Default is "latest".
+        use_local_files (str or None): path to local directory where tsv files are
+                                       stored. If "None", read from online. If not
+                                       "None", "tag" must be specified. Default
+                                       None.
     """
 
     def __init__(
