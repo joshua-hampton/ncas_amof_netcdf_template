@@ -503,7 +503,7 @@ def test_list_products(instrument, products):
 
 def test_make_product_netcdf():
     # Test with return_open=False and using instrument_loc
-    nant.create_netcdf.make_product_netcdf(
+    nc = nant.create_netcdf.make_product_netcdf(
         "product1",
         "instrument1",
         date="20221117",
@@ -516,29 +516,11 @@ def test_make_product_netcdf():
         file_location=".",
         use_local_files=None,
         tag="latest",
-        return_open=False,
     )
     assert os.path.exists("instrument1_location1_20221117_product1_v1.0.nc")
+    nc.close()
 
-    # Test with return_open=False and using platform
-    nant.create_netcdf.make_product_netcdf(
-        "product1",
-        "instrument1",
-        date="20221117",
-        dimension_lengths={"time": 5},
-        platform="location1",
-        deployment_loc="land",
-        verbose=0,
-        options="",
-        product_version="1.0",
-        file_location=".",
-        use_local_files=None,
-        tag="latest",
-        return_open=False,
-    )
-    assert os.path.exists("instrument1_location1_20221117_product1_v1.0.nc")
-
-    # Test with return_open=True
+    # Test with platform instead of instrument_loc
     nc = nant.create_netcdf.make_product_netcdf(
         "product1",
         "instrument1",
@@ -552,8 +534,8 @@ def test_make_product_netcdf():
         file_location=".",
         use_local_files=None,
         tag="latest",
-        return_open=True,
     )
+    assert os.path.exists("instrument1_location1_20221117_product1_v1.0.nc")
     assert isinstance(nc, Dataset)
     assert nc.dimensions["time"].size == 5
 
