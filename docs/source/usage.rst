@@ -272,4 +272,4 @@ An example of a full work flow using ``ncas_amof_netcdf_template`` to create the
 
 .. _AMF_CVs: https://github.com/ncasuk/AMF_CVs
 .. _tsv product-definitions: https://github.com/ncasuk/AMF_CVs/tree/main/product-definitions/tsv
-.. _ncas-data-instrument_vocabs: https://github.com/ncasuk/ncas-data-instrument-vocabs
+.. _ncas-data-instrument-vocabs: https://github.com/ncasuk/ncas-data-instrument-vocabs
