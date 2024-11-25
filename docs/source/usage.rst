@@ -98,6 +98,8 @@ Offline Use
 ^^^^^^^^^^^
 The information needed to create these netCDF files are stored in the `AMF_CVs`_ GitHub repository, and this package reads data from this repository when it is used. If the package will need to be used offline, the `tsv product-definitions`_ folder should be downloaded onto the computer, and the option ``use_local_files`` can be passed to functions such as ``create_netcdf.main`` with the path to the product definitions as the argument.
 
+Instrument data used for those instruments listed in the NCAS Instrument Vocabs are stored in the `ncas-data-instrument_vocabs`_ GitHub repository. If making netCDFs for any of these instruments in offline mode, these tsv files will also need to be downloaded and placed in the same folder locally as those from the `AMF_CVs`_ repository, that is if ``/path/to/folder/v2.1.0/product-definitions/tsv/snr-winds`` (for example) exists, so must ``/path/to/folder/v2.1.0/product-definitions/tsv/_instrument_vocabs/ncas-instrument-name-and-descriptors.tsv`` (or the community instrument equivalent file if needed).
+
 
 Other Options
 ^^^^^^^^^^^^^
