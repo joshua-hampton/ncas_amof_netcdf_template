@@ -6,4 +6,4 @@ from . import util
 from . import values
 from . import file_info
 
-__version__="2.5.0-alpha"
+__version__="2.5.0"
