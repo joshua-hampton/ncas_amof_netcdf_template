@@ -5,6 +5,19 @@ Revision History
 ----------------
 Important changes of note with each release:
 
+2.5.0
+^^^^^
+- Replaced using ``instrument_dict`` dictionary from ``tsv2dict.instrument_dict`` in various create netcdf functions with using ``FileInfo`` class from ``file_info``. This class better contains the information needed and removes the complexity of the dictionary where different levels of nesting could contain different types of data, which meant IDE plugins relying on type hints to provide information often gave unhelpful messages.
+  - Class enables more information to be contained within one entity, and to be clearly labelled.
+  - Use of the ``instrument_dict`` is therefore being deprecated, along with any additional paramters needed to certain functions which are now all contained within the ``FileInfo`` class. Use of ``instrument_dict`` and all additional paramters will be removed in version 2.7.0.
+- Type hints have been added.
+- ``remove_empty_variables.get_product_variables_metadata`` now accepts a ``tag`` argument.
+- Dimensionless variables can now be added to the netCDF file (although a warning message will print).
+- Options for chunking, compression and shuffling of variable data have been added.
+- Information for instrument data is now retrieved from new GitHub repository for instrument data.
+- Added ``util.change_qc_flags`` function to enable user-defined quality control flag values and meanings.
+- ``return_open`` option in functions in ``create_netcdf`` has been removed.
+
 2.4.0
 ^^^^^
 - Added option to overwrite platform used in file name and global attribute - ``platform`` attribute to ``create_netcdf.main`` and ``create_netcdf.make_product_netcdf``.
