@@ -70,7 +70,7 @@ jobs:
               echo "Already correct dev status"
             elif $(grep -Fq "Development Status :: 3 - Alpha" pyproject.toml)
             then
-              sed -i 's/3 - Alpha|5 - Production/Stable|' pyproject.toml
+              sed -i 's|3 - Alpha|5 - Production/Stable|' pyproject.toml
             elif $(grep -Fq "Development Status :: 4 - Beta" pyproject.toml)
             then
               sed -i 's|4 - Beta|5 - Production/Stable|' pyproject.toml
