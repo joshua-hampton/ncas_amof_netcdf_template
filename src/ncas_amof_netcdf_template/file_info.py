@@ -338,25 +338,33 @@ class FileInfo:
         """
         Get the URL for the tsv file of NCAS instruments
         """
-        vocab_version = self._get_github_latest_version(
-            "https://github.com/ncasuk/ncas-data-instrument-vocabs"
-        )
-        file_loc = (
-            "https://raw.githubusercontent.com/ncasuk/ncas-data-instrument-vocabs"
-        )
-        return f"{file_loc}/{vocab_version}/product-definitions/tsv/_instrument_vocabs/ncas-instrument-name-and-descriptors.tsv"
+        if self.use_local_files is not None:
+            main_loc = f"{self.use_local_files}/{self.tag}"
+        else:
+            vocab_version = self._get_github_latest_version(
+                "https://github.com/ncasuk/ncas-data-instrument-vocabs"
+            )
+            file_loc = (
+                "https://raw.githubusercontent.com/ncasuk/ncas-data-instrument-vocabs"
+            )
+            main_loc = f"{file_loc}/{vocab_version}"
+        return f"{main_loc}/product-definitions/tsv/_instrument_vocabs/ncas-instrument-name-and-descriptors.tsv"
 
     def _get_community_instrument_tsv_url(self) -> str:
         """
         Get the URL for the tsv file of NCAS instruments
         """
-        vocab_version = self._get_github_latest_version(
-            "https://github.com/ncasuk/ncas-data-instrument-vocabs"
-        )
-        file_loc = (
-            "https://raw.githubusercontent.com/ncasuk/ncas-data-instrument-vocabs"
-        )
-        return f"{file_loc}/{vocab_version}/product-definitions/tsv/_instrument_vocabs/community-instrument-name-and-descriptors.tsv"
+        if self.use_local_files is not None:
+            main_loc = f"{self.use_local_files}/{self.tag}"
+        else:
+            vocab_version = self._get_github_latest_version(
+                "https://github.com/ncasuk/ncas-data-instrument-vocabs"
+            )
+            file_loc = (
+                "https://raw.githubusercontent.com/ncasuk/ncas-data-instrument-vocabs"
+            )
+            main_loc = f"{file_loc}/{vocab_version}"
+        return f"{main_loc}/product-definitions/tsv/_instrument_vocabs/community-instrument-name-and-descriptors.tsv"
 
 
 def convert_instrument_dict_to_file_info(
