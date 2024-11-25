@@ -21,6 +21,7 @@ class FileInfo:
         data_product: str,
         deployment_mode: str = "land",
         tag: str = "latest",
+        use_local_files: Optional[str] = None,
     ) -> None:
         """
         Initialise the class.
@@ -33,24 +34,36 @@ class FileInfo:
                                    value. One of "land", "sea", "air", or "trajectory".
             tag (str): tagged release version of AMF_CVs, or "latest" to get most
                        recent version. Default is "latest".
+            use_local_files (str or None): path to local directory where tsv files are
+                                           stored. If "None", read from online. If not
+                                           "None", "tag" must be specified. Default
+                                           None.
         """
         if deployment_mode not in ["land", "sea", "air", "trajectory"]:
             msg = f"Invalid deployment mode {deployment_mode}, must be one of 'land', 'sea', 'air', 'trajectory'."
             raise ValueError(msg)
 
+        if use_local_files is not None and tag == "latest":
+            msg = "Incompatible options - if 'use_local_files' is given, 'tag' version must be specified."
+            raise ValueError(msg)
+
         self.instrument_name = instrument_name
         self.data_product = data_product
         self.deployment_mode = deployment_mode
+        self.use_local_files = use_local_files
         self.tag = tag
-        if self.tag == "latest":
-            self.ncas_gen_version = self._get_github_latest_version(
-                "https://github.com/ncasuk/AMF_CVs"
-            )
-        elif self._check_github_cvs_version_exists(release_tag=tag):
+        if self.use_local_files is not None:
             self.ncas_gen_version = tag
         else:
-            msg = f"Cannot find release version {tag} in https://github.com/ncasuk/AMF_CVs"
-            raise ValueError(msg)
+            if self.tag == "latest":
+                self.ncas_gen_version = self._get_github_latest_version(
+                    "https://github.com/ncasuk/AMF_CVs"
+                )
+            elif self._check_github_cvs_version_exists(release_tag=tag):
+                self.ncas_gen_version = tag
+            else:
+                msg = f"Cannot find release version {tag} in https://github.com/ncasuk/AMF_CVs"
+                raise ValueError(msg)
         self.attributes = {}
         self.dimensions = {}
         self.variables = {}
@@ -58,7 +71,7 @@ class FileInfo:
 
     def __repr__(self) -> str:
         class_name = type(self).__name__
-        return f"{class_name}(instrument_name='{self.instrument_name}', data_product='{self.data_product}', deployment_mode='{self.deployment_mode}', tag='{self.tag}') - ncas_gen_version = '{self.ncas_gen_version}"
+        return f"{class_name}(instrument_name='{self.instrument_name}', data_product='{self.data_product}', deployment_mode='{self.deployment_mode}', tag='{self.tag}', use_local_files='{self.use_local_files}') - ncas_gen_version = '{self.ncas_gen_version}"
 
     def __str__(self) -> str:
         return f"Class with information for '{self.instrument_name}' instrument and '{self.data_product}' data product"
@@ -265,7 +278,11 @@ class FileInfo:
         Returns:
             str: URL location of dimension tsv file
         """
-        file_loc = f"https://raw.githubusercontent.com/ncasuk/AMF_CVs/{self.ncas_gen_version}/product-definitions/tsv"
+        if self.use_local_files is not None:
+            main_loc = self.use_local_files
+        else:
+            main_loc = "https://raw.githubusercontent.com/ncasuk/AMF_CVs"
+        file_loc = f"{main_loc}/{self.ncas_gen_version}/product-definitions/tsv"
         path, option = (
             (obj, "specific")
             if obj not in ["land", "sea", "air", "trajectory"]
@@ -283,7 +300,11 @@ class FileInfo:
         Returns:
             str: URL location of variable tsv file
         """
-        file_loc = f"https://raw.githubusercontent.com/ncasuk/AMF_CVs/{self.ncas_gen_version}/product-definitions/tsv"
+        if self.use_local_files is not None:
+            main_loc = self.use_local_files
+        else:
+            main_loc = "https://raw.githubusercontent.com/ncasuk/AMF_CVs"
+        file_loc = f"{main_loc}/{self.ncas_gen_version}/product-definitions/tsv"
         path, option = (
             (obj, "specific")
             if obj not in ["land", "sea", "air", "trajectory"]
@@ -301,7 +322,11 @@ class FileInfo:
         Returns:
             str: URL location of attribute tsv file
         """
-        file_loc = f"https://raw.githubusercontent.com/ncasuk/AMF_CVs/{self.ncas_gen_version}/product-definitions/tsv"
+        if self.use_local_files is not None:
+            main_loc = self.use_local_files
+        else:
+            main_loc = "https://raw.githubusercontent.com/ncasuk/AMF_CVs"
+        file_loc = f"{main_loc}/{self.ncas_gen_version}/product-definitions/tsv"
         path, option = (
             (obj, "-specific")
             if obj not in ["land", "sea", "air", "trajectory"]
