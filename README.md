@@ -18,7 +18,7 @@ A full description on how to install and use this module can be found [through t
 
 Requirements
 ------------
-* Python 3.8 or above
+* Python 3.9 or above
 * Python modules:
   * [netCDF4](http://unidata.github.io/netcdf4-python/)
   * [NumPy](https://numpy.org/)
@@ -48,14 +48,14 @@ A fuller description of how to use this module can be found in the [documentatio
 
 ```python
 import ncas_amof_netcdf_template as nant
-nant.create_netcdf.main(instrument, date = None, dimension_lengths = {}, loc = 'land', products = None)
+nant.create_netcdf.main(instrument, products = product date = None, dimension_lengths = {}, loc = 'land')
 ```
 where:
 - `instrument` - name of NCAS instrument, e.g. "ncas-ceilometer-3"
+- `products` - data product to use to make netCDF file with.
 - `date` - date for data, YYYYmmdd format, default to today's date. Optional.
 - `dimension_lengths` - dictionary of lengths of dimensions, e.g. {'time':96, 'altitude':45}. If length for required dimensions are not given, then python will ask for user input, default empty. Optional.
 - `loc` - one of 'land', 'air', 'sea', or 'trajectory', default is 'land'. Optional.
-- `products` - applicable products of desired NCAS instrument to make netCDF for. Setting products as `None` (default) makes netCDF file for all available products. Optional.
 - `verbose` - additional level of information and warnings to print. Only 1 additional layer of warnings are currently available.
 
 All products associated with an instrument can be printed by
