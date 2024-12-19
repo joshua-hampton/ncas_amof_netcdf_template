@@ -721,6 +721,7 @@ def make_netcdf(
         platform = (
             instrument_file_info.instrument_data["Mobile/Fixed (loc)"].strip().lower()
         )
+    instrument_file_info.instrument_data["Mobile/Fixed (loc)"] = platform
 
     if options != "":
         no_options = len(options.split("_"))
