@@ -18,6 +18,7 @@ def test_main_process():
     assert nc["air_temperature"].size == 5
     nant.util.update_variable(nc, "air_temperature", [12.3, 14.54, 23.5, 12.4, 65.3])
     assert nc["air_temperature"].valid_min == np.float32(12.3)
+    assert nc.getncattr("platform") == "iao"
     nc.close()
     os.remove("ncas-aws-10_iao_20221117_surface-met_v1.0.nc")
 
@@ -32,6 +33,7 @@ def test_main_process():
     assert nc["air_temperature"].size == 5
     nant.util.update_variable(nc, "air_temperature", [12.3, 14.54, 23.5, 12.4, 65.3])
     assert nc["air_temperature"].valid_min == np.float32(12.3)
+    assert nc.getncattr("platform") == "somewhere-else"
     nc.close()
     os.remove("ncas-aws-10_somewhere-else_20221117_surface-met_v1.0.nc")
 
