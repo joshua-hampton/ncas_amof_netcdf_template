@@ -5,6 +5,10 @@ Revision History
 ----------------
 Important changes of note with each release:
 
+2.5.1
+^^^^^
+- Fix bug in ``create_netcdf.make_netcdf`` where the ``platform`` attribute was not being added back to the FileInfo class object after being formatted, resulting in the wrong value being used by ``create_netcdf.add_attributes`` for the ``platform`` global attribute.
+
 2.5.0
 ^^^^^
 - Replaced using ``instrument_dict`` dictionary from ``tsv2dict.instrument_dict`` in various create netcdf functions with using ``FileInfo`` class from ``file_info``. This class better contains the information needed and removes the complexity of the dictionary where different levels of nesting could contain different types of data, which meant IDE plugins relying on type hints to provide information often gave unhelpful messages.
