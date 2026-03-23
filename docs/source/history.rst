@@ -5,6 +5,11 @@ Revision History
 ----------------
 Important changes of note with each release:
 
+2.5.2
+^^^^^
+- Replace ``numpy.in1d`` with ``numpy.isin`` as numpy deprecated the former.
+- Add Python 3.14 support
+
 2.5.1
 ^^^^^
 - Fix bug in ``create_netcdf.make_netcdf`` where the ``platform`` attribute was not being added back to the FileInfo class object after being formatted, resulting in the wrong value being used by ``create_netcdf.add_attributes`` for the ``platform`` global attribute.
