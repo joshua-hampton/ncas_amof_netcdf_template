@@ -300,6 +300,16 @@ def add_metadata_to_netcdf(
                 ncfile.setncattr(attr, value)
 
 
+def add_metadata_from_dict(
+    ncfile: Dataset, metadata_dict: dict[str, str | int | float]
+) -> None:
+    for key, value in metadata_dict.items():
+        if key in ["latitude", "longitude"]:
+            update_variable(ncfile, key, value)
+        else:
+            ncfile.setncattr(key, value)
+
+
 def get_times(
     dt_times: list[dt.datetime],
 ) -> tuple[
