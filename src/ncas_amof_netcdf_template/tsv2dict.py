@@ -319,7 +319,6 @@ def instrument_dict(
 def product_dict(
     desired_product: str,
     platform: str = "",
-    instrument_loc: str = "",
     deployment_loc: str = "land",
     use_local_files: Optional[str] = None,
     tag: str = "latest",
@@ -344,23 +343,6 @@ def product_dict(
         dictionary of all attributes, dimensions and variables
         associated with the named data product.
     """
-    if platform != "" and instrument_loc != "":
-        warnings.warn(
-            "Both platform and instrument_loc are used, using platform."
-            " instrument_loc will be removed from version 2.6.0",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-
-    if instrument_loc != "":
-        warnings.warn(
-            "instrument_loc is deprecated, use platform instead"
-            " This option will be removed from version 2.6.0",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        platform = instrument_loc
-
     common_dimensions_url = values.get_common_dimensions_url(
         use_local_files=use_local_files, tag=tag, loc=deployment_loc
     )

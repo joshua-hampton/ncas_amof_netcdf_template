@@ -304,21 +304,6 @@ def test_product_dict_with_local_files():
     assert "info" in result
     assert result["info"]["Mobile/Fixed (loc)"] == "loc1"
 
-    # Make sure we get the same if still using deprecated "instrument_loc" argument instead of "platform"
-    result = tsv2dict.product_dict(
-        "product1",
-        instrument_loc="loc1",
-        deployment_loc="land",
-        use_local_files="/local/path",
-        tag="tag1",
-    )
-
-    # Check the result
-    assert "common" in result
-    assert "product1" in result
-    assert "info" in result
-    assert result["info"]["Mobile/Fixed (loc)"] == "loc1"
-
 
 def test_product_dict():
     # Mock the get_common_dimensions_url, get_common_variables_url, get_common_attributes_url,

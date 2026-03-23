@@ -788,7 +788,6 @@ def make_product_netcdf(
     date: Optional[str] = None,
     dimension_lengths: dict[str, int] = {},
     platform: str = "",
-    instrument_loc: str = "",
     deployment_loc: str = "land",
     verbose: int = 0,
     options: str = "",
@@ -814,8 +813,6 @@ def make_product_netcdf(
                                   for needed dimension, user will be asked to type
                                   in dimension length
         platform (str): observatory or location of the instrument. Default "".
-        instrument_loc (str): [DEPRECATED - use "platform" instead] observatory or
-                              location of the instrument. Default "".
         deployment_loc (str): one of 'land', 'sea', 'air', 'trajectory'.
                               Default "land".
         verbose (int): level of info to print out. Note that at the moment there is
@@ -849,23 +846,6 @@ def make_product_netcdf(
         netCDF file object or nothing.
     """
     chunk_by_dimension = chunk_by_dimension or {}
-
-    if platform != "" and instrument_loc != "":
-        warnings.warn(
-            "Both platform and instrument_loc are given, using platform."
-            " instrument_loc will be removed from version 2.6.0.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-
-    if instrument_loc != "":
-        warnings.warn(
-            "instrument_loc is deprecated, use platform instead."
-            " This option will be removed from version 2.6.0.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        platform = instrument_loc
 
     if date is None:
         date = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%d")
