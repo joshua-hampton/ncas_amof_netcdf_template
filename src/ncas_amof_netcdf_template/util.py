@@ -230,7 +230,9 @@ def read_xml_metadata(metafile: str) -> dict[str, dict[str, Union[str, type]]]:
     return raw_metadata
 
 
-def get_metadata(metafile: str) -> dict[str, dict[str, Union[str, type]]]:
+def get_metadata(
+    metafile: str, file_format: Optional[str] = None
+) -> dict[str, dict[str, Union[str, type]]]:
     """
     Returns a dict from of metadata from file. Metadata can be in a CSV, JSON, YAML, or XML file.
     Can also include latitude and longitude variables if
@@ -238,17 +240,22 @@ def get_metadata(metafile: str) -> dict[str, dict[str, Union[str, type]]]:
 
     Args:
         metafile (file): file with metadata
+        file_format (str): format of metadata file. One of 'CSV', 'JSON',
+          'YAML', or 'XML' if given. Default is None, which means the function
+          will attempt to detect file type.
 
     Returns:
         dict: metadata as dictionary
     """
-    if metafile.endswith(".csv"):
+    if metafile.endswith(".csv") or file_format == "CSV":
         return read_csv_metadata(metafile)
-    elif metafile.endswith(".json"):
+    elif metafile.endswith(".json") or file_format == "JSON":
         return read_json_metadata(metafile)
-    elif metafile.endswith(".yaml") or metafile.endswith(".yml"):
+    elif (
+        metafile.endswith(".yaml") or metafile.endswith(".yml") or file_format == "YAML"
+    ):
         return read_yaml_metadata(metafile)
-    elif metafile.endswith(".xml"):
+    elif metafile.endswith(".xml") or file_format == "XML":
         return read_xml_metadata(metafile)
     else:
         warnings.warn(
@@ -258,7 +265,9 @@ def get_metadata(metafile: str) -> dict[str, dict[str, Union[str, type]]]:
 
 
 def add_metadata_to_netcdf(
-    ncfile: Dataset, metadata_file: Optional[str] = None
+    ncfile: Dataset,
+    metadata_file: Optional[str] = None,
+    file_format: Optional[str] = None,
 ) -> None:
     """
     Reads metadata from csv file using get_metadata, adds values to
@@ -270,10 +279,13 @@ def add_metadata_to_netcdf(
 
     Args:
         ncfile (netCDF Dataset): Dataset object of netCDF file.
-        metadata_file (file): csv file with metadata, one attribute per line
+        metadata_file (str): file with metadata, one attribute per line.
+        file_format (str): format of metadata file. One of 'CSV', 'JSON',
+          'YAML', or 'XML' if given. Default is None, which means the function
+          will attempt to detect file type.
     """
     if metadata_file is not None:
-        raw_metadata = get_metadata(metadata_file)
+        raw_metadata = get_metadata(metadata_file, file_format)
         for attr, attr_info in raw_metadata.items():
             value = attr_info["value"]
             # append_value = attr_info["append"]
@@ -298,6 +310,25 @@ def add_metadata_to_netcdf(
             #    ncfile.setncattr(attr, new_value)
             else:
                 ncfile.setncattr(attr, value)
+
+
+def add_metadata_from_dict(
+    ncfile: Dataset, metadata_dict: dict[str, str | int | float]
+) -> None:
+    """
+    Take metadata from dictionary and add to global attributes in netCDF file.
+    Can also include latitude and longitude variables if they are
+    single values (e.g. point deployment), using update_variable function.
+
+    Args:
+        ncfile (netCDF Dataset): Dataset object of netCDF file.
+        metadata_dict (dict): Dictionary of attribute name/value pairs.
+    """
+    for key, value in metadata_dict.items():
+        if key in ["latitude", "longitude"]:
+            update_variable(ncfile, key, value)
+        else:
+            ncfile.setncattr(key, value)
 
 
 def get_times(

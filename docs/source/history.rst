@@ -5,6 +5,13 @@ Revision History
 ----------------
 Important changes of note with each release:
 
+2.6.0
+^^^^^
+- Add ``util.add_metadata_from_dict`` function to allow adding metadata direct from a python dictionary.
+- Add ``file_format`` optional argument to ``util.add_metadata_to_netcdf``
+- Remove ``instrument_loc`` from ``tsv2dict.product_dict`` and ``create_netcdf.make_product_netcdf`` as per deprecation policy.
+- Increase minimum version of python to 3.10
+
 2.5.2
 ^^^^^
 - Replace ``numpy.in1d`` with ``numpy.isin`` as numpy deprecated the former.

@@ -31,6 +31,7 @@ def test_check_type_convert():
     assert not util.check_type_convert("one", float)
 
 
+@pytest.mark.filterwarnings("ignore::UserWarning")
 def test_get_metadata():
     # Create a temporary CSV file
     with tempfile.NamedTemporaryFile(delete=False, mode="w", newline="") as temp:
@@ -73,18 +74,22 @@ def test_get_metadata_different_formats():
     csv_file = "tests/test_metadata_files/test_csv.csv"
     yaml_file = "tests/test_metadata_files/test_yaml.yaml"
     json_file = "tests/test_metadata_files/test_json.json"
+    json_file_bad_ext = "tests/test_metadata_files/test_json.metadata"
     xml_file = "tests/test_metadata_files/test_xml.xml"
 
     csv_result = util.get_metadata(csv_file)
     yaml_result = util.get_metadata(yaml_file)
     json_result = util.get_metadata(json_file)
+    json_bad_ext_result = util.get_metadata(json_file_bad_ext, file_format="JSON")
     xml_result = util.get_metadata(xml_file)
 
     assert csv_result == yaml_result
     assert yaml_result == json_result
-    assert json_result == xml_result
+    assert json_result == json_bad_ext_result
+    assert json_bad_ext_result == xml_result
 
 
+@pytest.mark.filterwarnings("ignore::UserWarning")
 def test_get_metadata_with_empty_file():
     # Create a temporary CSV file
     with tempfile.NamedTemporaryFile(delete=False, mode="w", newline="") as temp:
@@ -150,6 +155,51 @@ def test_add_metadata_to_netcdf():
     # Delete the temporary netCDF file and the temporary CSV file
     os.remove(temp_path)
     # os.remove(metadata_path)
+
+
+def test_add_metadata_from_dict():
+    # Create a temporary netCDF file
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".nc") as temp:
+        ncfile = Dataset(temp.name, "w", format="NETCDF4_CLASSIC")
+        ncfile.createDimension("dim", None)
+        ncfile.createVariable("latitude", "f4", ("dim",))
+        ncfile.createVariable("longitude", "f4", ("dim",))
+        ncfile.key1 = "old_value1"
+        ncfile.key3 = "old_value3"
+        ncfile.key4 = "old_value4"
+        temp_path = temp.name
+
+    metadata_dict = {
+        "key1": "value1",
+        "key2": "value2",
+        "key3": 12,
+        "key4": "12",
+        "latitude": 12.34,
+        "longitude": 56.78,
+    }
+
+    # Call the add_metadata_to_netcdf function with the temporary netCDF file and the temporary CSV file
+    util.add_metadata_from_dict(ncfile, metadata_dict)
+
+    # Check the result
+    # overwrite existing
+    assert ncfile.getncattr("key1") == "value1"
+    # "key2" should be added
+    assert ncfile.getncattr("key2") == "value2"
+    # appending doesnt work with netcdf4_classic
+    ## appended value will only ever be a string
+    # assert ncfile.getncattr("key3") == ["old_value3", "12"]
+    assert ncfile.getncattr("key3") == 12
+    # string number in csv is tidy string in netCDF
+    assert ncfile.getncattr("key4") == "12"
+    # latitude and longitude are added as variables
+    assert np.allclose(ncfile.variables["latitude"][:], 12.34)
+    assert np.allclose(ncfile.variables["longitude"][:], 56.78)
+
+    ncfile.close()
+
+    # Delete the temporary netCDF file and the temporary CSV file
+    os.remove(temp_path)
 
 
 def test_get_times():
