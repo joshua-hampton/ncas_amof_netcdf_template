@@ -155,7 +155,13 @@ Metadata
 --------
 While all required metadata fields are added to the global attributes of the netCDF file, and in some cases the defined values are directly inserted, it is necessary to add further metadata values to the netCDF file, for example ``creator_name``. Fields that need metadata adding to them are initially given placeholder text which starts with the word "CHANGE" - simple interrogation of the created netCDF file will reveal which attributes need specifying.
 
-The contents of a CSV file containing metadata can then be added to the netCDF file
+Metadata can be added to the data file either from a dedicated file or from a python dictionary.
+
+
+Metadata File
+^^^^^^^^^^^^^
+
+The contents of a file containing metadata can then be added to the netCDF file
 
 .. code-block:: python
 
@@ -165,13 +171,24 @@ Metadata can be supplied in CSV, JSON, YAML or XML formats; see the `metadata fo
 
 .. code-block:: python
 
-   nant.util.add_metadata_to_netcdf(nc, 'metadata_file', file_format = 'csv')
+   nant.util.add_metadata_to_netcdf(nc, 'metadata_file', file_format = 'CSV')
 
 If detection fails and ``file_format`` is not given, the function will attempt to read the file as a CSV.
 
 One additional parameters can be supplied in the metadata file with each individual attributes:
 
 - ``type`` - what data type the value of the attribute should take, e.g. ``integer`` or ``string``. Default if absent is ``string``.
+
+
+Metadata Dictionary
+^^^^^^^^^^^^^^^^^^^
+
+A dictionary containing metadata can be used to add to the netCDF file
+
+.. code-block:: python
+
+   metadata_dict = {"creator_name": "A.Person", "title": "Data from the instrument"}
+   nant.util.add_metadata_from_dict(nc, metadata_dict)
 
 
 Latitude, Longitude, and Geospatial Bounds
