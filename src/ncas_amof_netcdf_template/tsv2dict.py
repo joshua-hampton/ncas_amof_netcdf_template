@@ -330,8 +330,6 @@ def product_dict(
     Args:
         desired_product (str): name of data product
         platform (str): location or observatory of instrument
-        instrument_loc (str): [DEPRECATED - use platform instead] location or
-                              observatory of instrument
         deployment_loc (str): deployment mode, one of 'land', 'sea', 'air',
                               or 'trajectory'. Default 'land'.
         use_local_files (str or None): path to local directory where tsv files are
