@@ -14,7 +14,7 @@ import warnings
 from typing import Optional, Union
 
 from . import tsv2dict
-from .__init__ import __version__
+from .__about__ import __version__
 from .file_info import FileInfo, convert_instrument_dict_to_file_info
 
 

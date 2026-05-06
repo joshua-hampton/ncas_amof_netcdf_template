@@ -5,5 +5,4 @@ from . import tsv2dict
 from . import util
 from . import values
 from . import file_info
-
-__version__="2.6.0"
+from .__about__ import __version__
